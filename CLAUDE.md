@@ -71,10 +71,10 @@ flutter analyze
 flutter test
 flutter test --tags server --dart-define=API_BASE_URL=http://localhost:3000/api   # ../tapeletter-api 서버를 띄운 상태에서
 flutter build ios --debug --no-codesign
-flutter build apk --debug
+flutter build apk --debug   # 지금은 하지 않는다 (아래)
 ```
 
-변경을 마치면 analyze, test와 **iOS·Android 빌드를 둘 다** 확인한다. iOS만 확인하다가 Android 빌드가 여러 커밋 동안 깨져 있었던 적이 있다.
+변경을 마치면 analyze, test, iOS 빌드를 확인한다. **Android 빌드는 사용자가 다시 요청할 때까지 하지 않는다**(2026-09-28, Gradle 캐시가 맥 디스크를 가득 채움). Android 작업을 다시 시작하면 iOS·Android 빌드를 둘 다 확인한다.
 
 ## 커밋
 
