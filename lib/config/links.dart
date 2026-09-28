@@ -3,8 +3,6 @@ abstract final class AppLinks {
   static final terms = Uri.parse('https://tapeletter.lab241.com/terms');
   static final privacy = Uri.parse('https://tapeletter.lab241.com/privacy');
 
-  /// 문의 이메일이 정해지면 mailto:로 바꾼다. 그때까지는 처리방침의 보호책임자·연락처 절로 보낸다.
-  static final contact = Uri.parse(
-    'https://tapeletter.lab241.com/privacy#officer',
-  );
+  /// 문의·개인정보 보호책임자 이메일 (서버 POLICY_CONTACT_EMAIL과 같게)
+  static final contact = Uri.parse('mailto:kebi3477@naver.com');
 }

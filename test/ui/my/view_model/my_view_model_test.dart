@@ -206,7 +206,7 @@ void main() {
       expect(h.links.opened.map((u) => u.toString()), [
         'https://tapeletter.lab241.com/terms',
         'https://tapeletter.lab241.com/privacy',
-        'https://tapeletter.lab241.com/privacy#officer',
+        'mailto:kebi3477@naver.com',
       ]);
     });
   });
