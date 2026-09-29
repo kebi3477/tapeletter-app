@@ -247,7 +247,7 @@ class _BannerPreviewState extends State<_BannerPreview>
         width: 320,
         child: PushCard(
           title: '지현님이 테이프를 보냈어요',
-          body: '1분 테이프가 도착했어요',
+          body: '15초 테이프가 도착했어요',
           background: AppColors.surfaceSoft,
         ),
       ),
