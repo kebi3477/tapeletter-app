@@ -26,6 +26,10 @@ class MainActivity : FlutterActivity() {
                             (call.arguments as? String)?.let(sound::play)
                             result.success(null)
                         }
+                        "stop" -> {
+                            (call.arguments as? String)?.let(sound::stop)
+                            result.success(null)
+                        }
                         else -> result.notImplemented()
                     }
                 }
@@ -52,6 +56,7 @@ class UiSound(private val context: Context) {
         )
         .build()
     private val ids = mutableMapOf<String, Int>()
+    private val streams = mutableMapOf<String, Int>()
 
     fun preload(assets: Map<String, String>) {
         val loader = FlutterInjector.instance().flutterLoader()
@@ -68,7 +73,11 @@ class UiSound(private val context: Context) {
 
     fun play(name: String) {
         val id = ids[name] ?: return
-        pool.play(id, 1f, 1f, 1, 0, 1f)
+        streams[name] = pool.play(id, 1f, 1f, 1, 0, 1f)
+    }
+
+    fun stop(name: String) {
+        streams.remove(name)?.let(pool::stop)
     }
 
     fun release() = pool.release()

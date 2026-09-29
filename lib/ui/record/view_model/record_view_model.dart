@@ -700,6 +700,7 @@ class RecordViewModel extends ChangeNotifier {
     _phase = RecordPhase.sending;
     _sendFail = false;
     notifyListeners();
+    _playSend();
     _runSend();
   }
 
@@ -719,6 +720,8 @@ class RecordViewModel extends ChangeNotifier {
 
     void showFail() {
       if (gen != _sendGen) return;
+      // 실패 패널이 뜨면 보내기 소리를 끊는다
+      unawaited(_sound.stop(UiSound.send));
       _sendFail = true;
       notifyListeners();
     }
@@ -771,12 +774,17 @@ class RecordViewModel extends ChangeNotifier {
     _sendFail = false;
     _sendAttempt++;
     notifyListeners();
+    _playSend();
     _runSend();
   }
+
+  /// 보내기 연출(`tapeIn`)이 시작될 때 send.wav — 완료 화면까지 이어진다
+  void _playSend() => unawaited(_sound.play(UiSound.send));
 
   /// 돌아가기 → 확인 화면
   void cancelSend() {
     _sendGen++;
+    unawaited(_sound.stop(UiSound.send));
     _cancelTimers(_sendTimers);
     _phase = RecordPhase.confirm;
     _sendFail = false;

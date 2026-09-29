@@ -24,6 +24,7 @@ import UIKit
 final class UiSoundPlugin: NSObject, FlutterPlugin {
   private let registrar: FlutterPluginRegistrar
   private var sounds: [String: SystemSoundID] = [:]
+  private var paths: [String: String] = [:]
 
   init(registrar: FlutterPluginRegistrar) {
     self.registrar = registrar
@@ -42,10 +43,8 @@ final class UiSoundPlugin: NSObject, FlutterPlugin {
       for (name, asset) in (call.arguments as? [String: String]) ?? [:] where sounds[name] == nil {
         let key = registrar.lookupKey(forAsset: asset)
         guard let path = Bundle.main.path(forResource: key, ofType: nil) else { continue }
-        var id: SystemSoundID = 0
-        if AudioServicesCreateSystemSoundID(URL(fileURLWithPath: path) as CFURL, &id) == noErr {
-          sounds[name] = id
-        }
+        paths[name] = path
+        load(name)
       }
       result(nil)
     case "play":
@@ -53,8 +52,24 @@ final class UiSoundPlugin: NSObject, FlutterPlugin {
         AudioServicesPlaySystemSound(id)
       }
       result(nil)
+    case "stop":
+      // System Sound에는 멈춤이 없다. ID를 버리면 울리던 소리가 멈추고, 다음을 위해 다시 만든다.
+      if let name = call.arguments as? String, let id = sounds[name] {
+        AudioServicesDisposeSystemSoundID(id)
+        sounds[name] = nil
+        load(name)
+      }
+      result(nil)
     default:
       result(FlutterMethodNotImplemented)
+    }
+  }
+
+  private func load(_ name: String) {
+    guard let path = paths[name] else { return }
+    var id: SystemSoundID = 0
+    if AudioServicesCreateSystemSoundID(URL(fileURLWithPath: path) as CFURL, &id) == noErr {
+      sounds[name] = id
     }
   }
 

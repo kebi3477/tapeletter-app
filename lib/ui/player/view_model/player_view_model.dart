@@ -13,6 +13,7 @@ import '../../../domain/models/shelf.dart';
 import '../../../domain/models/tape_audio.dart';
 import '../../../domain/models/tape_item.dart';
 import '../../../data/services/audio_player_service.dart';
+import '../../../data/services/sound_service.dart';
 import '../../../utils/result.dart';
 import '../../core/ui/toast.dart';
 
@@ -84,6 +85,7 @@ class PlayerViewModel extends ChangeNotifier {
     ShareRepository? shareRepository,
     required this._player,
     required this._toast,
+    this._sound = const NoSoundService(),
   }) : _shelf = shelfRepository,
        _friends = friendRepository,
        _share = shareRepository {
@@ -108,6 +110,9 @@ class PlayerViewModel extends ChangeNotifier {
   final ShareRepository? _share;
   final AudioPlayerService _player;
   final ToastController _toast;
+
+  /// 효과음 — 소포를 뜯는 순간 open.wav
+  final SoundService _sound;
 
   final List<StreamSubscription<void>> _subs = [];
 
@@ -274,6 +279,7 @@ class PlayerViewModel extends ChangeNotifier {
       if (item == null || _phase != ViewerPhase.parcel) return;
     }
     _phase = ViewerPhase.tearing;
+    unawaited(_sound.play(UiSound.open));
     _queue = [
       for (final x in _queue) x.id == item.id ? x.copyWith(opened: true) : x,
     ];

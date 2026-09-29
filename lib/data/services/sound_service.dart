@@ -2,13 +2,20 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-/// 녹음 탭 데크 키 효과음 — `assets/sounds/` (모노 16bit 44.1kHz wav, 원본보다 −8dB)
+/// 효과음 — `assets/sounds/` (모노 16bit 44.1kHz wav). on·off는 원본보다 −8dB,
+/// send·open은 on·off와 체감 크기(100ms 최대 RMS 약 −30dBFS)가 같게 맞췄다.
 enum UiSound {
   /// 녹음 시작(REC) · 재생 시작(PLAY)
   on('assets/sounds/on.wav', Duration(milliseconds: 540)),
 
   /// 녹음 멈춤(STOP) · 미리 듣기 멈춤
-  off('assets/sounds/off.wav', Duration(milliseconds: 430));
+  off('assets/sounds/off.wav', Duration(milliseconds: 430)),
+
+  /// 보내기 연출 — 테이프가 소포 상자에 들어가기 시작할 때(`tapeIn`)부터 완료 화면까지
+  send('assets/sounds/send.wav', Duration(milliseconds: 3260)),
+
+  /// 받은 소포를 뜯는 순간(`tearing`)
+  open('assets/sounds/open.wav', Duration(milliseconds: 1350));
 
   const UiSound(this.asset, this.duration);
 
@@ -26,6 +33,9 @@ abstract class SoundService {
   /// [sound]를 울린다. 반환된 Future는 소리가 **끝난 뒤** 끝난다
   /// (녹음을 on.wav 뒤에 시작하려고). 실패해도 예외를 던지지 않는다.
   Future<void> play(UiSound sound);
+
+  /// 울리는 중인 [sound]를 멈춘다 (보내기 실패). 이미 끝났으면 아무 일도 없다.
+  Future<void> stop(UiSound sound);
 }
 
 /// 네이티브 효과음 (`tapeletter/ui_sound` 채널).
@@ -52,6 +62,13 @@ class PlatformSoundService implements SoundService {
     // 시스템 효과음은 끝 알림을 믿을 수 없어(무음 모드 등) 파일 길이만큼 기다린다.
     await Future<void>.delayed(sound.duration);
   }
+
+  @override
+  Future<void> stop(UiSound sound) async {
+    try {
+      await _channel.invokeMethod<void>('stop', sound.name);
+    } catch (_) {}
+  }
 }
 
 /// 소리 없음 (시험·기본값)
@@ -63,4 +80,7 @@ class NoSoundService implements SoundService {
 
   @override
   Future<void> play(UiSound sound) async {}
+
+  @override
+  Future<void> stop(UiSound sound) async {}
 }

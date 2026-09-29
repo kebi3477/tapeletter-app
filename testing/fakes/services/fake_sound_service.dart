@@ -28,4 +28,7 @@ class FakeSoundService implements SoundService {
     if (realDuration) await Future<void>.delayed(sound.duration);
     log.add('sound:${sound.name}:end');
   }
+
+  @override
+  Future<void> stop(UiSound sound) async => log.add('stop:${sound.name}');
 }
