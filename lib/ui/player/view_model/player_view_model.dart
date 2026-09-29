@@ -13,7 +13,6 @@ import '../../../domain/models/shelf.dart';
 import '../../../domain/models/tape_audio.dart';
 import '../../../domain/models/tape_item.dart';
 import '../../../data/services/audio_player_service.dart';
-import '../../../data/services/sound_service.dart';
 import '../../../utils/result.dart';
 import '../../core/ui/toast.dart';
 
@@ -85,7 +84,6 @@ class PlayerViewModel extends ChangeNotifier {
     ShareRepository? shareRepository,
     required this._player,
     required this._toast,
-    this._sound = const NoSoundService(),
   }) : _shelf = shelfRepository,
        _friends = friendRepository,
        _share = shareRepository {
@@ -111,8 +109,6 @@ class PlayerViewModel extends ChangeNotifier {
   final AudioPlayerService _player;
   final ToastController _toast;
 
-  /// 효과음 — 재생 버튼 on.wav / off.wav
-  final SoundService _sound;
   final List<StreamSubscription<void>> _subs = [];
 
   QueueSource? _source;
@@ -368,17 +364,6 @@ class PlayerViewModel extends ChangeNotifier {
   }
 
   Future<void> togglePlay() => _playing ? pause() : play();
-
-  /// 재생 버튼 — 시작은 on.wav, 멈춤은 off.wav (자동 재생에는 소리가 없다)
-  Future<void> pressPlay() async {
-    if (_playing) {
-      unawaited(_sound.play(UiSound.off));
-      return pause();
-    }
-    if (_load != TrackLoad.ready) return;
-    unawaited(_sound.play(UiSound.on));
-    await play();
-  }
 
   void _onPosition(Duration p) {
     if (!_playing) return;

@@ -18,7 +18,6 @@ import 'package:tapeletter_app/data/services/local/local_api_client.dart';
 import 'package:tapeletter_app/data/services/local/local_behavior.dart';
 import 'package:tapeletter_app/data/services/local/local_store.dart';
 import 'package:tapeletter_app/routing/app_flow.dart';
-import 'package:tapeletter_app/ui/core/ui/ui_sound.dart';
 import 'package:tapeletter_app/ui/core/ui/toast.dart';
 import 'package:tapeletter_app/ui/link/view_model/link_view_model.dart';
 import 'package:tapeletter_app/ui/my/view_model/my_view_model.dart';
@@ -117,7 +116,6 @@ class RecordHarness {
       toast: toast,
       sound: sound,
     );
-    UiSounds.service = sound;
   }
 
   final LocalStore store;

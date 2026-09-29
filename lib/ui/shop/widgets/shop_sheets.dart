@@ -11,7 +11,6 @@ import '../../core/ui/buttons.dart';
 import '../../core/ui/credit_icon.dart';
 import '../view_model/shop_view_model.dart';
 import '../../core/ui/tappable.dart';
-import '../../../data/services/sound_service.dart';
 
 /// [ShopViewModel.sheet]이 생기면 바텀시트를 열고, 없어지면 닫는다.
 ///
@@ -348,7 +347,6 @@ class _Ad extends StatelessWidget {
                 excludeSemantics: true,
                 child: Tappable(
                   onTap: vm.closeAd,
-                  sound: UiSound.off,
                   child: Container(
                     width: 32,
                     height: 32,

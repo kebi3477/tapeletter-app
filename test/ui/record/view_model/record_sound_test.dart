@@ -1,17 +1,8 @@
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tapeletter_app/data/repositories/friend_repository_remote.dart';
-import 'package:tapeletter_app/data/repositories/shelf_repository_remote.dart';
-import 'package:tapeletter_app/data/services/local/local_api_client.dart';
-import 'package:tapeletter_app/data/services/local/local_behavior.dart';
-import 'package:tapeletter_app/data/services/local/local_store.dart';
 import 'package:tapeletter_app/data/services/sound_service.dart';
-import 'package:tapeletter_app/ui/core/ui/toast.dart';
-import 'package:tapeletter_app/ui/player/view_model/player_view_model.dart';
 import 'package:tapeletter_app/ui/record/view_model/record_view_model.dart';
 
-import '../../../../testing/fakes/services/fake_audio_player_service.dart';
-import '../../../../testing/fakes/services/fake_sound_service.dart';
 import '../../../../testing/record_harness.dart';
 
 void main() {
@@ -98,34 +89,6 @@ void main() {
       async.flushMicrotasks();
       expect(h.vm.playing, isFalse);
       expect(h.sound.played.last, UiSound.off);
-    });
-  });
-
-  test('재생 화면: 재생 버튼은 on/off, 자동 재생은 조용', () {
-    fakeAsync((async) {
-      final store = LocalStore(clock: () => DateTime.utc(2026, 9, 25, 3));
-      final api = LocalApiClient(store, LocalBehavior.instant);
-      final sound = FakeSoundService();
-      final vm = PlayerViewModel(
-        shelfRepository: ShelfRepositoryRemote(api),
-        friendRepository: FriendRepositoryRemote(api),
-        player: FakeAudioPlayerService(duration: null),
-        toast: ToastController(),
-        sound: sound,
-      );
-      vm.open(const GroupSource('g-1'), store.groups[0].items[0].id);
-      async.flushMicrotasks();
-      async.elapse(PlayerViewModel.openLoad);
-      expect(vm.playing, isTrue);
-      expect(sound.played, isEmpty);
-      vm.pressPlay();
-      async.flushMicrotasks();
-      expect(vm.playing, isFalse);
-      expect(sound.played, [UiSound.off]);
-      vm.pressPlay();
-      async.flushMicrotasks();
-      expect(vm.playing, isTrue);
-      expect(sound.played, [UiSound.off, UiSound.on]);
     });
   });
 }

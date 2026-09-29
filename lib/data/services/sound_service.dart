@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-/// UI 효과음 — `assets/sounds/` (모노 16bit 44.1kHz wav)
+/// 녹음 탭 데크 키 효과음 — `assets/sounds/` (모노 16bit 44.1kHz wav, 원본보다 −8dB)
 enum UiSound {
   /// 녹음 시작(REC) · 재생 시작(PLAY)
   on('assets/sounds/on.wav', Duration(milliseconds: 540)),
 
-  /// 녹음 멈춤(STOP) · 재생 멈춤 · 뒤로 가기 · 닫기
+  /// 녹음 멈춤(STOP) · 미리 듣기 멈춤
   off('assets/sounds/off.wav', Duration(milliseconds: 430));
 
   const UiSound(this.asset, this.duration);

@@ -1,11 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tapeletter_app/data/services/sound_service.dart';
-import 'package:tapeletter_app/ui/core/ui/ui_sound.dart';
+import 'package:tapeletter_app/ui/core/ui/tape_motion.dart';
 import 'package:tapeletter_app/ui/record/view_model/record_view_model.dart';
 
 import '../../../../testing/app.dart';
-import '../../../../testing/fakes/services/fake_sound_service.dart';
 import '../../../../testing/fonts.dart';
 import '../../../../testing/record_harness.dart';
 
@@ -46,7 +44,9 @@ void main() {
     },
   );
 
-  testWidgets('‹ 뒤로 · ✕ 닫기는 off.wav', (tester) async {
+  testWidgets('데크 밖(‹ 뒤로 · ✕ 닫기 · 재생 화면 재생 버튼 · Android 뒤로)은 소리가 없다', (
+    tester,
+  ) async {
     useDesignScreen(tester);
     final h = RecordHarness();
     await tester.pumpWidget(testApp(h, initialLocation: '/my'));
@@ -55,69 +55,56 @@ void main() {
     await tester.tap(find.bySemanticsLabel('받은 테이프'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
-    expect(h.sound.played, isEmpty);
     await tester.tap(find.text('‹'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
-    expect(h.sound.played, [UiSound.off]);
 
-    // 재생 화면 ✕
+    // 재생 화면: 재생·멈춤 버튼, ✕
     await tester.tap(find.bySemanticsLabel('받은 테이프'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
     await tester.tap(find.textContaining('2026 생일 ·').first);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 1000));
+    final player = find.byType(PlayButton);
+    await tester.tap(player);
+    await tester.pump();
+    await tester.tap(player);
+    await tester.pump();
     await tester.tap(find.bySemanticsLabel('닫기'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    expect(h.sound.played, [UiSound.off, UiSound.off]);
+
+    // Android 뒤로 버튼
+    await tester.binding.handlePopRoute();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(h.sound.played, isEmpty);
     await tester.pump(const Duration(seconds: 2));
   });
 
-  group('BackSoundObserver', () {
-    late FakeSoundService sound;
-    setUp(() => UiSounds.service = sound = FakeSoundService());
-    tearDown(() => UiSounds.service = const NoSoundService());
-
-    test('Android 뒤로 버튼: 소리만 내고 처리는 넘긴다(false)', () async {
-      final o = BackSoundObserver();
-      expect(await o.didPopRoute(), isFalse);
-      expect(sound.played, [UiSound.off]);
-    });
-
-    testWidgets('iOS 밀어서 뒤로: 제스처로 pop될 때만 울린다', (tester) async {
-      final o = BackSoundObserver();
-      final nav = GlobalKey<NavigatorState>();
-      await tester.pumpWidget(
-        MaterialApp(
-          navigatorKey: nav,
-          navigatorObservers: [o],
-          theme: ThemeData(platform: TargetPlatform.iOS),
-          home: const Text('첫 화면'),
-        ),
-      );
-      nav.currentState!.push(
-        MaterialPageRoute<void>(builder: (_) => const Scaffold()),
-      );
-      await tester.pumpAndSettle();
-      // 코드로 pop → 조용
-      nav.currentState!.pop();
-      await tester.pumpAndSettle();
-      expect(sound.played, isEmpty);
-
-      nav.currentState!.push(
-        MaterialPageRoute<void>(builder: (_) => const Scaffold()),
-      );
-      await tester.pumpAndSettle();
-      // 왼쪽 가장자리에서 오른쪽으로 밀기
-      final g = await tester.startGesture(const Offset(5, 300));
-      await g.moveBy(const Offset(400, 0));
-      await tester.pump();
-      await g.up();
-      await tester.pumpAndSettle();
-      expect(find.text('첫 화면'), findsOneWidget);
-      expect(sound.played, [UiSound.off]);
-    });
+  testWidgets('확인 화면 데크: PLAY·STOP은 소리가 난다', (tester) async {
+    useDesignScreen(tester);
+    final h = RecordHarness();
+    await tester.pumpWidget(testApp(h));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.tap(find.bySemanticsLabel('REC'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 3));
+    await tester.tap(find.bySemanticsLabel('STOP'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 3));
+    expect(h.sound.played, [UiSound.on, UiSound.off]);
+    // 변환 뒤 자동 미리 듣기 중 → STOP
+    await tester.tap(find.bySemanticsLabel('STOP'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(h.sound.played.last, UiSound.off);
+    await tester.tap(find.bySemanticsLabel('PLAY'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(h.sound.played.last, UiSound.on);
+    expect(h.sound.played, hasLength(4));
+    await tester.pump(const Duration(seconds: 3));
   });
 }

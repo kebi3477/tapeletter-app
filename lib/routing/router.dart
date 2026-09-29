@@ -308,7 +308,6 @@ class _PlayerRouteState extends State<PlayerRoute> {
     shareRepository: context.read(),
     player: context.read(),
     toast: context.read(),
-    sound: context.read(),
   );
 
   @override

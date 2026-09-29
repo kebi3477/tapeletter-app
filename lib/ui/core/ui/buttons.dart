@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../data/services/sound_service.dart';
 import '../themes/colors.dart';
 import '../themes/dimens.dart';
 import '../themes/text_styles.dart';
@@ -103,7 +102,6 @@ class BackBar extends StatelessWidget {
             child: Tappable(
               behavior: HitTestBehavior.opaque,
               onTap: onBack,
-              sound: UiSound.off,
               child: SizedBox(
                 width: AppSizes.minTap,
                 height: AppSizes.minTap,

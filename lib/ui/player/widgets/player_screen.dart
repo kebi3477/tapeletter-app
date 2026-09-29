@@ -19,7 +19,6 @@ import '../../core/ui/tape_motion.dart';
 import '../../core/ui/tape_widget.dart';
 import '../view_model/player_view_model.dart';
 import '../../core/ui/tappable.dart';
-import '../../../data/services/sound_service.dart';
 
 /// 테이프 재생 오버레이 — 템플릿 `viewerOn` 블록 (`vParcel` / `vPlay`).
 class PlayerScreen extends StatelessWidget {
@@ -64,7 +63,6 @@ class PlayerScreen extends StatelessWidget {
                           child: Tappable(
                             behavior: HitTestBehavior.opaque,
                             onTap: onClose,
-                            sound: UiSound.off,
                             child: SizedBox.square(
                               dimension: AppSizes.minTap,
                               child: Center(
@@ -636,7 +634,7 @@ class _Controls extends StatelessWidget {
             children: [
               _RepeatButton(mode: vm.repeat, onTap: vm.cycleRepeat),
               _SkipButton(next: false, enabled: vm.canPrev, onTap: vm.prev),
-              PlayButton(playing: vm.playing, onTap: vm.pressPlay),
+              PlayButton(playing: vm.playing, onTap: vm.togglePlay),
               _SkipButton(next: true, enabled: vm.canNext, onTap: vm.next),
               SizedBox(
                 width: 44,

@@ -84,7 +84,7 @@ flutter:
     - assets/svg/
     # 로컬 가짜 재생용 샘플 (직접 합성한 사인파 + 약한 잡음. 외부 저작물 아님)
     - assets/audio/
-    # UI 효과음 (녹음·재생 시작 on, 멈춤·뒤로 off) — 모노 16bit 44.1kHz
+    # 녹음 탭 데크 키 효과음 (시작 on, 멈춤 off) — 모노 16bit 44.1kHz, −8dB
     - assets/sounds/
 
   fonts:

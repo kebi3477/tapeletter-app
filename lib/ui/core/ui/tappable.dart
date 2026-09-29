@@ -1,9 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import '../../../data/services/sound_service.dart';
-import 'ui_sound.dart';
-
 /// 햅틱 세기 — 앱 전체가 이 세 가지만 쓴다.
 enum Haptic {
   /// 일반 탭 (버튼·행·칩·탭바·시트 행·토글)
@@ -44,7 +41,6 @@ class Tappable extends StatelessWidget {
     this.child,
     this.behavior,
     this.haptic = Haptic.selection,
-    this.sound,
     this.excludeFromSemantics = false,
   });
 
@@ -52,9 +48,6 @@ class Tappable extends StatelessWidget {
   final Widget? child;
   final HitTestBehavior? behavior;
   final Haptic haptic;
-
-  /// 누르면 함께 울릴 효과음 (‹ 뒤로 · ✕ 닫기는 off.wav)
-  final UiSound? sound;
   final bool excludeFromSemantics;
 
   @override
@@ -67,7 +60,6 @@ class Tappable extends StatelessWidget {
           ? null
           : () {
               haptic.fire();
-              if (sound case final s?) UiSounds.play(s);
               tap();
             },
       child: child,
