@@ -34,6 +34,12 @@ class RecordIdleView extends StatelessWidget {
   Widget build(BuildContext context) {
     final vm = viewModel;
     final palette = TapePalette.of(vm.tape);
+    // 녹음 중(rec)·멈춤(paused)에는 개수 알약과 길이 선택을 숨긴다 (`showChrome`)
+    // REC를 뗀 뒤 on.wav가 울리는 동안(arming)도 화면은 이미 녹음 중이다.
+    final chrome =
+        vm.phase != RecordPhase.rec &&
+        vm.phase != RecordPhase.paused &&
+        !vm.arming;
     return Column(
       children: [
         SizedBox(
@@ -54,9 +60,17 @@ class RecordIdleView extends StatelessWidget {
                   packL: palette.packL(vm.progress),
                   packR: palette.packR(vm.progress),
                   spinning: vm.phase == RecordPhase.rec,
+                  showChrome: chrome,
                 ),
                 const SizedBox(height: 18),
-                _LengthRow(selected: vm.tape),
+                // 길이 선택 자리 (height 25, 가운데 정렬). 녹음 중·멈춤에는 그 자리에 녹음 시간 (v6)
+                SizedBox(
+                  height: 25,
+                  child: OverflowBox(
+                    maxHeight: double.infinity,
+                    child: _Middle(vm: vm),
+                  ),
+                ),
               ],
             ),
           ),
@@ -72,6 +86,7 @@ class RecordIdleView extends StatelessWidget {
   }
 }
 
+/// 위 60: 받는 사람 칩만 (`showToChip` — 대기일 때)
 class _Header extends StatelessWidget {
   const _Header({required this.vm});
 
@@ -79,7 +94,21 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    switch (vm.phase) {
+    if (!vm.showToChip) return const SizedBox.shrink();
+    return _ToChip(name: vm.to!.name, onClear: vm.clearTo);
+  }
+}
+
+/// 캐러셀 아래: 대기 = 길이 선택(`lens`), 녹음 = 레드 점 + 시간(`showTimer`, fadeUp .25s),
+/// 멈춤 = 회색 네모 + 시간(`showPaused`, 애니메이션 없음)
+class _Middle extends StatelessWidget {
+  const _Middle({required this.vm});
+
+  final RecordViewModel vm;
+
+  @override
+  Widget build(BuildContext context) {
+    switch (vm.arming ? RecordPhase.rec : vm.phase) {
       case RecordPhase.rec:
         return FadeUp(
           child: _Timer(
@@ -95,8 +124,7 @@ class _Header extends StatelessWidget {
           max: vm.maxSeconds,
         );
       default:
-        if (!vm.showToChip) return const SizedBox.shrink();
-        return _ToChip(name: vm.to!.name, onClear: vm.clearTo);
+        return _LengthRow(selected: vm.tape);
     }
   }
 }
@@ -120,7 +148,7 @@ class _Dot extends StatelessWidget {
   }
 }
 
-/// `0:12 / 1:00` (700 17, 전체 길이는 `#B5B5B2` 500)
+/// `0:12 / 0:15` (700 20, 전체 길이는 `#B5B5B2` 500, 점과 간격 8)
 class _Timer extends StatelessWidget {
   const _Timer({required this.dot, required this.elapsed, required this.max});
 
@@ -130,7 +158,7 @@ class _Timer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = AppText.suit(700, 17, tabularNums: true);
+    final style = AppText.suit(700, 20, tabularNums: true);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [

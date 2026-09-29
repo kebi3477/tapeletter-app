@@ -305,4 +305,50 @@ void main() {
     h.vm.backIdle();
     await tester.pump(const Duration(seconds: 2));
   });
+
+  testWidgets('녹음 중(v6): 개수 알약·길이 선택을 숨기고 그 자리에 시간(700 20), 멈춤·정지 뒤 다시 표시', (
+    tester,
+  ) async {
+    final h = await pumpApp(tester);
+    await tester.pump(const Duration(milliseconds: 500));
+    // 대기: 알약(∞ · 2개 · 0개+)과 길이 선택
+    expect(find.text('2개'), findsOneWidget);
+    final lensY = tester.getCenter(find.text('15초')).dy;
+    final tapeBottom = tester.getBottomLeft(find.byType(TapeCarousel)).dy;
+
+    await tapRecord(tester);
+    await tester.pump(const Duration(seconds: 2));
+    expect(h.vm.phase, RecordPhase.rec);
+    expect(find.text('2개'), findsNothing);
+    expect(find.text('15초'), findsNothing);
+    final time = find.text('0:02');
+    expect(time, findsOneWidget);
+    expect(find.text('/ 0:15'), findsOneWidget);
+    // 위 60이 아니라 캐러셀 아래, 길이 선택이 있던 자리
+    expect(tester.getCenter(time).dy, greaterThan(tapeBottom));
+    expect(tester.getCenter(time).dy, closeTo(lensY, 12));
+    final style = tester.widget<Text>(time).style!;
+    expect(style.fontSize, 20);
+    expect(style.fontWeight, FontWeight.w700);
+    expect(tester.takeException(), isNull);
+
+    // 멈춤: 그대로 숨김, 시간은 같은 자리
+    h.vm.onAppHidden();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('2개'), findsNothing);
+    expect(tester.getCenter(find.text('0:02')).dy, closeTo(lensY, 12));
+    await tester.tap(find.text('여기까지 쓰기'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 2));
+    expect(h.vm.phase, RecordPhase.confirm);
+
+    // 확인 → 뒤로 → 대기: 다시 표시
+    h.vm.backIdle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('2개'), findsOneWidget);
+    expect(find.text('15초'), findsOneWidget);
+    expect(find.text('/ 0:15'), findsNothing);
+    await tester.pump(const Duration(seconds: 3));
+  });
 }

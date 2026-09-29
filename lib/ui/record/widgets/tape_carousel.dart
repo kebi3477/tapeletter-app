@@ -24,6 +24,7 @@ class TapeCarousel extends StatefulWidget {
     required this.packL,
     required this.packR,
     required this.spinning,
+    this.showChrome = true,
   });
 
   final TapeType selected;
@@ -42,6 +43,9 @@ class TapeCarousel extends StatefulWidget {
   final double packL;
   final double packR;
   final bool spinning;
+
+  /// 개수 알약을 보일지 (`showChrome` — 녹음 중·멈춤에는 숨김)
+  final bool showChrome;
 
   static const double height = 226;
   static const double slot = 264;
@@ -129,11 +133,12 @@ class _TapeCarouselState extends State<TapeCarousel> {
                             : TapePalette.of(_ids[i]).packFull,
                         packR: i == ti ? widget.packR : TapePalette.packEmpty,
                         spinning: i == ti && widget.spinning,
+                        showPill: widget.showChrome,
                       ),
                     ),
                   // 0개인 가운데 테이프의 알약(+)을 누르는 자리. 알약은 테이프 칸 위로
                   // 삐져나와 있어(top −38) 칸 안에서는 눌리지 않으므로, 같은 자리에 따로 둔다.
-                  if (_locked(ti))
+                  if (_locked(ti) && widget.showChrome)
                     Positioned(
                       left: x + ti * TapeCarousel.step,
                       top: _itemTop - _pillOffset,
@@ -166,6 +171,7 @@ class _CarouselItem extends StatelessWidget {
     required this.packL,
     required this.packR,
     required this.spinning,
+    required this.showPill,
   });
 
   final TapeType type;
@@ -174,6 +180,7 @@ class _CarouselItem extends StatelessWidget {
   final double packL;
   final double packR;
   final bool spinning;
+  final bool showPill;
 
   @override
   Widget build(BuildContext context) {
@@ -190,15 +197,16 @@ class _CarouselItem extends StatelessWidget {
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            Positioned(
-              left: 0,
-              right: 0,
-              top: -38,
-              // 0개인 가운데 테이프의 알약만 누를 수 있다 (pointer-events) — 누르는 자리는 캐러셀이 둔다
-              child: Center(
-                child: _CountPill(type: type, count: count),
+            if (showPill)
+              Positioned(
+                left: 0,
+                right: 0,
+                top: -38,
+                // 0개인 가운데 테이프의 알약만 누를 수 있다 (pointer-events) — 누르는 자리는 캐러셀이 둔다
+                child: Center(
+                  child: _CountPill(type: type, count: count),
+                ),
               ),
-            ),
             IgnorePointer(
               child: ScaledBox(
                 scale: AppSizes.carouselScale,
