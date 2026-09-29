@@ -44,7 +44,8 @@ class TapeCarousel extends StatefulWidget {
   final double packR;
   final bool spinning;
 
-  /// 개수 알약을 보일지 (`showChrome` — 녹음 중·멈춤에는 숨김)
+  /// 개수 알약과 옆 테이프를 보일지 (`showChrome` — 녹음 중·멈춤에는 숨김).
+  /// 옆 테이프는 `op: on ? 1 : (rec||paused) ? 0 : .4` (opacity .3s)
   final bool showChrome;
 
   static const double height = 226;
@@ -134,6 +135,7 @@ class _TapeCarouselState extends State<TapeCarousel> {
                         packR: i == ti ? widget.packR : TapePalette.packEmpty,
                         spinning: i == ti && widget.spinning,
                         showPill: widget.showChrome,
+                        hideOthers: !widget.showChrome,
                       ),
                     ),
                   // 0개인 가운데 테이프의 알약(+)을 누르는 자리. 알약은 테이프 칸 위로
@@ -172,6 +174,7 @@ class _CarouselItem extends StatelessWidget {
     required this.packR,
     required this.spinning,
     required this.showPill,
+    required this.hideOthers,
   });
 
   final TapeType type;
@@ -181,6 +184,7 @@ class _CarouselItem extends StatelessWidget {
   final double packR;
   final bool spinning;
   final bool showPill;
+  final bool hideOthers;
 
   @override
   Widget build(BuildContext context) {
@@ -191,7 +195,11 @@ class _CarouselItem extends StatelessWidget {
       duration: const Duration(milliseconds: 300),
       curve: Curves.ease,
       child: AnimatedOpacity(
-        opacity: on ? 1 : .4,
+        opacity: on
+            ? 1
+            : hideOthers
+            ? 0
+            : .4,
         duration: const Duration(milliseconds: 300),
         curve: Curves.ease,
         child: Stack(

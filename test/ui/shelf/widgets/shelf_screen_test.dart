@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import '../../../../testing/app.dart';
 import '../../../../testing/fonts.dart';
 import '../../../../testing/record_harness.dart';
+import '../../../../testing/dates.dart';
 
 void main() {
   setUpAll(loadAppFonts);
@@ -39,7 +40,7 @@ void main() {
     expect(find.text('10/12'), findsOneWidget);
     expect(find.text('분류 안 함'), findsOneWidget);
     expect(find.text('새 테이프 2'), findsOneWidget);
-    expect(find.text('09.24 · 1분 · 소포 도착'), findsOneWidget);
+    expect(find.text('${at(9, 24)} · 1분 · 소포 도착'), findsOneWidget);
     expect(find.text('2026 생일'), findsOneWidget);
     expect(find.text('승진 축하'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('서랍이 거의 찼어요'), 200);
@@ -116,7 +117,7 @@ void main() {
   testWidgets('길게 눌러 끌어서 같은 칸 안에서 아래로 옮긴다', (tester) async {
     await pumpShelf(tester);
     final mom = find.ancestor(
-      of: find.text('03.14 · 3분'),
+      of: find.text('${at(3, 14)} · 3분'),
       matching: find.byType(ShelfRow),
     );
     final grandma = find.ancestor(
@@ -144,7 +145,7 @@ void main() {
   testWidgets('짧게 누르기 전에 움직이면 드래그가 아니다', (tester) async {
     await pumpShelf(tester);
     final row = find.ancestor(
-      of: find.text('03.14 · 3분'),
+      of: find.text('${at(3, 14)} · 3분'),
       matching: find.byType(ShelfRow),
     );
     final g = await tester.startGesture(tester.getCenter(row));
@@ -165,7 +166,7 @@ void main() {
       find.descendant(of: row, matching: find.byType(MoreButton)),
     );
     await tester.pumpAndSettle();
-    expect(find.text('06.03 · 승진 축하'), findsOneWidget);
+    expect(find.text('${at(6, 3)} · 승진 축하'), findsOneWidget);
     expect(find.text('답장 녹음하기'), findsOneWidget);
     expect(find.text('지우기'), findsOneWidget);
     await tester.tap(find.text('다른 칸으로 옮기기'));
@@ -181,7 +182,7 @@ void main() {
   testWidgets('안 뜯은 소포 ⋯에는 옮기기가 없다', (tester) async {
     await pumpShelf(tester);
     final row = find.ancestor(
-      of: find.text('09.24 · 1분 · 소포 도착'),
+      of: find.text('${at(9, 24)} · 1분 · 소포 도착'),
       matching: find.byType(ShelfRow),
     );
     await tester.tap(

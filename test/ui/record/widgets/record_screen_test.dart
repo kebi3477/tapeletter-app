@@ -321,6 +321,21 @@ void main() {
     expect(h.vm.phase, RecordPhase.rec);
     expect(find.text('2개'), findsNothing);
     expect(find.text('15초'), findsNothing);
+    // 옆 테이프는 opacity 0 (대기 .4)
+    List<double> ops() => [
+      for (final o in tester.widgetList<AnimatedOpacity>(
+        find.descendant(
+          of: find.byType(TapeCarousel),
+          matching: find.byType(AnimatedOpacity),
+        ),
+      ))
+        o.opacity,
+    ];
+    expect(ops(), [1, 0, 0]);
+    // 녹음 중에는 밀어도 테이프가 바뀌지 않는다
+    await tester.drag(find.byType(TapeCarousel), const Offset(-120, 0));
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(h.vm.tape, TapeType.s15);
     final time = find.text('0:02');
     expect(time, findsOneWidget);
     expect(find.text('/ 0:15'), findsOneWidget);
@@ -349,6 +364,7 @@ void main() {
     expect(find.text('2개'), findsOneWidget);
     expect(find.text('15초'), findsOneWidget);
     expect(find.text('/ 0:15'), findsNothing);
+    expect(ops(), [1, .4, .4]);
     await tester.pump(const Duration(seconds: 3));
   });
 }

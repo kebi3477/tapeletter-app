@@ -54,7 +54,7 @@ class RecordIdleView extends StatelessWidget {
                 TapeCarousel(
                   selected: vm.tape,
                   owned: vm.wallet.ownedOf,
-                  enabled: vm.phase == RecordPhase.idle,
+                  enabled: vm.phase == RecordPhase.idle && !vm.arming,
                   onSelect: vm.selectTape,
                   onBuy: onBuyTape,
                   packL: palette.packL(vm.progress),

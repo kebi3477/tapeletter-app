@@ -8,6 +8,8 @@ import 'package:tapeletter_app/data/services/app_prefs.dart';
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../../testing/dates.dart';
+
 void main() {
   late LocalStore store;
   late ToastController toast;
@@ -45,8 +47,11 @@ void main() {
       expect(vm.fullOn, isFalse);
       expect(vm.emptyOn, isFalse);
       expect(names(null), ['지현', '하늘']);
-      expect(vm.itemSub(vm.shelf.unsorted.first), '09.24 · 1분 · 소포 도착');
-      expect(vm.itemSub(vm.shelf.groups.first.items.first), '03.14 · 3분');
+      expect(vm.itemSub(vm.shelf.unsorted.first), '${at(9, 24)} · 1분 · 소포 도착');
+      expect(
+        vm.itemSub(vm.shelf.groups.first.items.first),
+        '${at(3, 14)} · 3분',
+      );
     });
   });
 

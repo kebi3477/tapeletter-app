@@ -106,13 +106,14 @@ class ShelfViewModel extends ChangeNotifier {
   /// 빈 서랍 — 분류 안 함도 칸도 없을 때
   bool get emptyOn => _loaded && _shelf.isEmpty;
 
-  /// 행 부제 `09.24 · 3분 · 소포 도착`
+  /// 행 부제 `09.24 14:23 · 1분 · 소포 도착`
   String itemSub(TapeItem x) =>
-      '${formatMonthDay(x.date)} · ${TapePalette.of(x.type).name}'
+      '${formatMonthDayTime(x.date)} · ${TapePalette.of(x.type).name}'
       '${x.groupId == null && !x.opened ? ' · 소포 도착' : ''}';
 
-  /// ⋯ 시트 부제 `09.24 · 칸 이름`
-  String sheetSub(TapeItem x) => '${formatMonthDay(x.date)} · ${whereOf(x)}';
+  /// ⋯ 시트 부제 `09.24 14:23 · 칸 이름`
+  String sheetSub(TapeItem x) =>
+      '${formatMonthDayTime(x.date)} · ${whereOf(x)}';
 
   String whereOf(TapeItem x) =>
       x.groupId == null ? unsortedName : (_shelf.group(x.groupId!)?.name ?? '');

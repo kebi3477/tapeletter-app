@@ -1,10 +1,12 @@
 import 'package:tapeletter_app/ui/core/ui/tab_bar.dart';
 import 'package:tapeletter_app/ui/shelf/widgets/shelf_list_view.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:tapeletter_app/ui/player/widgets/player_screen.dart';
 
 import '../../../../testing/app.dart';
 import '../../../../testing/fonts.dart';
 import '../../../../testing/record_harness.dart';
+import '../../../../testing/dates.dart';
 
 void main() {
   setUpAll(loadAppFonts);
@@ -17,6 +19,11 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 700));
     return h;
+  }
+
+  Future<void> settle(WidgetTester tester) async {
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
   }
 
   Finder rowOf(String text) =>
@@ -40,7 +47,7 @@ void main() {
     expect(find.text('순서대로 재생'), findsOneWidget);
     expect(find.text('1/1'), findsOneWidget);
     expect(find.text('재생 중'), findsOneWidget);
-    expect(find.text('09.23'), findsOneWidget); // 테이프 제목(날짜)
+    expect(find.text(at(9, 23)), findsOneWidget); // 테이프 제목(날짜 시:분)
     expect(h.player.playing, isTrue);
     expect(tester.takeException(), isNull);
 
@@ -90,5 +97,70 @@ void main() {
     await tester.pump(const Duration(milliseconds: 800));
     expect(find.text('테이프를 불러오지 못했어요'), findsNothing);
     expect(h.player.playing, isTrue);
+  });
+
+  testWidgets('재생 화면 ⋯: 목록과 같은 메뉴, 지우기 확인 → 취소는 메뉴로, 지우기는 재생을 닫는다', (
+    tester,
+  ) async {
+    final h = await pumpShelf(tester);
+    await tester.tap(rowOf('수아'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 1000));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(PlayerScreen),
+        matching: find.bySemanticsLabel('더 보기'),
+      ),
+    );
+    await settle(tester);
+    final order = ['답장 녹음하기', '다른 칸으로 옮기기', '신고하기', '지우기'];
+    final ys = [for (final t in order) tester.getCenter(find.text(t)).dy];
+    expect(ys, [...ys]..sort());
+    expect(find.text(at(3, 15)), findsWidgets);
+
+    await tester.tap(find.text('지우기'));
+    await settle(tester);
+    expect(find.text('테이프를 지울까요?'), findsOneWidget);
+    expect(
+      find.text('수아님이 보낸 테이프가 서랍에서 사라져요. 지운 테이프는 되돌릴 수 없어요.'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('취소'));
+    await settle(tester);
+    expect(find.text('다른 칸으로 옮기기'), findsOneWidget);
+
+    await tester.tap(find.text('지우기'));
+    await settle(tester);
+    await tester.tap(find.text('지우기').last);
+    await settle(tester);
+    expect(find.text('테이프를 지웠어요'), findsOneWidget);
+    expect(find.byType(PlayerScreen), findsNothing, reason: '재생을 닫는다');
+    expect(
+      h.store.groups.first.items.map((x) => x.sender.name),
+      isNot(contains('수아')),
+    );
+    await tester.pump(const Duration(seconds: 3));
+  });
+
+  testWidgets('재생 화면 ⋯ → 다른 칸으로 옮기기: 옮기면 재생을 닫는다', (tester) async {
+    final h = await pumpShelf(tester);
+    await tester.tap(rowOf('수아'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 1000));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(PlayerScreen),
+        matching: find.bySemanticsLabel('더 보기'),
+      ),
+    );
+    await settle(tester);
+    await tester.tap(find.text('다른 칸으로 옮기기'));
+    await settle(tester);
+    expect(find.text('어느 칸으로 옮길까요?'), findsOneWidget);
+    await tester.tap(find.text('엄마 목소리').last);
+    await settle(tester);
+    expect(find.byType(PlayerScreen), findsNothing);
+    expect(h.store.groups.last.items.map((x) => x.sender.name), contains('수아'));
+    await tester.pump(const Duration(seconds: 3));
   });
 }

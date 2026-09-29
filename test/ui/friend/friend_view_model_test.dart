@@ -5,6 +5,8 @@ import 'package:tapeletter_app/data/services/local/local_store.dart';
 import 'package:tapeletter_app/ui/friend/view_model/friend_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../testing/dates.dart';
+
 void main() {
   late FriendRepositoryRemote repo;
 
@@ -20,7 +22,7 @@ void main() {
     expect(vm.name, '엄마');
     expect(vm.subtitle, '받은 테이프 3개');
     final t = vm.tapes.first;
-    expect(vm.dateOf(t), '03.14');
+    expect(vm.dateOf(t), at(3, 14));
     expect(vm.subOf(t), '3분 · 2026 생일');
     expect(vm.durOf(t), '0:48');
   });

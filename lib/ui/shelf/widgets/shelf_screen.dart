@@ -105,7 +105,7 @@ class _ShelfScreenState extends State<ShelfScreen> {
                 child: DragGhost(
                   item: ghost,
                   sub:
-                      '${formatMonthDay(ghost.date)} · ${TapePalette.of(ghost.type).name}',
+                      '${formatMonthDayTime(ghost.date)} · ${TapePalette.of(ghost.type).name}',
                 ),
               ),
           ],

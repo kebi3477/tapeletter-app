@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../../testing/app.dart';
 import '../../../testing/fonts.dart';
 import '../../../testing/record_harness.dart';
+import '../../../testing/dates.dart';
 
 Future<void> settle(WidgetTester tester) async {
   for (var i = 0; i < 6; i++) {
@@ -49,7 +50,7 @@ void main() {
     await settle(tester);
 
     expect(find.text('무엇이 문제인가요?'), findsOneWidget);
-    expect(find.text('은비님이 보낸 06.03 테이프'), findsOneWidget);
+    expect(find.text('은비님이 보낸 ${at(6, 3)} 테이프'), findsOneWidget);
     expect(find.text('은비님 차단하기'), findsOneWidget);
     expect(find.text('0/300'), findsOneWidget);
     expect(tester.takeException(), isNull);
@@ -137,11 +138,13 @@ void main() {
     await tester.tap(more);
     await settle(tester);
     expect(find.text('답장 녹음하기'), findsOneWidget);
-    expect(find.text('다른 칸으로 옮기기'), findsNothing);
-    expect(find.text('지우기'), findsNothing);
+    // 목록의 ⋯와 같은 메뉴 (itemFull) — 부제는 날짜 시:분만
+    expect(find.text('다른 칸으로 옮기기'), findsOneWidget);
+    expect(find.text('지우기'), findsOneWidget);
+    expect(find.text(at(3, 15)), findsWidgets);
     await tester.tap(find.text('신고하기'));
     await settle(tester);
-    expect(find.text('수아님이 보낸 03.15 테이프'), findsOneWidget);
+    expect(find.text('수아님이 보낸 ${at(3, 15)} 테이프'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.tap(find.text('기타'));
     await tester.pump();

@@ -19,114 +19,171 @@ TapeReport tapeReportOf(TapeItem item) => TapeReport(
   deliveryId: item.id,
   name: item.from,
   userId: item.senderId,
-  date: formatMonthDay(item.date),
+  date: formatMonthDayTime(item.date),
 );
 
 /// ⋯ 메뉴 (`shItem`): 답장 녹음하기 / 다른 칸으로 옮기기 / 신고하기 / 지우기.
+/// 서랍 목록과 재생 화면(`vMore`, [inViewer])이 같은 메뉴를 쓴다 (`itemFull: true`).
+/// - 부제: 목록은 `날짜 시:분 · 칸`, 재생 화면은 `where: ''`라 `날짜 시:분`만
+/// - 재생 화면에서 옮기거나 지우면 재생을 닫는다 ([onLeave], `closeViewer`)
+/// - 지우기는 확인(`shDelConfirm`)을 거친다. 취소하면 메뉴로 돌아온다
 Future<void> showItemSheet(
   BuildContext context, {
   required ShelfViewModel viewModel,
   required TapeItem item,
   required VoidCallback? onReply,
+  bool inViewer = false,
+  VoidCallback? onLeave,
 }) {
   return showAppSheet<void>(
     context,
-    builder: (sheet) {
-      void close() => Navigator.of(sheet).pop();
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(item.from, style: AppText.sheetTitle),
-          Padding(
-            padding: const EdgeInsets.only(top: 4, bottom: 10),
-            child: Text(
-              viewModel.sheetSub(item),
-              style: AppText.suit(500, 13.5, color: AppColors.textMuted),
-            ),
-          ),
-          // 보낸 사람이 탈퇴했으면(senderId 없음) 답장할 수 없다.
-          if (onReply != null)
-            SheetRow(
-              label: '답장 녹음하기',
-              onTap: () {
-                close();
-                onReply();
-              },
-            ),
-          // 안 뜯은 소포는 옮길 수 없다 (계약서 409).
-          if (viewModel.canMove(item))
-            SheetRow(
-              label: '다른 칸으로 옮기기',
-              onTap: () {
-                close();
-                showMoveSheet(context, viewModel: viewModel, item: item);
-              },
-            ),
-          SheetRow(
-            label: '신고하기',
-            onTap: () {
-              close();
-              showReportSheet(context, target: tapeReportOf(item));
-            },
-          ),
-          SheetRow(
-            label: '지우기',
-            danger: true,
-            divider: false,
-            onTap: () {
-              close();
-              viewModel.deleteItem(item.id);
-            },
-          ),
-        ],
-      );
-    },
+    builder: (sheet) => _ItemMenu(
+      outer: context,
+      sheet: sheet,
+      viewModel: viewModel,
+      item: item,
+      onReply: onReply,
+      inViewer: inViewer,
+      onLeave: onLeave,
+    ),
   );
 }
 
-/// 재생 화면 ⋯ (`vMore` → `shItem`, `itemFull: false`): 답장 녹음하기 / 신고하기만.
-Future<void> showViewerItemSheet(
-  BuildContext context, {
-  required TapeItem item,
-  required VoidCallback? onReply,
-}) {
-  return showAppSheet<void>(
-    context,
-    builder: (sheet) {
-      void close() => Navigator.of(sheet).pop();
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(item.from, style: AppText.sheetTitle),
-          Padding(
-            padding: const EdgeInsets.only(top: 4, bottom: 10),
-            // itemSub = [date, where] — 재생 화면에서는 where가 비어 날짜만
-            child: Text(
-              formatMonthDay(item.date),
-              style: AppText.suit(500, 13.5, color: AppColors.textMuted),
-            ),
+class _ItemMenu extends StatefulWidget {
+  const _ItemMenu({
+    required this.outer,
+    required this.sheet,
+    required this.viewModel,
+    required this.item,
+    required this.onReply,
+    required this.inViewer,
+    required this.onLeave,
+  });
+
+  final BuildContext outer;
+  final BuildContext sheet;
+  final ShelfViewModel viewModel;
+  final TapeItem item;
+  final VoidCallback? onReply;
+  final bool inViewer;
+  final VoidCallback? onLeave;
+
+  @override
+  State<_ItemMenu> createState() => _ItemMenuState();
+}
+
+class _ItemMenuState extends State<_ItemMenu> {
+  bool _confirm = false;
+
+  void _close() => Navigator.of(widget.sheet).pop();
+
+  @override
+  Widget build(BuildContext context) => _confirm ? _deleteConfirm() : _menu();
+
+  Widget _menu() {
+    final item = widget.item;
+    final vm = widget.viewModel;
+    final onReply = widget.onReply;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(item.from, style: AppText.sheetTitle),
+        Padding(
+          padding: const EdgeInsets.only(top: 4, bottom: 10),
+          child: Text(
+            widget.inViewer ? formatMonthDayTime(item.date) : vm.sheetSub(item),
+            style: AppText.suit(500, 13.5, color: AppColors.textMuted),
           ),
-          if (onReply != null)
-            SheetRow(
-              label: '답장 녹음하기',
-              onTap: () {
-                close();
-                onReply();
-              },
-            ),
+        ),
+        // 보낸 사람이 탈퇴했으면(senderId 없음) 답장할 수 없다.
+        if (onReply != null)
           SheetRow(
-            label: '신고하기',
+            label: '답장 녹음하기',
             onTap: () {
-              close();
-              showReportSheet(context, target: tapeReportOf(item));
+              _close();
+              onReply();
             },
           ),
-        ],
-      );
-    },
-  );
+        // 안 뜯은 소포는 옮길 수 없다 (계약서 409).
+        if (vm.canMove(item))
+          SheetRow(
+            label: '다른 칸으로 옮기기',
+            onTap: () {
+              _close();
+              showMoveSheet(
+                widget.outer,
+                viewModel: vm,
+                item: item,
+                onMoved: widget.onLeave,
+              );
+            },
+          ),
+        SheetRow(
+          label: '신고하기',
+          onTap: () {
+            _close();
+            showReportSheet(widget.outer, target: tapeReportOf(item));
+          },
+        ),
+        SheetRow(
+          label: '지우기',
+          danger: true,
+          divider: false,
+          onTap: () => setState(() => _confirm = true),
+        ),
+      ],
+    );
+  }
+
+  /// 테이프를 지울까요? (`shDelConfirm`) — 취소 · 지우기 (52, radius 14, 간격 8)
+  Widget _deleteConfirm() {
+    Widget button(String label, Color bg, Color fg, VoidCallback onTap) =>
+        Expanded(
+          child: AppButton(
+            label: label,
+            background: bg,
+            foreground: fg,
+            height: 52,
+            radius: 14,
+            onTap: onTap,
+          ),
+        );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('테이프를 지울까요?', style: AppText.suit(800, 20, letterSpacingEm: -.02)),
+        const SizedBox(height: 6),
+        Text(
+          '${widget.item.from}님이 보낸 테이프가 서랍에서 사라져요. 지운 테이프는 되돌릴 수 없어요.',
+          style: AppText.suit(
+            500,
+            14,
+            height: 1.55,
+            color: AppColors.textMuted,
+          ),
+        ),
+        const SizedBox(height: 6 + 18),
+        Row(
+          children: [
+            button(
+              '취소',
+              AppColors.surface,
+              AppColors.ink,
+              () => setState(() => _confirm = false),
+            ),
+            const SizedBox(width: 8),
+            button('지우기', AppColors.red, AppColors.paper, () {
+              _close();
+              widget.onLeave?.call();
+              widget.viewModel.deleteItem(widget.item.id);
+            }),
+          ],
+        ),
+      ],
+    );
+  }
 }
 
 /// 옮기기 (`shMove`): 어느 칸으로 옮길까요?
@@ -134,6 +191,7 @@ Future<void> showMoveSheet(
   BuildContext context, {
   required ShelfViewModel viewModel,
   required TapeItem item,
+  VoidCallback? onMoved,
 }) {
   final s = viewModel.shelf;
   return showAppSheet<void>(
@@ -141,6 +199,7 @@ Future<void> showMoveSheet(
     builder: (sheet) {
       void go(String? groupId) {
         Navigator.of(sheet).pop();
+        onMoved?.call();
         viewModel.moveTo(item.id, groupId);
       }
 

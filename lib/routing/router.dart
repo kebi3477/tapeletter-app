@@ -346,9 +346,16 @@ class _PlayerRouteState extends State<PlayerRoute> {
         final item = _vm.current;
         if (item == null) return;
         final senderId = item.senderId;
-        showViewerItemSheet(
+        showItemSheet(
           context,
+          viewModel: context.read<ShelfViewModel>(),
           item: item,
+          inViewer: true,
+          // 옮기거나 지우면 재생을 닫는다 (`closeViewer`)
+          onLeave: () async {
+            await _vm.close();
+            if (context.mounted) context.pop();
+          },
           // 답장: 재생을 닫고 녹음 탭 (서랍 ⋯의 답장과 같다)
           onReply: senderId == null
               ? null

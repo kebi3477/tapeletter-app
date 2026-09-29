@@ -298,7 +298,7 @@ class ReceivedRow extends StatelessWidget {
               ],
               const SizedBox(width: 14),
               Text(
-                formatMonthDay(x.date),
+                formatMonthDayTime(x.date),
                 style: AppText.suit(
                   600,
                   12.5,

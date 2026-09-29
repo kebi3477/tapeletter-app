@@ -42,7 +42,7 @@ class FriendViewModel extends ChangeNotifier {
   }
 
   /// 행 날짜 `09.24`
-  String dateOf(FriendTape t) => formatMonthDay(t.item.date);
+  String dateOf(FriendTape t) => formatMonthDayTime(t.item.date);
 
   /// 행 부제 `3분 · 2026 생일`
   String subOf(FriendTape t) =>
