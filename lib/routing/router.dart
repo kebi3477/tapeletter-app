@@ -584,7 +584,7 @@ class _LinkErrorRouteState extends State<LinkErrorRoute> {
       final url = widget.url;
       if (url != null) {
         await context.read<ShareService>().shareText(
-          '$_myName님이 테이프를 보냈어요\n$url',
+          '$_myName님이 목소리 테이프를 보냈어요 $url',
         );
       }
       if (context.mounted) context.pop();

@@ -484,7 +484,7 @@ void main() {
         expect(h.vm.phase, RecordPhase.sent);
         final k = h.share.kakao.single;
         expect(k.senderName, '민경');
-        expect(k.title, '민경님이 테이프를 보냈어요');
+        expect(k.title, '민경님이 목소리 테이프를 보냈어요');
         expect(
           k.url.toString(),
           startsWith('https://tapeletter.lab241.com/t/'),
@@ -500,7 +500,9 @@ void main() {
         final m = h.share.sms.single;
         expect(
           m.text,
-          matches(r'^민경님이 테이프를 보냈어요 https://tapeletter\.lab241\.com/t/\S+$'),
+          matches(
+            r'^민경님이 목소리 테이프를 보냈어요 https://tapeletter\.lab241\.com/t/\S+$',
+          ),
         );
       });
     });

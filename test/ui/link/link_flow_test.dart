@@ -114,7 +114,7 @@ void main() {
     await tester.tap(find.text('링크 다시 공유하기'));
     await settle(tester);
     expect(h.share.shared.single, contains('/t/'));
-    expect(h.share.shared.single, startsWith('민경님이 테이프를 보냈어요'));
+    expect(h.share.shared.single, startsWith('민경님이 목소리 테이프를 보냈어요 '));
     expect(find.text('내가 보낸 테이프예요'), findsNothing);
   });
 

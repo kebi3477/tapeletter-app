@@ -431,7 +431,7 @@ class MyViewModel extends ChangeNotifier {
     final r = await _deliveries.reshare(s.id);
     switch (r) {
       case Ok<Uri>(:final value):
-        await _share.shareText('$name님이 테이프를 보냈어요\n$value');
+        await _share.shareText('$name님이 목소리 테이프를 보냈어요 $value');
         await _loadSent();
       case Error<Uri>(:final error):
         _toast.show(_message(error));

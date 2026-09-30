@@ -21,8 +21,16 @@ class TapeLinkMessage {
   /// `https://{PUBLIC_HOST}/t/{token}` (서버의 `shareUrl`)
   final Uri url;
 
-  /// 링크 페이지 `og:title`과 같은 문구
-  String get title => '$senderName님이 테이프를 보냈어요';
+  /// 카드 제목 (`design_handoff_kakao_share` 카카오 피드 템플릿). 이름이 없으면 "누군가"
+  String get title => senderName.trim().isEmpty
+      ? '누군가 목소리 테이프를 보냈어요'
+      : '${senderName.trim()}님이 목소리 테이프를 보냈어요';
+
+  /// 링크별 카드 이미지 `https://{host}/t/{token}/kakao.png` (800×400)
+  Uri get imageUrl => url.replace(
+    path:
+        '${url.path.endsWith('/') ? url.path.substring(0, url.path.length - 1) : url.path}/kakao.png',
+  );
 
   /// 문자·공유 시트 본문
   String get text => '$title $url';
@@ -55,18 +63,18 @@ class SystemShareService implements ShareService {
     return result.status != ShareResultStatus.dismissed;
   }
 
-  /// 카카오톡 공유 기본 템플릿(콘솔 템플릿 없이 코드로).
-  /// 링크 페이지의 Open Graph와 같은 제목·이미지(`/static/og-image.png`, 600×600).
+  /// 카카오톡 공유 기본 템플릿(콘솔 템플릿 없이 코드로) — `design_handoff_kakao_share`
+  /// README의 카카오 피드 템플릿: 링크별 이미지(800×400), 제목·설명, 버튼 "테이프 듣기".
   /// 링크 도메인은 카카오 콘솔 > 플랫폼 > Web 사이트 도메인에 등록돼 있어야 한다.
   static FeedTemplate templateOf(TapeLinkMessage m) {
     final link = Link(webUrl: m.url, mobileWebUrl: m.url);
     return FeedTemplate(
       content: Content(
         title: m.title,
-        description: '${m.tapeName} 테이프',
-        imageUrl: Uri.parse('${m.url.origin}/static/og-image.png'),
-        imageWidth: 600,
-        imageHeight: 600,
+        description: '${m.tapeName} 테이프 · 탭해서 소포를 뜯어보세요',
+        imageUrl: m.imageUrl,
+        imageWidth: 800,
+        imageHeight: 400,
         link: link,
       ),
       buttons: [Button(title: '테이프 듣기', link: link)],
