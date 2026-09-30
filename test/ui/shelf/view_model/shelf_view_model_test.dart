@@ -2,6 +2,7 @@ import 'package:tapeletter_app/data/repositories/shelf_repository_remote.dart';
 import 'package:tapeletter_app/data/services/local/local_api_client.dart';
 import 'package:tapeletter_app/data/services/local/local_behavior.dart';
 import 'package:tapeletter_app/data/services/local/local_store.dart';
+import 'package:tapeletter_app/domain/models/tape_item.dart';
 import 'package:tapeletter_app/ui/core/ui/toast.dart';
 import 'package:tapeletter_app/ui/shelf/view_model/shelf_view_model.dart';
 import 'package:tapeletter_app/data/services/app_prefs.dart';
@@ -221,6 +222,52 @@ void main() {
       expect(names('g-2'), ['박과장님']);
       expect(vm.capText, '9/12');
       expect(toast.message, '테이프를 지웠어요');
+    });
+  });
+
+  test('테이프 메모: 남기기·고치기·지우기, 부제 앞에 붙고 안 뜯은 소포는 숨김', () {
+    fakeAsync((async) {
+      vm = make(async);
+      final id = idOf('g-1', '엄마');
+      TapeItem item() => vm.shelf.find(id)!;
+
+      vm.setMemo(item(), '  생일 아침에 받은 노래 ');
+      async.flushMicrotasks();
+      expect(item().memo, '생일 아침에 받은 노래');
+      expect(vm.itemSub(item()), '생일 아침에 받은 노래 · ${at(3, 14)} · 3분');
+      expect(store.groups.first.items.first.memo, '생일 아침에 받은 노래');
+      expect(toast.message, '메모를 남겼어요');
+
+      vm.setMemo(item(), '고친 메모');
+      async.flushMicrotasks();
+      expect(item().memo, '고친 메모');
+      expect(toast.message, '메모를 고쳤어요');
+
+      vm.setMemo(item(), '   ');
+      async.flushMicrotasks();
+      expect(item().memo, isNull);
+      expect(vm.itemSub(item()), '${at(3, 14)} · 3분');
+      expect(store.groups.first.items.first.memo, isNull);
+      expect(toast.message, '메모를 지웠어요');
+
+      // 분류 안 함의 안 뜯은 소포는 부제에 메모를 보이지 않는다
+      final parcel = vm.shelf.unsorted.first;
+      expect(parcel.opened, isFalse);
+      vm.setMemo(parcel, '뜯기 전');
+      async.flushMicrotasks();
+      expect(vm.shelf.unsorted.first.memo, '뜯기 전');
+      expect(vm.itemSub(vm.shelf.unsorted.first), '${at(9, 24)} · 1분 · 소포 도착');
+    });
+  });
+
+  test('테이프 메모: 서버가 거절하면 되돌리고 오류 문구를 토스트로', () {
+    fakeAsync((async) {
+      vm = make(async);
+      final id = idOf('g-1', '엄마');
+      vm.setMemo(vm.shelf.find(id)!, '가' * 41);
+      async.flushMicrotasks();
+      expect(vm.shelf.find(id)!.memo, isNull);
+      expect(toast.message, '메모는 40자까지 적을 수 있어요');
     });
   });
 

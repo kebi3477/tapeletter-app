@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:tapeletter_app/ui/core/ui/tab_bar.dart';
+import 'package:tapeletter_app/ui/core/ui/tape_widget.dart';
 import 'package:tapeletter_app/ui/shelf/widgets/shelf_list_view.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tapeletter_app/ui/player/widgets/player_screen.dart';
@@ -113,7 +115,7 @@ void main() {
       ),
     );
     await settle(tester);
-    final order = ['답장 녹음하기', '다른 칸으로 옮기기', '신고하기', '지우기'];
+    final order = ['답장 녹음하기', '메모 남기기', '다른 칸으로 옮기기', '신고하기', '지우기'];
     final ys = [for (final t in order) tester.getCenter(find.text(t)).dy];
     expect(ys, [...ys]..sort());
     expect(find.text(at(3, 15)), findsWidgets);
@@ -161,6 +163,40 @@ void main() {
     await settle(tester);
     expect(find.byType(PlayerScreen), findsNothing);
     expect(h.store.groups.last.items.map((x) => x.sender.name), contains('수아'));
+    await tester.pump(const Duration(seconds: 3));
+  });
+
+  testWidgets('재생 화면 ⋯ → 메모 남기기: 저장하면 시트를 닫고 라벨·이어 듣기 목록에 메모', (tester) async {
+    final h = await pumpShelf(tester);
+    await tester.tap(rowOf('수아'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 1000));
+    String title() => tester.widget<TapeWidget>(find.byType(TapeWidget)).title;
+    expect(title(), at(3, 15), reason: '메모가 없으면 도착 일시');
+
+    await tester.tap(
+      find.descendant(
+        of: find.byType(PlayerScreen),
+        matching: find.bySemanticsLabel('더 보기'),
+      ),
+    );
+    await settle(tester);
+    await tester.tap(find.text('메모 남기기'));
+    await settle(tester);
+    expect(find.text('수아님의 테이프 · 나에게만 보여요'), findsOneWidget);
+    await tester.enterText(find.byType(TextField), '할머니 댁에서');
+    await tester.tap(find.text('저장'));
+    await settle(tester);
+
+    expect(find.text('테이프 메모'), findsNothing, reason: '재생 화면은 시트를 닫는다');
+    expect(find.byType(PlayerScreen), findsOneWidget);
+    expect(find.text('메모를 남겼어요'), findsOneWidget);
+    expect(title(), '할머니 댁에서');
+    expect(find.textContaining('할머니 댁에서 · ${at(3, 15)} · '), findsOneWidget);
+    expect(
+      h.store.groups.first.items.firstWhere((x) => x.sender.name == '수아').memo,
+      '할머니 댁에서',
+    );
     await tester.pump(const Duration(seconds: 3));
   });
 }

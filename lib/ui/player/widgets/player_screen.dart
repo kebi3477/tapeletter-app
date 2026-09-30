@@ -426,9 +426,10 @@ class _PlayView extends StatelessWidget {
                     children: [
                       TapeWidget(
                         palette: palette,
+                        // 라벨 제목 (`vTitle`): 메모, 없으면 도착 일시
                         title: item == null
                             ? ''
-                            : formatMonthDayTime(item.date),
+                            : (item.memo ?? formatMonthDayTime(item.date)),
                         packL: palette.packL(p),
                         packR: palette.packR(p),
                         spinning: vm.playing,
@@ -884,7 +885,10 @@ class _QueueRow extends StatelessWidget {
                   Text(item.from, style: AppText.suit(700, 15)),
                   const SizedBox(height: 1),
                   Text(
+                    '${item.memo == null ? '' : '${item.memo} · '}'
                     '${formatMonthDayTime(item.date)} · ${p.name}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: AppText.suit(500, 12, color: AppColors.textMuted),
                   ),
                 ],

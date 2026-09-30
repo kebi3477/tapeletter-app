@@ -890,6 +890,20 @@ class LocalApiClient implements ApiClient {
     return moved;
   }
 
+  /// 메모 (최대 40자, 앞뒤 공백 제거, 비우면 지움)
+  @override
+  Future<ShelfItemDto> setShelfItemMemo(String id, SetMemoRequest body) async {
+    await _wait();
+    final v = body.memo?.trim();
+    if (v != null && (v.characters.length > 40 || v.contains('\n'))) {
+      _fail(400, ApiErrorCode.invalidMemo, '메모는 40자까지 적을 수 있어요');
+    }
+    final next = _find(id).item
+        .copyWith(memo: () => v == null || v.isEmpty ? null : v);
+    _replace(id, next);
+    return next;
+  }
+
   @override
   Future<void> deleteShelfItem(String id) async {
     await _wait();

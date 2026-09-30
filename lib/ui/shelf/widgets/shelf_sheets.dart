@@ -22,9 +22,12 @@ TapeReport tapeReportOf(TapeItem item) => TapeReport(
   date: formatMonthDayTime(item.date),
 );
 
-/// ⋯ 메뉴 (`shItem`): 답장 녹음하기 / 다른 칸으로 옮기기 / 신고하기 / 지우기.
+/// ⋯ 메뉴 (`shItem`): 답장 녹음하기 / 메모 남기기 / 다른 칸으로 옮기기 / 신고하기 / 지우기.
 /// 서랍 목록과 재생 화면(`vMore`, [inViewer])이 같은 메뉴를 쓴다 (`itemFull: true`).
 /// - 부제: 목록은 `날짜 시:분 · 칸`, 재생 화면은 `where: ''`라 `날짜 시:분`만
+/// - 메모가 있으면 부제 아래 메모 카드(탭하면 수정), 메뉴 이름은 "메모 수정하기"
+/// - 메모 시트(`shMemo`)에서 저장하거나 지우면 목록은 메뉴로 돌아오고 재생 화면은 닫는다.
+///   재생 화면은 [onMemo]로 라벨을 바로 바꾼다
 /// - 재생 화면에서 옮기거나 지우면 재생을 닫는다 ([onLeave], `closeViewer`)
 /// - 지우기는 확인(`shDelConfirm`)을 거친다. 취소하면 메뉴로 돌아온다
 Future<void> showItemSheet(
@@ -34,6 +37,7 @@ Future<void> showItemSheet(
   required VoidCallback? onReply,
   bool inViewer = false,
   VoidCallback? onLeave,
+  ValueChanged<String?>? onMemo,
 }) {
   return showAppSheet<void>(
     context,
@@ -45,6 +49,7 @@ Future<void> showItemSheet(
       onReply: onReply,
       inViewer: inViewer,
       onLeave: onLeave,
+      onMemo: onMemo,
     ),
   );
 }
@@ -58,6 +63,7 @@ class _ItemMenu extends StatefulWidget {
     required this.onReply,
     required this.inViewer,
     required this.onLeave,
+    required this.onMemo,
   });
 
   final BuildContext outer;
@@ -67,21 +73,58 @@ class _ItemMenu extends StatefulWidget {
   final VoidCallback? onReply;
   final bool inViewer;
   final VoidCallback? onLeave;
+  final ValueChanged<String?>? onMemo;
 
   @override
   State<_ItemMenu> createState() => _ItemMenuState();
 }
 
+enum _ItemPage { menu, memo, deleteConfirm }
+
 class _ItemMenuState extends State<_ItemMenu> {
-  bool _confirm = false;
+  _ItemPage _page = _ItemPage.menu;
+
+  /// 지금 메모. 메모 시트에서 저장하면 메뉴로 돌아와 바로 보인다.
+  late String? _memo = widget.item.memo;
 
   void _close() => Navigator.of(widget.sheet).pop();
 
   @override
-  Widget build(BuildContext context) => _confirm ? _deleteConfirm() : _menu();
+  Widget build(BuildContext context) => switch (_page) {
+    _ItemPage.menu => _menu(),
+    _ItemPage.memo => _MemoForm(
+      from: widget.item.from,
+      memo: _memo,
+      onSave: _saveMemo,
+    ),
+    _ItemPage.deleteConfirm => _deleteConfirm(),
+  };
+
+  /// 저장 (`mmSave`) · 지우기 (`mmDel`, 빈 문자열). 목록은 메뉴로, 재생 화면은 닫는다.
+  /// 재생 화면 라벨은 먼저 바꾸고, 서버가 거절하면 되돌린다.
+  void _saveMemo(String draft) {
+    final memo = draft.trim().isEmpty ? null : draft.trim();
+    final prev = _memo;
+    final onMemo = widget.onMemo;
+    onMemo?.call(memo);
+    widget.viewModel
+        .setMemo(widget.item.copyWith(memo: () => prev), draft)
+        .then((ok) {
+          if (!ok) onMemo?.call(prev);
+        });
+    if (widget.inViewer) {
+      _close();
+    } else {
+      setState(() {
+        _memo = memo;
+        _page = _ItemPage.menu;
+      });
+    }
+  }
 
   Widget _menu() {
     final item = widget.item;
+    final memo = _memo;
     final vm = widget.viewModel;
     final onReply = widget.onReply;
     return Column(
@@ -96,6 +139,35 @@ class _ItemMenuState extends State<_ItemMenu> {
             style: AppText.suit(500, 13.5, color: AppColors.textMuted),
           ),
         ),
+        // 메모 카드 (`itemHasMemo`) — 탭하면 수정
+        if (memo != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Tappable(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => setState(() => _page = _ItemPage.memo),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.memoPaper,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppColors.memoStroke),
+                ),
+                child: Text(
+                  memo,
+                  style: AppText.suit(
+                    600,
+                    14.5,
+                    height: 1.5,
+                    color: AppColors.memoInk,
+                  ),
+                ),
+              ),
+            ),
+          ),
         // 보낸 사람이 탈퇴했으면(senderId 없음) 답장할 수 없다.
         if (onReply != null)
           SheetRow(
@@ -105,6 +177,10 @@ class _ItemMenuState extends State<_ItemMenu> {
               onReply();
             },
           ),
+        SheetRow(
+          label: memo == null ? '메모 남기기' : '메모 수정하기',
+          onTap: () => setState(() => _page = _ItemPage.memo),
+        ),
         // 안 뜯은 소포는 옮길 수 없다 (계약서 409).
         if (vm.canMove(item))
           SheetRow(
@@ -130,7 +206,7 @@ class _ItemMenuState extends State<_ItemMenu> {
           label: '지우기',
           danger: true,
           divider: false,
-          onTap: () => setState(() => _confirm = true),
+          onTap: () => setState(() => _page = _ItemPage.deleteConfirm),
         ),
       ],
     );
@@ -171,7 +247,7 @@ class _ItemMenuState extends State<_ItemMenu> {
               '취소',
               AppColors.surface,
               AppColors.ink,
-              () => setState(() => _confirm = false),
+              () => setState(() => _page = _ItemPage.menu),
             ),
             const SizedBox(width: 8),
             button('지우기', AppColors.red, AppColors.paper, () {
@@ -179,6 +255,146 @@ class _ItemMenuState extends State<_ItemMenu> {
               widget.onLeave?.call();
               widget.viewModel.deleteItem(widget.item.id);
             }),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// 테이프 메모 (`shMemo`) — 나에게만 보이는 메모. 최대 40자, 40자에 닿으면 카운터가 빨강.
+/// 지우기는 메모가 있을 때만 (`mmCanDel`). [onSave]에 빈 문자열을 넘기면 지운다.
+class _MemoForm extends StatefulWidget {
+  const _MemoForm({
+    required this.from,
+    required this.memo,
+    required this.onSave,
+  });
+
+  final String from;
+  final String? memo;
+  final ValueChanged<String> onSave;
+
+  @override
+  State<_MemoForm> createState() => _MemoFormState();
+}
+
+class _MemoFormState extends State<_MemoForm> {
+  late final TextEditingController _draft = TextEditingController(
+    text: widget.memo ?? '',
+  )..addListener(() => setState(() {}));
+
+  @override
+  void dispose() {
+    _draft.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final n = _draft.text.characters.length;
+    const max = ShelfViewModel.memoMax;
+    final box = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: const BorderSide(color: AppColors.memoStroke),
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('테이프 메모', style: AppText.suit(800, 20, letterSpacingEm: -.01)),
+        const SizedBox(height: 6),
+        Text(
+          '${widget.from}님의 테이프 · 나에게만 보여요',
+          style: AppText.suit(500, 14, height: 1.55, color: AppColors.textSub),
+        ),
+        const SizedBox(height: 18),
+        TextField(
+          controller: _draft,
+          autofocus: true,
+          minLines: 3,
+          maxLines: 3,
+          style: AppText.suit(600, 16, height: 1.55),
+          cursorColor: AppColors.ink,
+          // 한 줄 메모 (계약서: 줄바꿈 안 됨) — 칸 너비에서만 줄이 넘어간다
+          keyboardType: TextInputType.text,
+          textInputAction: TextInputAction.done,
+          inputFormatters: [
+            FilteringTextInputFormatter.deny(RegExp(r'[\r\n]')),
+            LengthLimitingTextInputFormatter(
+              max,
+              maxLengthEnforcement:
+                  MaxLengthEnforcement.truncateAfterCompositionEnds,
+            ),
+          ],
+          decoration: InputDecoration(
+            hintText: '이 테이프를 받은 날, 기억하고 싶은 것',
+            hintStyle: AppText.suit(
+              600,
+              16,
+              height: 1.55,
+              color: AppColors.textFaint,
+            ),
+            filled: true,
+            fillColor: AppColors.memoPaper,
+            isCollapsed: true,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+            enabledBorder: box,
+            focusedBorder: box,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Text(
+                '테이프 라벨에도 적혀요',
+                style: AppText.suit(
+                  500,
+                  12.5,
+                  height: 1.5,
+                  color: AppColors.textMuted,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              '$n/$max',
+              style: AppText.suit(
+                600,
+                12.5,
+                height: 1.5,
+                tabularNums: true,
+                color: n >= max ? AppColors.red : AppColors.textFaint,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 22),
+        Row(
+          children: [
+            if (widget.memo != null) ...[
+              SizedBox(
+                width: 96,
+                child: AppButton(
+                  label: '지우기',
+                  background: AppColors.surface,
+                  foreground: AppColors.red,
+                  onTap: () => widget.onSave(''),
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
+            Expanded(
+              child: AppButton(
+                label: '저장',
+                onTap: () => widget.onSave(_draft.text),
+              ),
+            ),
           ],
         ),
       ],

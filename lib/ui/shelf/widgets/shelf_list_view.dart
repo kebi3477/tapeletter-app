@@ -327,7 +327,13 @@ class _ShelfRowState extends State<ShelfRow>
                   style: AppText.rowTitle,
                 ),
                 const SizedBox(height: 2),
-                Text(widget.sub, style: AppText.caption),
+                // 메모(최대 40자)가 붙으면 길어진다 — 행 높이가 정해져 있어 한 줄로 줄인다
+                Text(
+                  widget.sub,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppText.caption,
+                ),
               ],
             ),
           ),

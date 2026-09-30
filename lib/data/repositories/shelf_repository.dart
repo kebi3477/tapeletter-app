@@ -24,6 +24,9 @@ abstract class ShelfRepository extends ChangeNotifier {
     required String? afterId,
   });
 
+  /// 테이프 메모 (나에게만 보임, 최대 40자). null·빈 값이면 지운다.
+  Future<Result<TapeItem>> setMemo(String itemId, String? memo);
+
   Future<Result<void>> deleteItem(String itemId);
 
   /// 받은 테이프 하나 (푸시로 들어올 때)

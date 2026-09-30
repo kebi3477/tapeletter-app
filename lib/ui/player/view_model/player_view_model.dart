@@ -269,6 +269,16 @@ class PlayerViewModel extends ChangeNotifier {
     }
   }
 
+  /// ⋯ 메뉴에서 메모를 바꿨을 때 (`setMemo`) — 라벨과 재생 리스트에 바로 보인다.
+  /// 저장은 서랍 ViewModel이 한다.
+  void applyMemo(String itemId, String? memo) {
+    if (_closed) return; // 서버가 늦게 거절했을 때 이미 닫혔을 수 있다
+    _queue = [
+      for (final x in _queue) x.id == itemId ? x.copyWith(memo: () => memo) : x,
+    ];
+    notifyListeners();
+  }
+
   /// 소포 뜯기 (`unwrap`) — `POST /deliveries/{id}/open`.
   /// 링크 테이프면 먼저 받는다 (`POST /share/{token}/claim`).
   Future<void> unwrap() async {

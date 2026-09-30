@@ -76,6 +76,7 @@ extension ShelfItemDtoMapper on ShelfItemDto {
     opened: opened,
     viaLink: viaLink,
     groupId: groupId,
+    memo: memo,
   );
 }
 

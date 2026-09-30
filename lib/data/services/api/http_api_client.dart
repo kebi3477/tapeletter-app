@@ -405,6 +405,16 @@ class HttpApiClient implements ApiClient {
   );
 
   @override
+  Future<ShelfItemDto> setShelfItemMemo(String id, SetMemoRequest body) async =>
+      ShelfItemDto.fromJson(
+        await _json(
+          'PUT',
+          '/shelf/items/${_seg(id)}/memo',
+          body: body.toJson(),
+        ),
+      );
+
+  @override
   Future<void> deleteShelfItem(String id) =>
       _send('DELETE', '/shelf/items/${_seg(id)}');
 

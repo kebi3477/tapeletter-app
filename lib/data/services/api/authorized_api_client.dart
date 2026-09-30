@@ -254,6 +254,10 @@ class AuthorizedApiClient implements ApiClient {
       _protected(() => _inner.moveShelfItem(id, body));
 
   @override
+  Future<ShelfItemDto> setShelfItemMemo(String id, SetMemoRequest body) =>
+      _protected(() => _inner.setShelfItemMemo(id, body));
+
+  @override
   Future<void> deleteShelfItem(String id) =>
       _protected(() => _inner.deleteShelfItem(id));
 

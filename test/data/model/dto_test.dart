@@ -54,6 +54,27 @@ void main() {
     expect(x.tag, TapeTag.birthday);
     expect(x.duration, const Duration(seconds: 34));
     expect(x.groupId, isNull);
+    expect(x.memo, isNull, reason: 'memo가 없는 옛 응답도 읽는다');
+  });
+
+  test('ShelfItem.memo — 나에게만 보이는 메모', () {
+    final j = {
+      'id': 'd1',
+      'sender': {'userId': 'u1', 'name': '지현', 'nickname': null},
+      'tapeType': 60,
+      'durationMs': 34000,
+      'tag': null,
+      'sentAt': '2026-09-24T09:00:00.000Z',
+      'opened': true,
+      'openedAt': '2026-09-24T10:00:00.000Z',
+      'viaLink': false,
+      'groupId': null,
+      'memo': '생일 아침',
+    };
+    final dto = ShelfItemDto.fromJson(j);
+    expect(dto.toDomain().memo, '생일 아침');
+    expect(ShelfItemDto.fromJson(dto.toJson()).memo, '생일 아침');
+    expect(dto.copyWith(memo: () => null).memo, isNull);
   });
 
   test('SentTape (§2) 링크 대기', () {
@@ -130,6 +151,11 @@ void main() {
     });
     expect(e.code, 'INSUFFICIENT_CREDITS');
     expect(e.extra, {'need': 20});
+  });
+
+  test('PUT /shelf/items/{id}/memo 본문: 지우기는 null', () {
+    expect(const SetMemoRequest('생일').toJson(), {'memo': '생일'});
+    expect(const SetMemoRequest(null).toJson(), {'memo': null});
   });
 
   test('PATCH /shelf/items 본문은 null도 보낸다', () {

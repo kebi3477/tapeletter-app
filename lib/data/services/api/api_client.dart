@@ -151,6 +151,9 @@ abstract class ApiClient {
   /// `PATCH /shelf/items/{id}` `{ groupId, afterId }`
   Future<ShelfItemDto> moveShelfItem(String id, MoveShelfItemRequest body);
 
+  /// `PUT /shelf/items/{id}/memo` `{ memo }` — 메모(최대 40자). null·빈 값이면 지운다.
+  Future<ShelfItemDto> setShelfItemMemo(String id, SetMemoRequest body);
+
   /// `DELETE /shelf/items/{id}`
   Future<void> deleteShelfItem(String id);
 

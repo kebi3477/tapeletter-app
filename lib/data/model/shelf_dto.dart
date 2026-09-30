@@ -14,6 +14,7 @@ class ShelfItemDto {
     required this.viaLink,
     this.groupId,
     this.groupName,
+    this.memo,
   });
 
   final String id;
@@ -34,6 +35,9 @@ class ShelfItemDto {
   /// 친구 화면 응답에만 붙는다 (칸이 없으면 null)
   final String? groupName;
 
+  /// 받는 사람이 남긴 메모 (없으면 null). 나에게만 보인다
+  final String? memo;
+
   factory ShelfItemDto.fromJson(Json j) => ShelfItemDto(
     id: j['id'] as String,
     sender: UserRefDto.fromJson(j['sender'] as Json),
@@ -46,6 +50,7 @@ class ShelfItemDto {
     viaLink: j['viaLink'] as bool,
     groupId: j['groupId'] as String?,
     groupName: j['groupName'] as String?,
+    memo: j['memo'] as String?,
   );
 
   Json toJson() => {
@@ -60,6 +65,7 @@ class ShelfItemDto {
     'viaLink': viaLink,
     'groupId': groupId,
     'groupName': ?groupName,
+    'memo': memo,
   };
 
   ShelfItemDto copyWith({
@@ -68,6 +74,7 @@ class ShelfItemDto {
     DateTime? openedAt,
     String? Function()? groupId,
     String? Function()? groupName,
+    String? Function()? memo,
   }) => ShelfItemDto(
     id: id,
     sender: sender ?? this.sender,
@@ -80,6 +87,7 @@ class ShelfItemDto {
     viaLink: viaLink,
     groupId: groupId == null ? this.groupId : groupId(),
     groupName: groupName == null ? this.groupName : groupName(),
+    memo: memo == null ? this.memo : memo(),
   );
 }
 
@@ -178,6 +186,15 @@ class MoveShelfItemRequest {
   final String? afterId;
 
   Json toJson() => {'groupId': groupId, 'afterId': afterId};
+}
+
+/// `PUT /shelf/items/{id}/memo` 요청 — 메모. null·빈 값이면 지운다.
+class SetMemoRequest {
+  const SetMemoRequest(this.memo);
+
+  final String? memo;
+
+  Json toJson() => {'memo': memo};
 }
 
 /// `GET /deliveries/{id}/audio`

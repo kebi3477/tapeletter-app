@@ -15,6 +15,7 @@ class TapeItem {
     this.opened = true,
     this.viaLink = false,
     this.groupId,
+    this.memo,
   }) : senderName = senderName ?? from;
 
   final String id;
@@ -45,7 +46,14 @@ class TapeItem {
   /// null = 분류 안 함
   final String? groupId;
 
-  TapeItem copyWith({bool? opened, String? Function()? groupId}) => TapeItem(
+  /// 받는 사람이 남긴 메모 (최대 40자, 없으면 null). 나에게만 보인다
+  final String? memo;
+
+  TapeItem copyWith({
+    bool? opened,
+    String? Function()? groupId,
+    String? Function()? memo,
+  }) => TapeItem(
     id: id,
     from: from,
     senderId: senderId,
@@ -57,5 +65,6 @@ class TapeItem {
     opened: opened ?? this.opened,
     viaLink: viaLink,
     groupId: groupId == null ? this.groupId : groupId(),
+    memo: memo == null ? this.memo : memo(),
   );
 }

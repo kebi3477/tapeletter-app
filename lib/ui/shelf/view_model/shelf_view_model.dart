@@ -106,10 +106,14 @@ class ShelfViewModel extends ChangeNotifier {
   /// 빈 서랍 — 분류 안 함도 칸도 없을 때
   bool get emptyOn => _loaded && _shelf.isEmpty;
 
-  /// 행 부제 `09.24 14:23 · 1분 · 소포 도착`
-  String itemSub(TapeItem x) =>
-      '${formatMonthDayTime(x.date)} · ${TapePalette.of(x.type).name}'
-      '${x.groupId == null && !x.opened ? ' · 소포 도착' : ''}';
+  /// 행 부제 `메모 · 09.24 14:23 · 1분 · 소포 도착`.
+  /// 메모는 분류 안 함의 안 뜯은 소포에서는 숨긴다 (`x.memo && (!inbox || x.opened)`).
+  String itemSub(TapeItem x) {
+    final parcel = x.groupId == null && !x.opened;
+    final memo = x.memo != null && !parcel ? '${x.memo} · ' : '';
+    return '$memo${formatMonthDayTime(x.date)} · ${TapePalette.of(x.type).name}'
+        '${parcel ? ' · 소포 도착' : ''}';
+  }
 
   /// ⋯ 시트 부제 `09.24 14:23 · 칸 이름`
   String sheetSub(TapeItem x) =>
@@ -303,6 +307,32 @@ class ShelfViewModel extends ChangeNotifier {
   }
 
   // ── ⋯ 시트 ────────────────────────────────────────
+  /// 메모 최대 글자 수 (계약서: 최대 40자)
+  static const int memoMax = 40;
+
+  /// 메모 저장 (`mmSave`) · 지우기 (`mmDel`). 앞뒤 공백을 빼고 비면 지운다.
+  /// 토스트: 메모를 남겼어요 / 메모를 고쳤어요 / 메모를 지웠어요.
+  /// 서버가 거절하면 되돌리고 false.
+  Future<bool> setMemo(TapeItem item, String draft) async {
+    final memo = draft.trim().isEmpty ? null : draft.trim();
+    final prev = _shelf;
+    _shelf = _mapItem(prev, item.id, (x) => x.copyWith(memo: () => memo));
+    notifyListeners();
+    _toast.show(
+      memo == null ? '메모를 지웠어요' : (item.memo == null ? '메모를 남겼어요' : '메모를 고쳤어요'),
+    );
+    _pending++;
+    final r = await _repo.setMemo(item.id, memo);
+    _pending--;
+    if (r case Error(:final error)) {
+      _shelf = prev;
+      _toast.show(_message(error));
+      notifyListeners();
+      return false;
+    }
+    return true;
+  }
+
   /// 지우기 (`itemDel`)
   Future<void> deleteItem(String itemId) async {
     final prev = _shelf;
@@ -395,6 +425,15 @@ class ShelfViewModel extends ChangeNotifier {
         g.copyWith(items: g.items.where((x) => x.id != id).toList()),
     ],
   );
+
+  static Shelf _mapItem(Shelf s, String id, TapeItem Function(TapeItem) f) =>
+      s.copyWith(
+        unsorted: [for (final x in s.unsorted) x.id == id ? f(x) : x],
+        groups: [
+          for (final g in s.groups)
+            g.copyWith(items: [for (final x in g.items) x.id == id ? f(x) : x]),
+        ],
+      );
 
   static Shelf _withList(Shelf s, String? groupId, List<TapeItem> items) =>
       groupId == null

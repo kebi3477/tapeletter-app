@@ -351,6 +351,7 @@ class _PlayerRouteState extends State<PlayerRoute> {
           viewModel: context.read<ShelfViewModel>(),
           item: item,
           inViewer: true,
+          onMemo: (memo) => _vm.applyMemo(item.id, memo),
           // 옮기거나 지우면 재생을 닫는다 (`closeViewer`)
           onLeave: () async {
             await _vm.close();

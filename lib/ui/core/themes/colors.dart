@@ -72,6 +72,16 @@ abstract final class AppColors {
   static const shelfPlank = Color(0xFFDDD3C2);
   static const shelfDash = Color(0xFFCFC6B5);
 
+  // 테이프 메모 (shMemo, ⋯ 메뉴 메모 카드)
+  /// 메모 입력칸·카드 바탕 (`#FBF9F5`)
+  static const memoPaper = Color(0xFFFBF9F5);
+
+  /// 메모 입력칸·카드 테두리 (`inset 0 0 0 1px #EFE8DB`)
+  static const memoStroke = Color(0xFFEFE8DB);
+
+  /// 메모 카드 글자 (`#3A3A38`)
+  static const memoInk = Color(0xFF3A3A38);
+
   /// 스켈레톤 옅은 막대 (`#F4F4F2`)
   static const skeletonLight = Color(0xFFF4F4F2);
 

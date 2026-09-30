@@ -1,3 +1,4 @@
+import 'package:tapeletter_app/ui/core/themes/colors.dart';
 import 'package:tapeletter_app/ui/core/ui/tab_bar.dart';
 import 'package:tapeletter_app/ui/shelf/view_model/shelf_view_model.dart';
 import 'package:tapeletter_app/ui/shelf/widgets/shelf_bookcase_view.dart';
@@ -177,6 +178,81 @@ void main() {
     expect(groupNames(tester, 'g-3'), ['엄마', '엄마', '은비']);
     expect(find.text('‘엄마 목소리’ 칸으로 옮겼어요'), findsOneWidget);
     await tester.pump(const Duration(seconds: 2));
+  });
+
+  testWidgets('⋯ 시트 → 메모 남기기 → 메뉴에 메모 카드, 목록 부제 앞에 메모 → 지우기', (tester) async {
+    await pumpShelf(tester);
+    Future<void> openMenu() async {
+      final row = find.ancestor(
+        of: find.text('은비'),
+        matching: find.byType(ShelfRow),
+      );
+      await tester.tap(
+        find.descendant(of: row, matching: find.byType(MoreButton)),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    await openMenu();
+    await tester.tap(find.text('메모 남기기'));
+    await tester.pumpAndSettle();
+    expect(find.text('테이프 메모'), findsOneWidget);
+    expect(find.text('은비님의 테이프 · 나에게만 보여요'), findsOneWidget);
+    expect(find.text('테이프 라벨에도 적혀요'), findsOneWidget);
+    expect(find.text('0/40'), findsOneWidget);
+    expect(find.text('지우기'), findsNothing); // 메모가 없으면 지우기 없음
+
+    await tester.enterText(find.byType(TextField), '회사 앞에서\n받은 축하');
+    await tester.pump();
+    expect(find.text('회사 앞에서받은 축하'), findsOneWidget); // 줄바꿈은 들어가지 않는다
+    await tester.enterText(find.byType(TextField), '회사 앞에서 받은 축하');
+    await tester.pump();
+    expect(find.text('12/40'), findsOneWidget);
+    await tester.tap(find.text('저장'));
+    await tester.pumpAndSettle();
+
+    // 메뉴로 돌아와 메모 카드와 "메모 수정하기"
+    expect(find.text('메모를 남겼어요'), findsOneWidget);
+    expect(find.text('회사 앞에서 받은 축하'), findsOneWidget);
+    expect(find.text('메모 수정하기'), findsOneWidget);
+    expect(find.text('답장 녹음하기'), findsOneWidget);
+
+    await tester.tapAt(const Offset(20, 20)); // 시트 닫기
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('회사 앞에서 받은 축하 · ${at(6, 3)} · '),
+      findsOneWidget,
+    );
+
+    // 메모 카드를 누르면 수정 — 지우기
+    await openMenu();
+    await tester.tap(find.text('회사 앞에서 받은 축하'));
+    await tester.pumpAndSettle();
+    expect(find.text('12/40'), findsOneWidget);
+    await tester.tap(find.text('지우기'));
+    await tester.pumpAndSettle();
+    expect(find.text('메모를 지웠어요'), findsOneWidget);
+    expect(find.text('메모 남기기'), findsOneWidget);
+    expect(find.text('회사 앞에서 받은 축하'), findsNothing);
+    await tester.pump(const Duration(seconds: 3));
+  });
+
+  testWidgets('메모 40자에 닿으면 카운터가 빨강, 더 적히지 않는다', (tester) async {
+    await pumpShelf(tester);
+    final row = find.ancestor(
+      of: find.text('은비'),
+      matching: find.byType(ShelfRow),
+    );
+    await tester.tap(
+      find.descendant(of: row, matching: find.byType(MoreButton)),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('메모 남기기'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), '가' * 45);
+    await tester.pump();
+    final counter = tester.widget<Text>(find.text('40/40'));
+    expect(counter.style!.color, AppColors.red);
   });
 
   testWidgets('안 뜯은 소포 ⋯에는 옮기기가 없다', (tester) async {

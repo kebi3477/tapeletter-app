@@ -52,6 +52,12 @@ class ShelfRepositoryRemote extends ShelfRepository {
   );
 
   @override
+  Future<Result<TapeItem>> setMemo(String itemId, String? memo) => _mutate(
+    () async =>
+        (await _api.setShelfItemMemo(itemId, SetMemoRequest(memo))).toDomain(),
+  );
+
+  @override
   Future<Result<void>> deleteItem(String itemId) => _mutate(() async {
     await _api.deleteShelfItem(itemId);
     await _cache?.remove(itemId).catchError((_) {});
