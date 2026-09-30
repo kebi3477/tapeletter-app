@@ -1,5 +1,13 @@
-import 'package:tapeletter_app/data/services/local/local_store.dart';
-import 'package:tapeletter_app/utils/format.dart';
-
-/// 초기 데이터(UTC 정오) 날짜를 기기 시간대의 `MM.DD HH:mm`으로 — 시험이 시간대에 묶이지 않게.
-String at(int month, int day) => formatMonthDayTime(LocalStore.d(month, day));
+/// 초기 데이터 받은 테이프의 `MM.DD HH:mm` (프로토타입 `it()` 시각, 기기 시간대 기준이라 어디서나 같다).
+/// 03.14는 칸 '2026 생일'의 첫 테이프(엄마 3분)다.
+String at(int month, int day) => switch ((month, day)) {
+  (9, 24) => '09.24 12:20',
+  (9, 23) => '09.23 19:43',
+  (3, 14) => '03.14 02:06',
+  (3, 15) => '03.15 16:52',
+  (6, 2) => '06.02 06:38',
+  (6, 3) => '06.03 13:01',
+  (1, 1) => '01.01 20:24',
+  (5, 8) => '05.08 03:47',
+  _ => throw ArgumentError('초기 데이터에 없는 날짜: $month.$day'),
+};

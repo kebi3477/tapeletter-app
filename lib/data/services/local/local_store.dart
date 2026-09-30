@@ -121,13 +121,14 @@ class LocalStore {
       FriendDto(userId: 'u-eunbi', name: '은비', starred: false, lastAt: d(6, 3)),
     ];
     unsorted = [
-      _it('u-jihyun', '지현', 9, 24, 60, opened: false),
+      _it('u-jihyun', '지현', 9, 24, 60, at: (12, 20), opened: false),
       _it(
         'u-haneul',
         '하늘',
         9,
         23,
         15,
+        at: (19, 43),
         tag: 'thinking',
         opened: false,
         viaLink: true,
@@ -135,18 +136,18 @@ class LocalStore {
     ];
     groups = [
       LocalGroup('g-1', '2026 생일', [
-        _it('u-mom', '엄마', 3, 14, 180),
-        _it('u-minsu', '민수', 3, 14, 15),
-        _it('u-sua', '수아', 3, 15, 60),
-        _it('u-grandma', '할머니', 3, 14, 15),
+        _it('u-mom', '엄마', 3, 14, 180, at: (2, 6)),
+        _it('u-minsu', '민수', 3, 14, 15, at: (9, 29)),
+        _it('u-sua', '수아', 3, 15, 60, at: (16, 52)),
+        _it('u-grandma', '할머니', 3, 14, 15, at: (23, 15)),
       ]),
       LocalGroup('g-2', '승진 축하', [
-        _it('u-park', '박과장님', 6, 2, 60, tag: 'congrats'),
-        _it('u-eunbi', '은비', 6, 3, 15, tag: 'congrats'),
+        _it('u-park', '박과장님', 6, 2, 60, at: (6, 38), tag: 'congrats'),
+        _it('u-eunbi', '은비', 6, 3, 15, at: (13, 1), tag: 'congrats'),
       ]),
       LocalGroup('g-3', '엄마 목소리', [
-        _it('u-mom', '엄마', 1, 1, 180, tag: 'thinking'),
-        _it('u-mom', '엄마', 5, 8, 60, tag: 'thinking'),
+        _it('u-mom', '엄마', 1, 1, 180, at: (20, 24), tag: 'thinking'),
+        _it('u-mom', '엄마', 5, 8, 60, at: (3, 47), tag: 'thinking'),
       ]),
     ];
     for (final g in groups) {
@@ -204,6 +205,10 @@ class LocalStore {
   /// 2026-MM-DD (UTC 정오)
   static DateTime d(int m, int day) => DateTime.utc(2026, m, day, 12);
 
+  /// 받은 테이프 시각 — 기기 시간대의 [h]:[min] (프로토타입 `it()`의 `time`과 같은 값)
+  static DateTime dt(int m, int day, int h, int min) =>
+      DateTime(2026, m, day, h, min).toUtc();
+
   LedgerEntryDto _ledger(
     int m,
     int day,
@@ -227,15 +232,16 @@ class LocalStore {
     String tag = 'birthday',
     bool opened = true,
     bool viaLink = false,
+    required (int, int) at,
   }) => ShelfItemDto(
     id: nextId('t'),
     sender: UserRefDto(userId: senderId, name: from),
     tapeType: type,
     durationMs: durationMs[type]!,
     tag: tag,
-    sentAt: d(m, day),
+    sentAt: dt(m, day, at.$1, at.$2),
     opened: opened,
-    openedAt: opened ? d(m, day) : null,
+    openedAt: opened ? dt(m, day, at.$1, at.$2) : null,
     viaLink: viaLink,
   );
 }

@@ -154,3 +154,12 @@ tool/sim_flow.sh <시뮬레이터 UDID>                             # 가짜 서
 ```
 - 개발 로그인은 IP당 1분 20번이라(`429 RATE_LIMITED`) 서버 시험을 연달아 돌리면 잠시 기다린다.
 - 시뮬레이터 흐름은 마이크·알림 안내를 건너뛴다(`flutter drive`가 앱을 다시 설치하면서 마이크 권한이 초기화돼 OS 권한 창이 화면을 가린다). 안내 화면은 위젯 시험이 확인한다.
+
+### 스토어 스크린샷
+
+```bash
+tool/store_screenshots.sh [시뮬레이터 UDID] [출력 폴더]
+# 기본: iPhone 17 Pro Max(6.9인치 1320×2868), ~/Desktop/tapeletter-release/screenshots/{ios,android}
+```
+- 장면은 `integration_test/store_screenshots_test.dart`(가짜 모드, 프로토타입 초기 데이터). 상태바는 9:41로 덮어쓴다.
+- android는 iOS 캡처에서 위 186px(상태바)·아래 42px를 잘라 1320×2640(2:1, Google Play 한도)으로 만든다.
