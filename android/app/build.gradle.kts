@@ -1,4 +1,6 @@
+import java.io.FileInputStream
 import java.net.URI
+import java.util.Properties
 import java.util.Base64
 
 plugins {
@@ -20,6 +22,12 @@ if (googleServices.exists()) {
     } else {
         logger.warn("warning: google-services.json이 $appId 용이 아니라 건너뜀 - 푸시는 가짜(LocalPushService)로 동작")
     }
+}
+
+// 출시 서명: android/key.properties(커밋 안 함, 원본은 ~/private_keys/tapeletter/). 없으면 debug 키로 서명한다.
+val keystoreProperties = Properties().apply {
+    val f = rootProject.file("key.properties")
+    if (f.exists()) load(FileInputStream(f))
 }
 
 // `flutter run --dart-define=KEY=VALUE` 값을 매니페스트에 넘긴다 (카카오 키, 링크 도메인).
@@ -98,11 +106,22 @@ android {
         getByName("profile").res.srcDir(devNetworkRes)
     }
 
+    signingConfigs {
+        if (keystoreProperties.isNotEmpty()) {
+            create("release") {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig =
+                if (keystoreProperties.isNotEmpty()) signingConfigs.getByName("release")
+                else signingConfigs.getByName("debug")
         }
     }
 }

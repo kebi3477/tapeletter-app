@@ -71,10 +71,14 @@ flutter analyze
 flutter test
 flutter test --tags server --dart-define=API_BASE_URL=http://localhost:3000/api   # ../tapeletter-api 서버를 띄운 상태에서
 flutter build ios --debug --no-codesign
-flutter build apk --debug   # 지금은 하지 않는다 (아래)
+flutter build apk --debug
+flutter build appbundle --release --dart-define-from-file=dart_defines/prod.json   # 출시용, android/key.properties 필요
+flutter build ipa --release --dart-define-from-file=dart_defines/prod.json
 ```
 
-변경을 마치면 analyze, test, iOS 빌드를 확인한다. **Android 빌드는 사용자가 다시 요청할 때까지 하지 않는다**(2026-09-28, Gradle 캐시가 맥 디스크를 가득 채움). Android 작업을 다시 시작하면 iOS·Android 빌드를 둘 다 확인한다.
+변경을 마치면 analyze, test, iOS·Android 빌드를 확인한다. 맥 디스크 여유가 적으니(10GB대) 빌드 뒤 `rm -rf build`로 지운다.
+
+출시 서명: `android/key.properties`(커밋 안 함)가 있으면 release를 업로드 키로 서명한다. 원본 키·비밀번호는 `~/private_keys/tapeletter/`에 있다.
 
 ## 커밋
 
