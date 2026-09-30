@@ -1,14 +1,14 @@
 #!/bin/bash
 # 스토어 제출용 스크린샷 (문구 합성 없이 화면 그대로).
 # 쓰는 법: tool/store_screenshots.sh [시뮬레이터 UDID] [출력 폴더]
-#   기본: iPhone 17 Pro Max(6.9인치, 1320×2868), ~/Desktop/tapeletter-release/screenshots
+#   기본: iPhone 17 Pro Max(6.9인치, 1320×2868), ../screenshots (저장소 바깥 tapeletter/screenshots)
 # 결과: <출력>/ios/NN_*.png (시뮬레이터 네이티브 해상도, 상태바 9:41)
 #       <출력>/android/NN_*.png (위 상태바·아래 홈 인디케이터를 잘라 비율 ≤ 2:1)
 # 장면은 integration_test/store_screenshots_test.dart. 앱이 로그에 `TAPELETTER_SHOT <이름>`을
 # 찍으면 simctl로 저장한다.
 set -uo pipefail
 DEV="${1:-7A3BEC3E-7875-4555-812D-068B7DB6F1D6}"
-OUT="${2:-$HOME/Desktop/tapeletter-release/screenshots}"
+OUT="${2:-$(cd "$(dirname "$0")/../.." && pwd)/screenshots}"
 mkdir -p "$OUT/ios" "$OUT/android"
 
 xcrun simctl boot "$DEV" 2>/dev/null || true

@@ -159,7 +159,7 @@ tool/sim_flow.sh <시뮬레이터 UDID>                             # 가짜 서
 
 ```bash
 tool/store_screenshots.sh [시뮬레이터 UDID] [출력 폴더]
-# 기본: iPhone 17 Pro Max(6.9인치 1320×2868), ~/Desktop/tapeletter-release/screenshots/{ios,android}
+# 기본: iPhone 17 Pro Max(6.9인치 1320×2868), ../screenshots (저장소 바깥 tapeletter/screenshots)/{ios,android}
 ```
 - 장면은 `integration_test/store_screenshots_test.dart`(가짜 모드, 프로토타입 초기 데이터). 상태바는 9:41로 덮어쓴다.
 - android는 iOS 캡처에서 위 186px(상태바)·아래 42px를 잘라 1320×2640(2:1, Google Play 한도)으로 만든다.
