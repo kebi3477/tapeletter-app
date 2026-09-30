@@ -1,6 +1,7 @@
 #!/bin/bash
 # 스토어 제출용 스크린샷 (문구 합성 없이 화면 그대로).
-# 쓰는 법: tool/store_screenshots.sh [시뮬레이터 UDID] [출력 폴더]
+# 쓰는 법: tool/store_screenshots.sh [시뮬레이터 UDID] [출력 폴더] [장면,장면…]
+#   예: tool/store_screenshots.sh "" "" 04b_shelf_drawer   # 그 장면만 다시 찍기
 #   기본: iPhone 17 Pro Max(6.9인치, 1320×2868), ../screenshots (저장소 바깥 tapeletter/screenshots)
 # 결과: <출력>/ios/NN_*.png (시뮬레이터 네이티브 해상도, 상태바 9:41)
 #       <출력>/android/NN_*.png (위 상태바·아래 홈 인디케이터를 잘라 비율 ≤ 2:1)
@@ -9,6 +10,7 @@
 set -uo pipefail
 DEV="${1:-7A3BEC3E-7875-4555-812D-068B7DB6F1D6}"
 OUT="${2:-$(cd "$(dirname "$0")/../.." && pwd)/screenshots}"
+SHOTS="${3:-}"
 mkdir -p "$OUT/ios" "$OUT/android"
 
 xcrun simctl boot "$DEV" 2>/dev/null || true
@@ -17,7 +19,8 @@ xcrun simctl status_bar "$DEV" override --time 9:41 --dataNetwork wifi \
   --batteryState charged --batteryLevel 100 --cellularBars 4 --wifiBars 3
 
 flutter drive --driver=test_driver/integration_test.dart \
-  --target=integration_test/store_screenshots_test.dart -d "$DEV" 2>&1 |
+  --target=integration_test/store_screenshots_test.dart -d "$DEV" \
+  ${SHOTS:+--dart-define=SHOTS=$SHOTS} 2>&1 |
   while IFS= read -r line; do
     echo "$line"
     if [[ "$line" == *TAPELETTER_SHOT* ]]; then
