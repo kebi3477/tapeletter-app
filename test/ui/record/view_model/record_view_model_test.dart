@@ -477,19 +477,30 @@ void main() {
         expect(h.vm.sentTitle, '테이프를 포장했어요');
         expect(h.vm.lastSent!.shareUrl, isNotNull);
 
+        // 카카오톡을 열지 못하면 그대로 완료 화면
         h.share.result = false;
         h.vm.shareLink(ShareChannel.kakao);
         async.flushMicrotasks();
         expect(h.vm.phase, RecordPhase.sent);
+        final k = h.share.kakao.single;
+        expect(k.senderName, '민경');
+        expect(k.title, '민경님이 테이프를 보냈어요');
+        expect(
+          k.url.toString(),
+          startsWith('https://tapeletter.lab241.com/t/'),
+        );
+        expect(h.share.sms, isEmpty);
+        expect(h.share.shared, isEmpty, reason: '공유 시트가 아니라 카카오톡');
 
         h.share.result = true;
         h.vm.shareLink(ShareChannel.sms);
         async.flushMicrotasks();
         expect(h.toast.message, '문자로 링크를 보냈어요');
         expect(h.vm.phase, RecordPhase.idle);
+        final m = h.share.sms.single;
         expect(
-          h.share.shared.last,
-          contains('https://tapeletter.lab241.com/t/test'),
+          m.text,
+          matches(r'^민경님이 테이프를 보냈어요 https://tapeletter\.lab241\.com/t/\S+$'),
         );
       });
     });

@@ -223,7 +223,9 @@ List<SingleChildWidget> get deviceServices => [
     create: (_) => JustAudioPlayerService(),
     dispose: (_, s) => s.dispose(),
   ),
-  Provider<ShareService>(create: (_) => SystemShareService()),
+  Provider<ShareService>(
+    create: (_) => SystemShareService(kakaoNativeAppKey: Env.kakaoNativeAppKey),
+  ),
   Provider<AppSettingsService>(create: (_) => SystemAppSettingsService()),
   Provider<LinkService>(create: (_) => UrlLauncherLinkService()),
   Provider<AppInfoService>(create: (_) => PackageAppInfoService()),

@@ -805,14 +805,23 @@ class RecordViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 카카오톡·문자로 링크 보내기. 지금은 시스템 공유 시트를 연다.
+  /// 카카오톡·문자로 링크 보내기 (`shareKakao` · `shareSms`).
+  /// 카카오톡(없으면 웹 공유)이나 문자 앱을 열면 원본처럼 토스트 후 완료한다.
+  /// 두 앱 모두 실제로 보냈는지는 알려 주지 않는다.
   Future<void> shareLink(ShareChannel channel) async {
-    final url = _lastSent?.shareUrl;
-    final text = url == null
-        ? '$myName님이 테이프를 보냈어요'
-        : '$myName님이 테이프를 보냈어요\n$url';
-    final shared = await _share.shareText(text);
-    if (!shared) return;
+    final sent = _lastSent;
+    final url = sent?.shareUrl;
+    if (sent == null || url == null) return;
+    final message = TapeLinkMessage(
+      senderName: myName,
+      tapeName: sent.type.label,
+      url: url,
+    );
+    final opened = switch (channel) {
+      ShareChannel.kakao => await _share.shareKakao(message),
+      ShareChannel.sms => await _share.shareSms(message),
+    };
+    if (!opened) return;
     _toast.show(
       channel == ShareChannel.kakao ? '카카오톡으로 링크를 보냈어요' : '문자로 링크를 보냈어요',
     );
