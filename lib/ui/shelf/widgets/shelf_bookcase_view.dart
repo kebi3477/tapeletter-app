@@ -644,7 +644,6 @@ class _SpineState extends State<_Spine> {
 
   @override
   Widget build(BuildContext context) {
-    final p = TapePalette.of(widget.item.type);
     return Listener(
       onPointerDown: (_) => setState(() => _up = true),
       onPointerUp: (_) => setState(() => _up = false),
@@ -660,51 +659,7 @@ class _SpineState extends State<_Spine> {
               _Glow(
                 on: widget.landed,
                 radius: 3,
-                child: CustomPaint(
-                  foregroundPainter: _SpineShade(),
-                  child: Container(
-                    width: 30,
-                    height: 108,
-                    decoration: BoxDecoration(
-                      color: p.shell,
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(3),
-                        bottom: Radius.circular(1),
-                      ),
-                    ),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          left: 5,
-                          right: 5,
-                          top: 8,
-                          height: 5,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: p.band,
-                              borderRadius: BorderRadius.circular(1),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          left: 5,
-                          right: 5,
-                          top: 19,
-                          bottom: 10,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: AppColors.labelPaper,
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                            clipBehavior: Clip.hardEdge,
-                            alignment: Alignment.center,
-                            child: _VerticalText(widget.item.from),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                child: TapeSpine(item: widget.item),
               ),
               // 놓을 자리: 왼쪽 −3 / 오른쪽 −3, top −8 ~ bottom 0
               if (widget.before)
@@ -712,6 +667,93 @@ class _SpineState extends State<_Spine> {
               if (widget.after)
                 const Positioned(right: -3, top: -8, child: _DropLine(116)),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 카세트 등 그림 30×108 — 껍데기(shell) 색, 위 띠(band), 라벨에 세로쓰기 보낸 사람 이름.
+/// 책꽂이와 책꽂이 드래그 고스트([SpineGhost])가 같이 쓴다.
+class TapeSpine extends StatelessWidget {
+  const TapeSpine({super.key, required this.item});
+
+  static const double width = 30;
+  static const double height = 108;
+
+  final TapeItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = TapePalette.of(item.type);
+    return CustomPaint(
+      foregroundPainter: _SpineShade(),
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(color: p.shell, borderRadius: _spineRadius),
+        child: Stack(
+          children: [
+            Positioned(
+              left: 5,
+              right: 5,
+              top: 8,
+              height: 5,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: p.band,
+                  borderRadius: BorderRadius.circular(1),
+                ),
+              ),
+            ),
+            Positioned(
+              left: 5,
+              right: 5,
+              top: 19,
+              bottom: 10,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.labelPaper,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+                clipBehavior: Clip.hardEdge,
+                alignment: Alignment.center,
+                child: _VerticalText(item.from),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+const _spineRadius = BorderRadius.vertical(
+  top: Radius.circular(3),
+  bottom: Radius.circular(1),
+);
+
+/// 책꽂이 보기에서 끌 때 손가락을 따라다니는 테이프 등 — 목록 고스트([DragGhost])와 같은
+/// −1.5° 회전, scale 1.03, 그림자(`AppShadows.dragGhost`).
+class SpineGhost extends StatelessWidget {
+  const SpineGhost({super.key, required this.item});
+
+  final TapeItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Transform.rotate(
+        angle: -1.5 * 3.141592653589793 / 180,
+        child: Transform.scale(
+          scale: 1.03,
+          child: DecoratedBox(
+            decoration: const BoxDecoration(
+              borderRadius: _spineRadius,
+              boxShadow: AppShadows.dragGhost,
+            ),
+            child: TapeSpine(item: item),
           ),
         ),
       ),

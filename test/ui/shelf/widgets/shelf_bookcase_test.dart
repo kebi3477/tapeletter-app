@@ -104,9 +104,26 @@ void main() {
     await pumpShelf(tester);
     final g = await tester.startGesture(spine(tester, '수아'));
     await tester.pump(const Duration(milliseconds: 400));
-    expect(find.byType(DragGhost), findsOneWidget);
-    await g.moveBy(const Offset(0, 40));
+    // 책꽂이 보기의 고스트는 흰 카드가 아니라 테이프 등 (그 테이프의 shell/band 색)
+    expect(find.byType(DragGhost), findsNothing);
+    expect(find.byType(SpineGhost), findsOneWidget);
+    final ghost = find.byType(SpineGhost);
+    expect(
+      find.descendant(of: ghost, matching: find.byType(TapeSpine)),
+      findsOneWidget,
+    );
+    final rotate = tester.widget<Transform>(
+      find.descendant(of: ghost, matching: find.byType(Transform)).first,
+    );
+    expect(rotate.transform.getRotation().entry(1, 0), closeTo(-0.02618, 1e-4));
+    await g.moveBy(const Offset(30, 40));
     await tester.pump();
+    // 손가락 가운데를 따라온다
+    final at = spine(tester, '수아') + const Offset(30, 40);
+    expect(
+      (tester.getCenter(ghost) - at).distance,
+      lessThan(4),
+    );
     expect(tester.takeException(), isNull);
     await g.up();
     await tester.pump(const Duration(seconds: 2));

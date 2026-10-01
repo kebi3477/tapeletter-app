@@ -41,6 +41,10 @@ class ShelfDragController extends ChangeNotifier {
   TapeItem? get ghostItem => _item;
   double? get ghostY => _ghostY;
 
+  /// 손가락 위치 (드래그 영역 기준) — 책꽂이 고스트(테이프 등)는 손가락 가운데에 둔다
+  Offset? get ghostAt => _ghostAt;
+  Offset? _ghostAt;
+
   void register(
     Object owner,
     GlobalKey key,
@@ -67,6 +71,7 @@ class ShelfDragController extends ChangeNotifier {
     final area = _rect(areaKey);
     if (area != null) {
       _ghostY = global.dy - area.top - 30;
+      _ghostAt = global - area.topLeft;
       notifyListeners();
     }
   }
@@ -75,6 +80,7 @@ class ShelfDragController extends ChangeNotifier {
     if (_item == null) return;
     _item = null;
     _ghostY = null;
+    _ghostAt = null;
     notifyListeners();
     await viewModel.endDrag();
   }
@@ -83,6 +89,7 @@ class ShelfDragController extends ChangeNotifier {
     if (_item == null) return;
     _item = null;
     _ghostY = null;
+    _ghostAt = null;
     notifyListeners();
     viewModel.cancelDrag();
   }

@@ -97,7 +97,16 @@ class _ShelfScreenState extends State<ShelfScreen> {
                 ),
               ],
             ),
-            if (ghost != null && _drag.ghostY != null)
+            // 책꽂이 보기: 테이프 등이 손가락 가운데를 따라온다
+            if (ghost != null &&
+                vm.view == ShelfView.shelf &&
+                _drag.ghostAt != null)
+              Positioned(
+                left: _drag.ghostAt!.dx - TapeSpine.width / 2,
+                top: _drag.ghostAt!.dy - TapeSpine.height / 2,
+                child: SpineGhost(item: ghost),
+              )
+            else if (ghost != null && _drag.ghostY != null)
               Positioned(
                 left: 18,
                 right: 18,
