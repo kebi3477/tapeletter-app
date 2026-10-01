@@ -75,6 +75,8 @@ class _TapeCarouselState extends State<TapeCarousel> {
       _swiping = false;
       _dx = 0;
     });
+    // 옆 테이프로 넘어가면 선택 햅틱 (길이 표시를 눌러 넘길 때와 같다)
+    if (ni != i) Haptic.selection.fire();
     widget.onSelect(_ids[ni]);
   }
 

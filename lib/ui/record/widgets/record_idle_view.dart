@@ -48,30 +48,54 @@ class RecordIdleView extends StatelessWidget {
         ),
         Expanded(
           child: ClipRect(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TapeCarousel(
-                  selected: vm.tape,
-                  owned: vm.wallet.ownedOf,
-                  enabled: vm.phase == RecordPhase.idle && !vm.arming,
-                  onSelect: vm.selectTape,
-                  onBuy: onBuyTape,
-                  packL: palette.packL(vm.progress),
-                  packR: palette.packR(vm.progress),
-                  spinning: vm.phase == RecordPhase.rec,
-                  showChrome: chrome,
-                ),
-                const SizedBox(height: 18),
-                // 길이 선택 자리 (height 25, 가운데 정렬). 녹음 중·멈춤에는 그 자리에 녹음 시간 (v6)
-                SizedBox(
-                  height: 25,
-                  child: OverflowBox(
-                    maxHeight: double.infinity,
-                    child: _Middle(vm: vm),
+            child: Center(
+              child: Stack(
+                children: [
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TapeCarousel(
+                        selected: vm.tape,
+                        owned: vm.wallet.ownedOf,
+                        enabled: vm.phase == RecordPhase.idle && !vm.arming,
+                        onSelect: vm.selectTape,
+                        onBuy: onBuyTape,
+                        packL: palette.packL(vm.progress),
+                        packR: palette.packR(vm.progress),
+                        spinning: vm.phase == RecordPhase.rec,
+                        showChrome: chrome,
+                      ),
+                      const SizedBox(height: 18),
+                      // 길이 선택 자리 (height 25, 가운데 정렬). 녹음 중·멈춤에는 그 자리에 녹음 시간 (v6)
+                      SizedBox(
+                        height: 25,
+                        child: OverflowBox(
+                          maxHeight: double.infinity,
+                          child: _Middle(vm: vm),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                  // 대기: 길이 표시를 눌러도 그 테이프로 넘어간다. 누르는 자리는 위 간격 18 + 줄 25 + 1 = 44
+                  // (캐러셀 아래 빈 1px까지) — 줄은 같은 자리에 그대로 그린다.
+                  if (_showLengths(vm))
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      height: _LengthRow.hitHeight,
+                      child: _LengthRow(
+                        selected: vm.tape,
+                        enabled: vm.phase == RecordPhase.idle && !vm.arming,
+                        onSelect: (t) {
+                          if (t == vm.tape) return;
+                          Haptic.selection.fire();
+                          vm.selectTape(t);
+                        },
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
@@ -85,6 +109,10 @@ class RecordIdleView extends StatelessWidget {
     );
   }
 }
+
+/// 길이 표시 줄을 그리는 상태 (녹음 중·멈춤 아님)
+bool _showLengths(RecordViewModel vm) =>
+    !vm.arming && vm.phase != RecordPhase.rec && vm.phase != RecordPhase.paused;
 
 /// 위 60: 받는 사람 칩만 (`showToChip` — 대기일 때)
 class _Header extends StatelessWidget {
@@ -124,7 +152,8 @@ class _Middle extends StatelessWidget {
           max: vm.maxSeconds,
         );
       default:
-        return _LengthRow(selected: vm.tape);
+        // 길이 표시는 누를 수 있게 캐러셀 위에 겹쳐 그린다 (RecordIdleView)
+        return const SizedBox.shrink();
     }
   }
 }
@@ -221,45 +250,96 @@ class _ToChip extends StatelessWidget {
   }
 }
 
-/// 길이 표시 `15초 1분 3분` (간격 22, `700 14px`)
+/// 길이 표시 `15초 1분 3분` (간격 22, `700 14px`). 누르면 그 테이프로 넘어간다 —
+/// 캐러셀이 스와이프와 같은 `trackTr .35s cubic-bezier(.2,.8,.2,1)`로 움직인다.
+/// 누르는 자리는 높이 [hitHeight], 너비는 글자 양옆으로 간격의 반(11)씩.
 class _LengthRow extends StatelessWidget {
-  const _LengthRow({required this.selected});
+  const _LengthRow({
+    required this.selected,
+    required this.enabled,
+    required this.onSelect,
+  });
 
   final TapeType selected;
+  final bool enabled;
+  final ValueChanged<TapeType> onSelect;
+
+  /// 누르는 높이: 캐러셀 아래 간격 18 + 줄 25 + 1
+  static const double hitHeight = 44;
+
+  /// 누르는 자리 안에서 줄(높이 25)의 위치 — 원래 자리(캐러셀 아래 18)와 같다
+  static const double _rowTop = hitHeight - 25;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (final t in TapeType.values) ...[
-          if (t != TapeType.s15) const SizedBox(width: 22),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 200),
-                style: AppText.suit(
-                  700,
-                  14,
-                  color: t == selected ? AppColors.ink : AppColors.textOff,
+        for (final t in TapeType.values)
+          Semantics(
+            button: true,
+            selected: t == selected,
+            label: '${TapePalette.of(t).name} 테이프',
+            excludeSemantics: true,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: enabled ? () => onSelect(t) : null,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: t == TapeType.s15 ? 0 : 11,
+                  right: t == TapeType.m3 ? 0 : 11,
+                  top: _rowTop,
                 ),
-                child: Text(TapePalette.of(t).name),
-              ),
-              const SizedBox(height: 7),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.ease,
-                width: t == selected ? 22 : 4,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: t == selected ? AppColors.ink : AppColors.toggleOff,
-                  borderRadius: BorderRadius.circular(2),
+                // 너비는 글자 너비 (줄 높이 25를 넘는 막대는 원래처럼 위아래로 넘친다)
+                child: IntrinsicWidth(
+                  child: SizedBox(
+                    height: 25,
+                    child: OverflowBox(
+                      maxHeight: double.infinity,
+                      child: _LengthMark(type: t, on: t == selected),
+                    ),
+                  ),
                 ),
               ),
-            ],
+            ),
           ),
-        ],
+      ],
+    );
+  }
+}
+
+class _LengthMark extends StatelessWidget {
+  const _LengthMark({required this.type, required this.on});
+
+  final TapeType type;
+  final bool on;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AnimatedDefaultTextStyle(
+          duration: const Duration(milliseconds: 200),
+          style: AppText.suit(
+            700,
+            14,
+            color: on ? AppColors.ink : AppColors.textOff,
+          ),
+          child: Text(TapePalette.of(type).name),
+        ),
+        const SizedBox(height: 7),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.ease,
+          width: on ? 22 : 4,
+          height: 4,
+          decoration: BoxDecoration(
+            color: on ? AppColors.ink : AppColors.toggleOff,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
       ],
     );
   }
