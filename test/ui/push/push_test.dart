@@ -49,6 +49,37 @@ void main() {
     expect(find.text('유진님이 테이프를 보냈어요'), findsNothing);
   });
 
+  testWidgets('앱 안 배너: 위로 밀면 이동하지 않고 사라진다', (tester) async {
+    final h = await pump(tester);
+    h.push.simulate(tape(h));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 450));
+    await tester.pump(const Duration(milliseconds: 450));
+    await tester.fling(
+      find.text('유진님이 테이프를 보냈어요'),
+      const Offset(0, -120),
+      1000,
+    );
+    await settle(tester);
+    expect(find.text('유진님이 테이프를 보냈어요'), findsNothing);
+    expect(find.byType(PlayerScreen), findsNothing);
+  });
+
+  testWidgets('앱 안 배너: 조금만 밀면 제자리로 돌아온다', (tester) async {
+    final h = await pump(tester);
+    h.push.simulate(tape(h));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 450));
+    await tester.pump(const Duration(milliseconds: 450));
+    await tester.timedDrag(
+      find.text('유진님이 테이프를 보냈어요'),
+      const Offset(0, -20),
+      const Duration(milliseconds: 400),
+    );
+    await settle(tester);
+    expect(find.text('유진님이 테이프를 보냈어요'), findsOneWidget);
+  });
+
   testWidgets('테이프 배너를 누르면 서랍 + 소포 화면', (tester) async {
     final h = await pump(tester);
     h.push.simulate(tape(h));

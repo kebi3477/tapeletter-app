@@ -101,6 +101,14 @@ class PushViewModel extends ChangeNotifier {
     _open(m);
   }
 
+  /// 배너를 위로 밀어 치웠다 — 이동하지 않고 닫기만 한다.
+  void dismissBanner() {
+    if (_banner == null) return;
+    _timer?.cancel();
+    _banner = null;
+    notifyListeners();
+  }
+
   void _open(PushMessage m) {
     if (_flow.inApp) {
       _opens.add(m);
