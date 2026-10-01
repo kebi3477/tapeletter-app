@@ -78,6 +78,8 @@ flutter build ipa --release --dart-define-from-file=dart_defines/prod.json
 
 변경을 마치면 analyze, test, iOS·Android 빌드를 확인한다. 맥 디스크 여유가 적으니(10GB대) 빌드 뒤 `rm -rf build`로 지운다.
 
+**스토어용 빌드(aab·ipa)를 넘기기 전에는 같은 설정(`--dart-define-from-file=dart_defines/prod.json`)의 release 빌드를 실기기에 설치해 실행을 확인한다.** Android는 `flutter build apk --release` → `adb install -r` → 실행 → `adb logcat`에 FATAL 없음, iOS는 `flutter build ios --release` → `xcrun devicectl device install app`. debug 빌드는 R8 코드 축소가 돌지 않아 release에서만 죽는 문제를 못 잡는다(2026-10-01 WorkManager Room 클래스가 지워져 시작 시 크래시, `android/app/proguard-rules.pro`로 수정). 기기가 없으면 "실기기 미확인"이라고 알린다.
+
 출시 서명: `android/key.properties`(커밋 안 함)가 있으면 release를 업로드 키로 서명한다. 원본 키·비밀번호는 `~/private_keys/tapeletter/`에 있다.
 
 ## 커밋
