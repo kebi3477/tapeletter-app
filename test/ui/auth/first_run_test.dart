@@ -82,8 +82,10 @@ void main() {
     expect(await h.prefs.onboarded(), isTrue);
 
     // 로그인: "연결 중…" 0.7초
+    // 시험 기본 플랫폼은 Android → Apple 대신 Google
     expect(find.text('카카오로 시작하기'), findsOneWidget);
-    expect(find.text('Apple로 계속하기'), findsOneWidget);
+    expect(find.text('Google로 계속하기'), findsOneWidget);
+    expect(find.text('Apple로 계속하기'), findsNothing);
     expect(tester.takeException(), isNull);
     await tester.tap(find.text('카카오로 시작하기'));
     await tester.pump();
@@ -131,7 +133,7 @@ void main() {
     await tester.pump(const Duration(seconds: 3));
   });
 
-  testWidgets('온보딩 건너뛰기, 알림 나중에', (tester) async {
+  testWidgets('온보딩 건너뛰기, 알림 나중에 (iOS Apple)', (tester) async {
     final h = await pumpFresh(tester);
     await tester.tap(find.text('건너뛰기'));
     await step(tester);
@@ -154,7 +156,7 @@ void main() {
     expect(h.store.notificationsEnabled, isFalse);
     expect(h.flow.inApp, isTrue);
     await tester.pump(const Duration(seconds: 3));
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
 
   testWidgets('재가입 제한: 서버 문구 + 날짜 토스트, 로그인 화면 그대로', (tester) async {
     final h = await pumpFresh(

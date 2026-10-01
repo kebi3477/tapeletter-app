@@ -10,6 +10,9 @@ abstract final class AppIcons {
   static const symbolRed = 'assets/svg/symbol-red.svg';
   static const symbolWhite = 'assets/svg/symbol-white.svg';
   static const appIcon = 'assets/svg/app-icon.svg';
+
+  /// Google 로그인 버튼의 공식 멀티컬러 "G" (Google 로그인 브랜딩 가이드)
+  static const googleG = 'assets/svg/google-g.svg';
 }
 
 /// SVG 아이콘. `stroke="currentColor"`인 아이콘은 [color]로 칠한다.

@@ -45,6 +45,31 @@ void main() {
     expect(h.auth.status, AuthStatus.needsName);
   });
 
+  test('Google 로그인 (POST /auth/google)', () async {
+    final h = fresh();
+    final r = await h.auth.signInGoogle();
+    expect(r, isA<SignedIn>().having((s) => s.isNewUser, 'new', isTrue));
+    expect(h.tokens.tokens, isNotNull);
+    expect(h.auth.status, AuthStatus.needsName);
+  });
+
+  test('Google 설정이 없거나 실패하면 일반 실패 문구', () async {
+    final h = fresh();
+    h.social.googleResult = const SocialFailed(
+      'GOOGLE_SERVER_CLIENT_ID missing',
+    );
+    final r = await h.auth.signInGoogle();
+    expect(
+      r,
+      isA<SignInFailed>().having(
+        (f) => f.message,
+        'message',
+        '로그인하지 못했어요. 다시 시도해 주세요',
+      ),
+    );
+    expect(h.tokens.tokens, isNull);
+  });
+
   test('개발 로그인 (POST /auth/dev)은 이름까지 정해진다', () async {
     final h = fresh();
     await h.auth.signInDev(key: 'minkyung', name: '민경');

@@ -181,6 +181,17 @@ class HttpApiClient implements ApiClient {
       );
 
   @override
+  Future<AuthResponseDto> authGoogle(String idToken) async =>
+      AuthResponseDto.fromJson(
+        await _json(
+          'POST',
+          '/auth/google',
+          body: {'idToken': idToken},
+          auth: false,
+        ),
+      );
+
+  @override
   Future<AuthResponseDto> authDev({required String key, String? name}) async =>
       AuthResponseDto.fromJson(
         await _json(

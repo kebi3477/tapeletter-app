@@ -5,9 +5,9 @@ import 'package:flutter/foundation.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../core/ui/toast.dart';
 
-enum LoginProvider { kakao, apple }
+enum LoginProvider { kakao, apple, google }
 
-/// 로그인 (`auLogin`) — 카카오·Apple, 누르면 "연결 중…" (최소 0.7초).
+/// 로그인 (`auLogin`) — 카카오·Apple(iOS)·Google(Android), 누르면 "연결 중…" (최소 0.7초).
 class LoginViewModel extends ChangeNotifier {
   LoginViewModel({required this._auth, required this._toast});
 
@@ -28,8 +28,11 @@ class LoginViewModel extends ChangeNotifier {
   /// "연결 중…"인 버튼
   LoginProvider? get busy => _busy;
 
-  Future<void> signIn(LoginProvider p) =>
-      _run(p, p == LoginProvider.kakao ? _auth.signInKakao : _auth.signInApple);
+  Future<void> signIn(LoginProvider p) => _run(p, switch (p) {
+    LoginProvider.kakao => _auth.signInKakao,
+    LoginProvider.apple => _auth.signInApple,
+    LoginProvider.google => _auth.signInGoogle,
+  });
 
   /// 개발 로그인 (숨은 진입점)
   Future<void> signInDev() => _run(

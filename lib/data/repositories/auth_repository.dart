@@ -52,6 +52,9 @@ abstract class AuthRepository extends ChangeNotifier {
 
   Future<SignInResult> signInApple();
 
+  /// Google 로그인 (Android) → `POST /auth/google`
+  Future<SignInResult> signInGoogle();
+
   /// 개발 로그인 (`POST /auth/dev`) — 개발 빌드에서만 보인다.
   Future<SignInResult> signInDev({required String key, String? name});
 

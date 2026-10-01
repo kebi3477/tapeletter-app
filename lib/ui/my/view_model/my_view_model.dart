@@ -167,9 +167,14 @@ class MyViewModel extends ChangeNotifier {
     ..._friends.where((f) => !f.starred),
   ];
 
-  /// 연결된 계정 (`provider`) — `kakao` · `apple` · `dev`
+  /// 연결된 계정 (`provider`) — `kakao` · `apple` · `google` · `dev`
   String get providerText {
-    const label = {'kakao': '카카오', 'apple': 'Apple', 'dev': '개발'};
+    const label = {
+      'kakao': '카카오',
+      'apple': 'Apple',
+      'google': 'Google',
+      'dev': '개발',
+    };
     final p = _me?.providers ?? const [];
     return p.map((x) => label[x] ?? x).join(' · ');
   }

@@ -5,6 +5,7 @@
 | 이름 | 쓰임 | 비어 있으면 |
 |---|---|---|
 | `KAKAO_NATIVE_APP_KEY` | 카카오 로그인 SDK 초기화 | 카카오 버튼을 누르면 "카카오 앱 키가 설정되지 않았어요" 토스트 |
+| `GOOGLE_SERVER_CLIENT_ID` | Google 로그인(Android)의 `serverClientId` — Google Cloud **웹** OAuth 클라이언트 ID | Google 버튼을 누르면 일반 로그인 실패 토스트("로그인하지 못했어요…"), 로그에 `GOOGLE_SERVER_CLIENT_ID가 비어 있다` |
 | `PUBLIC_HOST` | 테이프 링크 `https://<PUBLIC_HOST>/t/{token}`로 들어온 링크만 받는다 | 도메인을 가리지 않는다 |
 | `ADMOB_REWARDED_ID` | 보상형 광고 단위 ID | 가짜 광고 (`POST /dev/credits`) |
 | `IAP_ENABLED` | `true`면 실제 인앱 결제 | 가짜 결제 |
@@ -38,6 +39,22 @@ PUBLIC_HOST = tapeletter.lab241.com
 1. 위처럼 `PUBLIC_HOST`(dart-define)와 `Env.xcconfig`의 `PUBLIC_HOST`를 같은 도메인으로 바꾼다.
 2. 서버(`tapeletter-api`)가 그 도메인에서 `/.well-known/apple-app-site-association`, `/.well-known/assetlinks.json`을 준다 (팀 ID·서명 인증서 SHA-256 필요).
 3. Apple Developer에서 App ID에 Associated Domains·Sign in with Apple·Push Notifications를 켠다.
+
+## Google 로그인 (Android)
+
+로그인 화면은 Android에서 Apple 대신 "Google로 계속하기"를 보여 준다(iOS는 Apple 그대로, 카카오는 둘 다). `google_sign_in` 7.x가 Android Credential Manager로 ID 토큰을 받아 `POST /auth/google { idToken }`으로 보낸다. Firebase Auth·`google-services.json`의 OAuth 항목은 쓰지 않는다. 매니페스트·Gradle·R8 규칙은 따로 필요 없다.
+
+Google Cloud 콘솔(API 및 서비스 → 사용자 인증 정보)에서 **같은 프로젝트**에 OAuth 클라이언트를 만든다. OAuth 동의 화면(외부, 앱 이름·지원 이메일)을 먼저 설정해 둔다.
+
+1. **웹 애플리케이션** 클라이언트 1개 — 리디렉션 URI 없이 만든다. 이 클라이언트 ID(`….apps.googleusercontent.com`)가
+   - 앱의 `GOOGLE_SERVER_CLIENT_ID` (`lib/config/env.dart` 기본값 또는 `dart_defines/*.json`) — ID 토큰의 `aud`가 된다
+   - 서버가 ID 토큰을 확인할 때 쓰는 audience
+2. **Android** 클라이언트 — 패키지 이름 `com.kebi.tapeletter`, 서명 인증서 SHA-1을 키마다 하나씩 (클라이언트 하나에 SHA-1 하나):
+   - debug 키: `keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android`
+   - 업로드 키: `~/private_keys/tapeletter/`의 키스토어 (`android/key.properties`의 storeFile·keyAlias)
+   - Play 앱 서명 키: Play Console → 앱 무결성 → 앱 서명 키 인증서의 SHA-1 (스토어에서 받은 앱은 이 키로 서명된다)
+
+Android 클라이언트 ID는 앱에 넣지 않는다(패키지 이름·SHA-1로 맞춰진다). SHA-1이 빠진 빌드에서는 계정을 고른 뒤 취소처럼 끝나거나 `clientConfigurationError`가 난다.
 
 ## 실행 설정 파일 (dart_defines/)
 

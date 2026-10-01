@@ -136,7 +136,10 @@ List<SingleChildWidget> _providers({
     tokens: tokens,
     social:
         social ??
-        PlatformSocialAuthService(kakaoNativeAppKey: Env.kakaoNativeAppKey),
+        PlatformSocialAuthService(
+          kakaoNativeAppKey: Env.kakaoNativeAppKey,
+          googleServerClientId: Env.googleServerClientId,
+        ),
     push: push,
     audioCache: audioCache,
   );

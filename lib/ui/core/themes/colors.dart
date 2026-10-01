@@ -51,6 +51,11 @@ abstract final class AppColors {
   static const kakao = Color(0xFFFEE500);
   static const kakaoInk = Color(0xFF191600);
 
+  /// Google 로그인 버튼 (브랜딩 가이드 라이트 테마: 흰 바탕, `#747775` 1px 테두리, `#1F1F1F` 글자)
+  static const googleFill = Color(0xFFFFFFFF);
+  static const googleStroke = Color(0xFF747775);
+  static const googleInk = Color(0xFF1F1F1F);
+
   /// 시트 손잡이 (`#E3E3E0`)
   static const handle = Color(0xFFE3E3E0);
 

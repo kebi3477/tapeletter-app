@@ -61,7 +61,7 @@ testing/                     # 가짜 repository·service (프로토타입 초�
 
 ## 설정
 
-카카오·Apple 로그인, Firebase 푸시, 유니버설 링크 도메인(`ios/Flutter/Env.xcconfig`, dart-define), AdMob·IAP, `FAIL_MODE` 등 실행 설정은 `docs/SETUP.md`에 있다. Firebase 설정 파일(`GoogleService-Info.plist`, `google-services.json`, `firebase_options.dart`)은 커밋하지 않는다.
+카카오·Apple(iOS)·Google(Android) 로그인, Firebase 푸시, 유니버설 링크 도메인(`ios/Flutter/Env.xcconfig`, dart-define), AdMob·IAP, `FAIL_MODE` 등 실행 설정은 `docs/SETUP.md`에 있다. Firebase 설정 파일(`GoogleService-Info.plist`, `google-services.json`, `firebase_options.dart`)은 커밋하지 않는다.
 
 ## 명령어
 

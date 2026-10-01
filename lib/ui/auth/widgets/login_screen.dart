@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 import '../../core/themes/colors.dart';
 import '../../core/themes/text_styles.dart';
 import '../../core/ui/animations.dart';
+import '../../core/ui/app_icons.dart';
 import '../../core/ui/brand.dart';
 import '../../core/ui/buttons.dart';
 import '../view_model/login_view_model.dart';
 
 /// 로그인 (`auLogin`) — 카카오 / Apple, 약관 안내.
+/// Android는 Apple 대신 Google 버튼을 같은 자리·같은 크기로 둔다.
 class LoginScreen extends StatelessWidget {
   const LoginScreen({
     super.key,
@@ -110,12 +112,18 @@ class LoginScreen extends StatelessWidget {
                           onTap: () => viewModel.signIn(LoginProvider.kakao),
                         ),
                         const SizedBox(height: 8),
-                        AppButton(
-                          label: busy == LoginProvider.apple
-                              ? '연결 중…'
-                              : 'Apple로 계속하기',
-                          onTap: () => viewModel.signIn(LoginProvider.apple),
-                        ),
+                        if (defaultTargetPlatform == TargetPlatform.android)
+                          _GoogleButton(
+                            busy: busy == LoginProvider.google,
+                            onTap: () => viewModel.signIn(LoginProvider.google),
+                          )
+                        else
+                          AppButton(
+                            label: busy == LoginProvider.apple
+                                ? '연결 중…'
+                                : 'Apple로 계속하기',
+                            onTap: () => viewModel.signIn(LoginProvider.apple),
+                          ),
                         const SizedBox(height: 18),
                         _Terms(onTerms: onOpenTerms, onPrivacy: onOpenPrivacy),
                       ],
@@ -127,6 +135,33 @@ class LoginScreen extends StatelessWidget {
           },
         ),
       ),
+    );
+  }
+}
+
+/// Google로 계속하기 — Apple 버튼과 같은 56 / radius 16 자리.
+/// Google 로그인 브랜딩 가이드 라이트 테마: 흰 바탕, `#747775` 1px 테두리, 멀티컬러 "G",
+/// 글자는 앱 글꼴 SUIT 600 16.
+class _GoogleButton extends StatelessWidget {
+  const _GoogleButton({required this.busy, required this.onTap});
+
+  final bool busy;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppButton(
+      label: busy ? '연결 중…' : 'Google로 계속하기',
+      background: AppColors.googleFill,
+      foreground: AppColors.googleInk,
+      borderColor: AppColors.googleStroke,
+      textStyle: AppText.suit(600, 16),
+      gap: 10,
+      leading: Opacity(
+        opacity: busy ? 0 : 1,
+        child: const SvgIcon(AppIcons.googleG, width: 20, height: 20),
+      ),
+      onTap: onTap,
     );
   }
 }

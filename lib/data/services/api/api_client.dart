@@ -33,6 +33,9 @@ abstract class ApiClient {
   /// `POST /auth/apple`
   Future<AuthResponseDto> authApple(AppleAuthRequest body);
 
+  /// `POST /auth/google` `{ idToken }`
+  Future<AuthResponseDto> authGoogle(String idToken);
+
   /// `POST /auth/dev` `{ key, name? }` — 개발 전용
   Future<AuthResponseDto> authDev({required String key, String? name});
 

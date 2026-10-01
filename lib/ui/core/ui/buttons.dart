@@ -18,6 +18,7 @@ class AppButton extends StatelessWidget {
     this.height = AppSizes.primaryButton,
     this.radius = AppRadius.button,
     this.textStyle,
+    this.borderColor,
   });
 
   /// 회색(`#F3F3F1`) 버튼
@@ -31,7 +32,8 @@ class AppButton extends StatelessWidget {
     this.radius = AppRadius.button,
     this.textStyle,
   }) : background = AppColors.surface,
-       foreground = AppColors.ink;
+       foreground = AppColors.ink,
+       borderColor = null;
 
   final String label;
   final VoidCallback? onTap;
@@ -42,6 +44,9 @@ class AppButton extends StatelessWidget {
   final double height;
   final double radius;
   final TextStyle? textStyle;
+
+  /// 있으면 안쪽 1px 테두리 (Google 로그인 버튼)
+  final Color? borderColor;
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +67,9 @@ class AppButton extends StatelessWidget {
           decoration: BoxDecoration(
             color: background,
             borderRadius: BorderRadius.circular(radius),
+            border: borderColor == null
+                ? null
+                : Border.all(color: borderColor!),
           ),
           alignment: Alignment.center,
           child: Row(

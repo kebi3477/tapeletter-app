@@ -13,6 +13,7 @@ class LocalSocialAuthService implements SocialAuthService {
     identityToken: 'local-apple',
     authorizationCode: 'local-code',
   );
+  SocialLogin googleResult = const GoogleLogin('local-google');
 
   /// 있으면 카카오 로그인이 이 Future가 끝날 때까지 기다린다 (카카오톡에서 돌아오지 않는 경우 흉내).
   Completer<SocialLogin>? kakaoPending;
@@ -22,6 +23,9 @@ class LocalSocialAuthService implements SocialAuthService {
 
   @override
   Future<SocialLogin> apple() async => appleResult;
+
+  @override
+  Future<SocialLogin> google() async => googleResult;
 }
 
 /// Firebase 설정이 없을 때의 푸시. [simulate]로 앱 안 배너를 띄워 볼 수 있다.

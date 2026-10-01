@@ -53,6 +53,20 @@ abstract final class Env {
     defaultValue: 'b53a18d3cc2caf80784d6ffd8bddb7c4',
   );
 
+  /// Google 로그인(Android)의 `serverClientId` — Google Cloud **웹** OAuth 클라이언트 ID.
+  /// 앱에 들어가는 공개값이라 기본값을 둔다. dart-define 값이 비어 있으면(`dart_defines/*.json`의
+  /// 빈 자리) 기본값을 쓴다. 둘 다 비어 있으면 Google 버튼을 눌렀을 때 로그인 실패 토스트가
+  /// 뜬다 (docs/SETUP.md).
+  static const _googleServerClientIdOverride = String.fromEnvironment(
+    'GOOGLE_SERVER_CLIENT_ID',
+  );
+  static const _googleServerClientIdDefault = '';
+
+  static String get googleServerClientId =>
+      _googleServerClientIdOverride.isNotEmpty
+      ? _googleServerClientIdOverride
+      : _googleServerClientIdDefault;
+
   /// 링크 도메인 (`https://<PUBLIC_HOST>/t/{token}`).
   static const publicHost = String.fromEnvironment(
     'PUBLIC_HOST',

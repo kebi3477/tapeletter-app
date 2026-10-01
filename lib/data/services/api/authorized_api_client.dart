@@ -110,6 +110,10 @@ class AuthorizedApiClient implements ApiClient {
       _public(() => _inner.authApple(body));
 
   @override
+  Future<AuthResponseDto> authGoogle(String idToken) =>
+      _public(() => _inner.authGoogle(idToken));
+
+  @override
   Future<AuthResponseDto> authDev({required String key, String? name}) =>
       _public(() => _inner.authDev(key: key, name: name));
 

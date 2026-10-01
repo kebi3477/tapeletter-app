@@ -155,6 +155,15 @@ class LocalApiClient implements ApiClient {
   }
 
   @override
+  Future<AuthResponseDto> authGoogle(String idToken) async {
+    await _waitPublic();
+    if (idToken.isEmpty) {
+      _fail(401, ApiErrorCode.socialTokenInvalid, '로그인하지 못했어요. 다시 시도해 주세요');
+    }
+    return _signIn();
+  }
+
+  @override
   Future<AuthResponseDto> authDev({required String key, String? name}) async {
     await _waitPublic();
     return _signIn(devName: name, suggestedName: name, social: false);

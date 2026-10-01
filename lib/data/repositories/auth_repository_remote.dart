@@ -121,6 +121,13 @@ class AuthRepositoryRemote extends AuthRepository {
   }
 
   @override
+  Future<SignInResult> signInGoogle() async {
+    final s = await _social.google();
+    if (_early(s) case final r?) return r;
+    return _complete(() => _api.authGoogle((s as GoogleLogin).idToken));
+  }
+
+  @override
   Future<SignInResult> signInDev({required String key, String? name}) =>
       _complete(() => _api.authDev(key: key, name: name));
 
