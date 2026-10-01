@@ -18,3 +18,6 @@ String formatMonthDayTime(DateTime d) {
   final l = d.toLocal();
   return '${formatMonthDay(l)} ${_two(l.hour)}:${_two(l.minute)}';
 }
+
+/// 서랍 보관량 `테이프 10/12` — 뜯은 테이프 수 / 한도. 서랍 헤더·상점 서랍 카드·꽉 참 시트가 같이 쓴다.
+String formatDrawerCount(int stored, int cap) => '테이프 $stored/$cap';

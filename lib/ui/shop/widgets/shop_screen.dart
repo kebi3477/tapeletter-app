@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../core/ui/notice_copy.dart';
 
 import '../../../domain/models/shop.dart';
+import '../../../utils/format.dart';
 import '../../../domain/models/tape_type.dart';
 import '../../core/themes/colors.dart';
 import '../../core/themes/dimens.dart';
@@ -464,7 +465,7 @@ class _DrawerCardState extends State<_DrawerCard>
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        '${vm.stored}/${vm.cap}',
+                        formatDrawerCount(vm.stored, vm.cap),
                         style: AppText.suit(
                           700,
                           12.5,

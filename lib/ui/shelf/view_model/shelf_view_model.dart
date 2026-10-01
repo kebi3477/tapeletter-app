@@ -93,7 +93,7 @@ class ShelfViewModel extends ChangeNotifier {
   bool get dragging => _dragId != null;
 
   // ── 헤더·배너 (`capText`, `capInk`, `capOn`, `fullOn`, `emptyOn`) ──
-  String get capText => '${_shelf.stored}/${_shelf.cap}';
+  String get capText => formatDrawerCount(_shelf.stored, _shelf.cap);
   bool get capFull => _shelf.stored >= _shelf.cap;
 
   /// 목록 아래 "서랍이 거의 찼어요"

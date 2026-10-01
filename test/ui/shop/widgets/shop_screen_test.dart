@@ -46,7 +46,7 @@ void main() {
       lessThan(tester.getTopLeft(find.text('1분 테이프')).dy),
     );
     expect(find.text('서랍이 거의 찼어요 · 10개 더 보관'), findsOneWidget);
-    expect(find.text('8/10'), findsOneWidget);
+    expect(find.text('테이프 8/10'), findsOneWidget);
     final tinted = find.ancestor(
       of: card,
       matching: find.byWidgetPredicate(

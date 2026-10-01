@@ -38,7 +38,7 @@ void main() {
   testWidgets('목록 보기: 헤더, 분류 안 함, 칸, 거의 참, 탭바 레드 점', (tester) async {
     await pumpShelf(tester, (h) => h.store.cap = 10);
     expect(find.text('서랍'), findsWidgets);
-    expect(find.text('8/10'), findsOneWidget);
+    expect(find.text('테이프 8/10'), findsOneWidget);
     expect(find.text('분류 안 함'), findsOneWidget);
     expect(find.text('새 테이프 2'), findsOneWidget);
     expect(find.text('${at(9, 24)} · 1분 · 소포 도착'), findsOneWidget);

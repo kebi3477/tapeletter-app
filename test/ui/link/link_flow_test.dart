@@ -80,7 +80,7 @@ void main() {
     );
     expect(find.text('0개'), findsOneWidget, reason: '분류 안 함은 뜯은 테이프만');
     expect(find.text('4/10'), findsOneWidget);
-    expect(find.text('8/8'), findsOneWidget, reason: '서랍 전체');
+    expect(find.text('테이프 8/8'), findsOneWidget, reason: '서랍 전체');
     expect(find.text('10개 더 · 100 크레딧'), findsOneWidget);
     expect(tester.takeException(), isNull);
 

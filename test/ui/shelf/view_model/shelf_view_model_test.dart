@@ -43,13 +43,13 @@ void main() {
   test('불러오기: 보관량(뜯은 테이프만) 8/12, 칸 3개, 2개 남으면 거의 참', () {
     fakeAsync((async) {
       vm = make(async);
-      expect(vm.capText, '8/12');
+      expect(vm.capText, '테이프 8/12');
       expect(vm.capFull, isFalse);
       expect(vm.capNear, isFalse);
       store.cap = 10;
       vm.load();
       async.flushMicrotasks();
-      expect(vm.capText, '8/10');
+      expect(vm.capText, '테이프 8/10');
       expect(vm.capNear, isTrue);
       expect(vm.fullOn, isFalse);
       expect(vm.emptyOn, isFalse);
@@ -308,7 +308,7 @@ void main() {
       expect(names(null), ['지현', '하늘', '박과장님', '은비']);
       expect(vm.shelf.unsorted.last.opened, isTrue);
       expect(toast.message, '칸을 지웠어요 · 테이프는 분류 안 함으로');
-      expect(vm.capText, '8/12');
+      expect(vm.capText, '테이프 8/12');
     });
   });
 
@@ -318,7 +318,7 @@ void main() {
       vm.deleteItem(idOf('g-2', '은비'));
       async.flushMicrotasks();
       expect(names('g-2'), ['박과장님']);
-      expect(vm.capText, '7/12');
+      expect(vm.capText, '테이프 7/12');
       expect(toast.message, '테이프를 지웠어요');
     });
   });

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/models/shelf.dart';
+import '../../../utils/format.dart';
 import '../../core/themes/colors.dart';
 import '../../core/themes/text_styles.dart';
 import '../../core/ui/buttons.dart';
@@ -96,7 +97,7 @@ class FullOpenSheet extends StatelessWidget {
                 children: [
                   Text('서랍 전체', style: AppText.suit(700, 13.5)),
                   Text(
-                    '${drawer.stored}/${drawer.cap}',
+                    formatDrawerCount(drawer.stored, drawer.cap),
                     style: AppText.suit(
                       800,
                       13,
