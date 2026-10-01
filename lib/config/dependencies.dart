@@ -207,11 +207,8 @@ List<SingleChildWidget> get repositories => [
   ),
   Provider<ShopRepository>(create: (c) => ShopRepositoryRemote(c.read())),
   Provider<ShareRepository>(
-    create: (c) => ShareRepositoryRemote(
-      c.read(),
-      c.read(),
-      c.read<FriendRepository>(),
-    ),
+    create: (c) =>
+        ShareRepositoryRemote(c.read(), c.read(), c.read<FriendRepository>()),
   ),
   Provider<AppRepository>(create: (c) => AppRepository(c.read())),
   Provider<ReportRepository>(
@@ -283,6 +280,7 @@ List<SingleChildWidget> get appViewModels => [
       shelf: c.read(),
       wallet: c.read(),
       users: c.read(),
+      friends: c.read(),
     )..start(),
   ),
   ChangeNotifierProvider(

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/device_repository.dart';
+import '../../../data/repositories/friend_repository.dart';
 import '../../../data/repositories/shelf_repository.dart';
 import '../../../data/repositories/user_repository.dart';
 import '../../../data/repositories/wallet_repository.dart';
@@ -20,6 +21,7 @@ class PushViewModel extends ChangeNotifier {
     required this._shelf,
     required this._wallet,
     required this._users,
+    required this._friends,
   });
 
   /// 배너가 떠 있는 시간 `later('push', 6000)`
@@ -32,6 +34,7 @@ class PushViewModel extends ChangeNotifier {
   final ShelfRepository _shelf;
   final WalletRepository _wallet;
   final UserRepository _users;
+  final FriendRepository _friends;
 
   final _opens = StreamController<PushMessage>.broadcast();
   final List<StreamSubscription<Object?>> _subs = [];
@@ -79,7 +82,9 @@ class PushViewModel extends ChangeNotifier {
       case PushKind.gift:
         _wallet.invalidate();
       case PushKind.claimed:
+        // 내 링크를 받은 사람이 친구가 됐다 → 친구 목록도 다시
         _users.invalidate();
+        _friends.invalidate();
     }
     _banner = m;
     _serial++;

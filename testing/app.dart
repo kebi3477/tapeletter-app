@@ -107,6 +107,7 @@ Widget testApp(RecordHarness h, {String initialLocation = Routes.record}) {
           shelf: h.shelf,
           wallet: h.wallet,
           users: h.users,
+          friends: h.friends,
         )..start(),
       ),
     ],
