@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../../domain/models/user.dart';
+import '../../core/ui/text_limits.dart';
 import '../../core/themes/colors.dart';
 import '../../core/themes/tape_palette.dart';
 import '../../core/themes/text_styles.dart';
@@ -82,26 +82,6 @@ class _RecordLabelViewState extends State<RecordLabelView> {
 }
 
 /// 글자(grapheme) 수로 자르는 입력 제한. 한글 조합 중에는 자르지 않는다.
-class _MaxCharacters extends TextInputFormatter {
-  _MaxCharacters(this.max);
-
-  final int max;
-
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    if (newValue.composing.isValid) return newValue;
-    if (newValue.text.characters.length <= max) return newValue;
-    final text = newValue.text.characters.take(max).toString();
-    return TextEditingValue(
-      text: text,
-      selection: TextSelection.collapsed(offset: text.length),
-    );
-  }
-}
-
 /// 새 친구 이름 (`isNewTo`, v3) — 선택 입력, 최대 8자. 비우면 "새 친구"로 적힌다.
 class _NewNameField extends StatelessWidget {
   const _NewNameField({required this.vm, required this.controller});
@@ -132,7 +112,7 @@ class _NewNameField extends StatelessWidget {
               textAlign: TextAlign.center,
               style: AppText.suit(700, 20),
               cursorColor: AppColors.ink,
-              inputFormatters: [_MaxCharacters(User.maxNameLength)],
+              inputFormatters: [maxCharacters(User.maxNameLength)],
               textInputAction: TextInputAction.done,
               decoration: InputDecoration(
                 hintText: '예) 지현, 동생',

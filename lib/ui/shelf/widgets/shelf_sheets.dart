@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../../domain/models/report.dart';
 import '../../../domain/models/shelf.dart';
 import '../../../domain/models/tape_item.dart';
+import '../../core/ui/text_limits.dart';
 import '../../core/themes/colors.dart';
 import '../../core/themes/text_styles.dart';
 import '../../core/ui/app_sheet.dart';
@@ -321,11 +322,7 @@ class _MemoFormState extends State<_MemoForm> {
           textInputAction: TextInputAction.done,
           inputFormatters: [
             FilteringTextInputFormatter.deny(RegExp(r'[\r\n]')),
-            LengthLimitingTextInputFormatter(
-              max,
-              maxLengthEnforcement:
-                  MaxLengthEnforcement.truncateAfterCompositionEnds,
-            ),
+            maxCharacters(max),
           ],
           decoration: InputDecoration(
             hintText: '이 테이프를 받은 날, 기억하고 싶은 것',
@@ -597,13 +594,7 @@ class _GroupFormState extends State<_GroupForm> {
             cursorColor: AppColors.ink,
             textInputAction: TextInputAction.done,
             onSubmitted: (_) => _save(),
-            inputFormatters: [
-              LengthLimitingTextInputFormatter(
-                max,
-                maxLengthEnforcement:
-                    MaxLengthEnforcement.truncateAfterCompositionEnds,
-              ),
-            ],
+            inputFormatters: [maxCharacters(max)],
             decoration: InputDecoration(
               hintText: '칸 이름을 적어 주세요',
               hintStyle: AppText.suit(800, 22, color: AppColors.textFaint),

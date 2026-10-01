@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../../domain/models/tape_type.dart';
 import '../../../domain/models/user.dart';
+import '../../core/ui/text_limits.dart';
 import '../../core/themes/colors.dart';
 import '../../core/themes/dimens.dart';
 import '../../core/themes/tape_palette.dart';
@@ -186,11 +187,7 @@ class _MyScreenState extends State<MyScreen> {
                             style: AppText.suit(800, 21),
                             cursorColor: AppColors.ink,
                             inputFormatters: [
-                              LengthLimitingTextInputFormatter(
-                                User.maxNameLength,
-                                maxLengthEnforcement: MaxLengthEnforcement
-                                    .truncateAfterCompositionEnds,
-                              ),
+                              maxCharacters(User.maxNameLength),
                             ],
                             decoration: const InputDecoration(
                               isCollapsed: true,

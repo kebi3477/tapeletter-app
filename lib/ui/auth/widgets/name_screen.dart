@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../../domain/models/user.dart';
+import '../../core/ui/text_limits.dart';
 import '../../core/themes/colors.dart';
 import '../../core/themes/text_styles.dart';
 import '../../core/ui/animations.dart';
@@ -84,11 +84,7 @@ class _NameScreenState extends State<NameScreen> {
                               textInputAction: TextInputAction.done,
                               onSubmitted: (_) => vm.submit(),
                               inputFormatters: [
-                                LengthLimitingTextInputFormatter(
-                                  User.maxNameLength,
-                                  maxLengthEnforcement: MaxLengthEnforcement
-                                      .truncateAfterCompositionEnds,
-                                ),
+                                maxCharacters(User.maxNameLength),
                               ],
                               decoration: InputDecoration(
                                 hintText: '이름',

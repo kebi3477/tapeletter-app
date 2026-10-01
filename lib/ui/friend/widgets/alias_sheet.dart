@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../../domain/models/friend.dart';
+import '../../core/ui/text_limits.dart';
 import '../../core/themes/colors.dart';
 import '../../core/themes/text_styles.dart';
 import '../../core/ui/app_sheet.dart';
@@ -76,13 +76,7 @@ class _AliasFormState extends State<_AliasForm> {
             cursorColor: AppColors.ink,
             textInputAction: TextInputAction.done,
             onSubmitted: (_) => _save(), // Enter
-            inputFormatters: [
-              LengthLimitingTextInputFormatter(
-                aliasMax,
-                maxLengthEnforcement:
-                    MaxLengthEnforcement.truncateAfterCompositionEnds,
-              ),
-            ],
+            inputFormatters: [maxCharacters(aliasMax)],
             decoration: InputDecoration(
               hintText: name,
               hintStyle: AppText.suit(800, 22, color: AppColors.textFaint),

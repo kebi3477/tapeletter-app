@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../domain/models/report.dart';
+import '../../core/ui/text_limits.dart';
 import '../../core/themes/colors.dart';
 import '../../core/themes/dimens.dart';
 import '../../core/themes/text_styles.dart';
@@ -123,16 +124,9 @@ class _Form extends StatelessWidget {
           height: 88,
           child: TextField(
             controller: memo,
-            onChanged: (v) {
-              vm.setMemo(v);
-              if (v != vm.memo) {
-                // 300자에서 자른다 (`slice(0, 300)`)
-                memo.value = TextEditingValue(
-                  text: vm.memo,
-                  selection: TextSelection.collapsed(offset: vm.memo.length),
-                );
-              }
-            },
+            onChanged: vm.setMemo,
+            // 300자까지 (`slice(0, 300)`) — 한글 조합 중에도 넘지 않는다
+            inputFormatters: [maxCharacters(ReportViewModel.memoMax)],
             expands: true,
             maxLines: null,
             minLines: null,
