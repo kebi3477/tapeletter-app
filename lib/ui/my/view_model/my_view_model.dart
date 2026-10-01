@@ -79,7 +79,7 @@ class MyViewModel extends ChangeNotifier {
        _auth = authRepository,
        _shelf = shelfRepository {
     _users.addListener(_loadMe);
-    _shelf.addListener(_loadReceived);
+    _shelf.addListener(_onShelfChanged);
     _friendsRepo.addListener(_onFriendsChanged);
     _walletRepo.addListener(_loadWallet);
   }
@@ -216,6 +216,11 @@ class MyViewModel extends ChangeNotifier {
       _loadVersion(),
       _loadReceived(),
     ]);
+  }
+
+  /// 서랍이 바뀌면 받은 테이프 목록과 통계(`Me.stats`·`drawer`)를 함께 다시 불러온다.
+  Future<void> _onShelfChanged() async {
+    await Future.wait([_loadReceived(), _loadMe()]);
   }
 
   /// 받은 테이프 — `GET /shelf`의 분류 안 함 + 모든 칸을 날짜 최근 순으로
@@ -486,7 +491,7 @@ class MyViewModel extends ChangeNotifier {
   void dispose() {
     _skelTimer?.cancel();
     _users.removeListener(_loadMe);
-    _shelf.removeListener(_loadReceived);
+    _shelf.removeListener(_onShelfChanged);
     _friendsRepo.removeListener(_onFriendsChanged);
     _walletRepo.removeListener(_loadWallet);
     super.dispose();

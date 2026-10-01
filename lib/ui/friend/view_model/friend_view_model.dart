@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../data/model/api_error.dart';
 import '../../../data/repositories/friend_repository.dart';
+import '../../../data/repositories/shelf_repository.dart';
 import '../../../domain/models/friend.dart';
 import '../../../domain/models/friend_tapes.dart';
 import '../../../utils/format.dart';
@@ -12,10 +13,17 @@ import '../../core/themes/tape_palette.dart';
 class FriendViewModel extends ChangeNotifier {
   FriendViewModel({
     required FriendRepository friendRepository,
+    ShelfRepository? shelfRepository,
     required this.friendId,
-  }) : _repo = friendRepository;
+  }) : _repo = friendRepository,
+       _shelf = shelfRepository {
+    // 별명·차단(친구), 뜯기·지우기·옮기기(서랍)가 다른 화면에서 바뀌면 다시 불러온다.
+    _repo.addListener(load);
+    _shelf?.addListener(load);
+  }
 
   final FriendRepository _repo;
+  final ShelfRepository? _shelf;
   final String friendId;
 
   FriendTapes? _data;
@@ -74,6 +82,16 @@ class FriendViewModel extends ChangeNotifier {
       case Error<FriendTapes>():
         _failed = true;
     }
-    notifyListeners();
+    if (!_disposed) notifyListeners();
+  }
+
+  bool _disposed = false;
+
+  @override
+  void dispose() {
+    _disposed = true;
+    _repo.removeListener(load);
+    _shelf?.removeListener(load);
+    super.dispose();
   }
 }

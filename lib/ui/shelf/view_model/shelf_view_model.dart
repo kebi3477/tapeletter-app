@@ -170,8 +170,23 @@ class ShelfViewModel extends ChangeNotifier {
     }
   }
 
+  /// 낙관적 변경 중에 온 알림 (푸시·다른 화면) — 끝나면 다시 불러온다
+  bool _stale = false;
+
   void _onRepoChanged() {
-    if (_pending == 0) load();
+    if (_pending == 0) {
+      load();
+    } else {
+      _stale = true;
+    }
+  }
+
+  void _settle() {
+    _pending--;
+    if (_pending == 0 && _stale) {
+      _stale = false;
+      load();
+    }
   }
 
   /// 탭에 들어올 때. 처음이면 0.65초 스켈레톤 (`goTab`).
@@ -330,7 +345,7 @@ class ShelfViewModel extends ChangeNotifier {
 
     _pending++;
     final r = await _repo.moveItem(item.id, groupId: groupId, afterId: afterId);
-    _pending--;
+    _settle();
     if (r case Error(:final error)) {
       _shelf = prev;
       final full =
@@ -370,7 +385,7 @@ class ShelfViewModel extends ChangeNotifier {
     );
     _pending++;
     final r = await _repo.setMemo(item.id, memo);
-    _pending--;
+    _settle();
     if (r case Error(:final error)) {
       _shelf = prev;
       _toast.show(_message(error));
@@ -388,7 +403,7 @@ class ShelfViewModel extends ChangeNotifier {
     _toast.show('테이프를 지웠어요');
     _pending++;
     final r = await _repo.deleteItem(itemId);
-    _pending--;
+    _settle();
     if (r case Error(:final error)) {
       _shelf = prev;
       _toast.show(_message(error));
@@ -426,7 +441,7 @@ class ShelfViewModel extends ChangeNotifier {
     notifyListeners();
     _pending++;
     final r = await _repo.renameGroup(groupId, name);
-    _pending--;
+    _settle();
     if (r case Error(:final error)) {
       _shelf = prev;
       _toast.show(_message(error));
@@ -450,7 +465,7 @@ class ShelfViewModel extends ChangeNotifier {
     _toast.show('칸을 지웠어요 · 테이프는 분류 안 함으로');
     _pending++;
     final r = await _repo.deleteGroup(groupId);
-    _pending--;
+    _settle();
     if (r case Error(:final error)) {
       _shelf = prev;
       _toast.show(_message(error));

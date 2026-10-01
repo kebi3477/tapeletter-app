@@ -98,6 +98,8 @@ class ShopViewModel extends ChangeNotifier {
     _wallet.addListener(_reloadWallet);
     _users.addListener(_reloadMe);
     _friendsRepo.addListener(_reloadFriends);
+    // 서랍 보관량(`Me.drawer.stored`)은 지우기·뜯기·옮기기로도 바뀐다 — 서랍 넓히기 카드
+    _shelf.addListener(_reloadMe);
   }
 
   /// 스켈레톤 `later('skel', 650)`
@@ -552,6 +554,7 @@ class ShopViewModel extends ChangeNotifier {
     _wallet.removeListener(_reloadWallet);
     _users.removeListener(_reloadMe);
     _friendsRepo.removeListener(_reloadFriends);
+    _shelf.removeListener(_reloadMe);
     super.dispose();
   }
 }

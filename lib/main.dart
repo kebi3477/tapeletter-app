@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import 'config/dependencies.dart';
 import 'config/env.dart';
+import 'config/resume_refresh.dart';
 import 'data/services/ad_service.dart';
 import 'data/services/local/local_device_services.dart';
 import 'data/services/push_service.dart';
@@ -64,9 +65,20 @@ class _TapeletterAppState extends State<TapeletterApp> {
   );
   final List<StreamSubscription<Object?>> _subs = [];
 
+  /// 백그라운드에서 돌아오면 서랍·크레딧·친구를 다시 (30초에 한 번까지)
+  late final ResumeRefresh _refresh = ResumeRefresh(
+    auth: context.read(),
+    users: context.read(),
+    friends: context.read(),
+    wallet: context.read(),
+    shelf: context.read(),
+  );
+  late final AppLifecycleListener _lifecycle;
+
   @override
   void initState() {
     super.initState();
+    _lifecycle = AppLifecycleListener(onResume: _refresh.onResumed);
     _subs.add(context.read<LinkViewModel>().events.listen(_onLink));
     _subs.add(context.read<PushViewModel>().opens.listen(_onPush));
   }
@@ -76,6 +88,7 @@ class _TapeletterAppState extends State<TapeletterApp> {
     for (final s in _subs) {
       s.cancel();
     }
+    _lifecycle.dispose();
     _router.dispose();
     super.dispose();
   }

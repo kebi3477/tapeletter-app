@@ -8,7 +8,10 @@ import '../../../utils/result.dart';
 /// 크레딧 내역 (`histOn`) — `GET /wallet/ledger` 커서 페이지.
 class CreditHistoryViewModel extends ChangeNotifier {
   CreditHistoryViewModel({required WalletRepository walletRepository})
-    : _wallet = walletRepository;
+    : _wallet = walletRepository {
+    // 보고 있는 사이 선물·충전·구매로 잔액과 내역이 바뀌면 처음부터 다시
+    _wallet.addListener(load);
+  }
 
   final WalletRepository _wallet;
 
@@ -17,6 +20,7 @@ class CreditHistoryViewModel extends ChangeNotifier {
   String? _cursor;
   bool _hasMore = true;
   bool _loading = false;
+  bool _disposed = false;
 
   int get credits => _credits;
   List<LedgerEntry> get entries => List.unmodifiable(_entries);
@@ -42,7 +46,7 @@ class CreditHistoryViewModel extends ChangeNotifier {
   Future<void> loadMore() async {
     if (_loading || !_hasMore) return;
     _loading = true;
-    notifyListeners();
+    if (!_disposed) notifyListeners();
     final r = await _wallet.getLedger(cursor: _cursor);
     _loading = false;
     if (r is Ok<LedgerPage>) {
@@ -50,6 +54,13 @@ class CreditHistoryViewModel extends ChangeNotifier {
       _cursor = r.value.nextCursor;
       _hasMore = _cursor != null;
     }
-    notifyListeners();
+    if (!_disposed) notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    _wallet.removeListener(load);
+    super.dispose();
   }
 }

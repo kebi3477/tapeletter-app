@@ -428,6 +428,7 @@ class FriendRoute extends StatefulWidget {
 class _FriendRouteState extends State<FriendRoute> {
   late final FriendViewModel _vm = FriendViewModel(
     friendRepository: context.read(),
+    shelfRepository: context.read(),
     friendId: widget.userId,
   )..load();
 
