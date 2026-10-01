@@ -74,7 +74,7 @@ class RecordHarness {
     friends = FriendRepositoryRemote(client);
     wallet = WalletRepositoryRemote(client);
     shelf = ShelfRepositoryRemote(client);
-    shareRepo = ShareRepositoryRemote(client, shelf);
+    shareRepo = ShareRepositoryRemote(client, shelf, friends);
     app = AppRepository(client);
     reports = ReportRepository(client, friends);
     devices = DeviceRepository(client);

@@ -6,16 +6,20 @@ import '../../utils/result.dart';
 import '../model/mappers.dart';
 import '../services/api/api_client.dart';
 import 'repository_guard.dart';
+import 'friend_repository.dart';
 import 'share_repository.dart';
 import 'shelf_repository.dart';
 
 class ShareRepositoryRemote implements ShareRepository {
-  ShareRepositoryRemote(this._api, this._shelf);
+  ShareRepositoryRemote(this._api, this._shelf, [this._friends]);
 
   final ApiClient _api;
 
   /// 받으면 서랍이 바뀐다
   final ShelfRepository _shelf;
+
+  /// 받으면 보낸 사람과 서로 친구가 된다 — 친구 목록을 쓰는 화면(녹음 받는 사람 등)이 다시 불러온다
+  final FriendRepository? _friends;
   final Map<String, String> _keys = {};
   final Map<String, ShareLink> _opened = {};
 
@@ -49,6 +53,7 @@ class ShareRepositoryRemote implements ShareRepository {
     if (r is Ok) {
       _opened.remove(token);
       _shelf.invalidate();
+      _friends?.invalidate();
     }
     return r;
   }

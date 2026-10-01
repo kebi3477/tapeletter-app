@@ -613,6 +613,8 @@ class RecordViewModel extends ChangeNotifier {
     _stopPreview();
     _phase = RecordPhase.pick;
     notifyListeners();
+    // 다른 기기·푸시로 생긴 친구(내 링크를 상대가 받음 등)까지 최신 목록으로
+    unawaited(_loadFriends());
   }
 
   // ── 받는 사람 ───────────────────────────────────────

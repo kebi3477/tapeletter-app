@@ -207,7 +207,11 @@ List<SingleChildWidget> get repositories => [
   ),
   Provider<ShopRepository>(create: (c) => ShopRepositoryRemote(c.read())),
   Provider<ShareRepository>(
-    create: (c) => ShareRepositoryRemote(c.read(), c.read()),
+    create: (c) => ShareRepositoryRemote(
+      c.read(),
+      c.read(),
+      c.read<FriendRepository>(),
+    ),
   ),
   Provider<AppRepository>(create: (c) => AppRepository(c.read())),
   Provider<ReportRepository>(
