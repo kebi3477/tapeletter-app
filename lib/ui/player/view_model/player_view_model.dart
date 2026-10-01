@@ -137,6 +137,7 @@ class PlayerViewModel extends ChangeNotifier {
 
   /// 소포 화면에서 본 서랍 — 꽉 찼으면(`stored >= cap`) 뜯기 연출을 시작하지 않는다.
   Shelf? _drawer;
+  bool _rechecking = false;
   bool _fullOpen = false;
   (LinkErrorKind, String?)? _linkError;
 
@@ -160,8 +161,10 @@ class PlayerViewModel extends ChangeNotifier {
     if (s is Ok<Shelf>) _drawer = s.value;
   }
 
+  /// 서랍이 바뀌었다(지우기·옮기기·넓히기·다른 화면의 뜯기). 화면을 여는 중이어도 다시 본다 —
+  /// 예전에는 소포 화면(parcel)일 때만 다시 봐서, 여는 사이에 끝난 지우기를 놓쳤다.
   void _onShelfChanged() {
-    if (_closed || _phase != ViewerPhase.parcel) return;
+    if (_closed || _phase == ViewerPhase.tearing) return;
     unawaited(_checkDrawer());
   }
 
@@ -321,6 +324,14 @@ class PlayerViewModel extends ChangeNotifier {
       if (item == null || _phase != ViewerPhase.parcel) return;
     }
     // 꽉 찬 서랍: 소포는 그대로 두고 꽉 참 시트 (효과음·연출 없음).
+    // 꽉 찼다고 알고 있으면 막기 전에 한 번 더 확인한다 (다른 화면·기기에서 지웠을 수 있다).
+    if (_drawer?.full ?? false) {
+      if (_rechecking) return;
+      _rechecking = true;
+      await _checkDrawer();
+      _rechecking = false;
+      if (_closed || _phase != ViewerPhase.parcel) return;
+    }
     if (_drawer?.full ?? false) {
       _fullOpen = true;
       notifyListeners();
