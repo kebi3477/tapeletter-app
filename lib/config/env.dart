@@ -60,7 +60,8 @@ abstract final class Env {
   static const _googleServerClientIdOverride = String.fromEnvironment(
     'GOOGLE_SERVER_CLIENT_ID',
   );
-  static const _googleServerClientIdDefault = '';
+  static const _googleServerClientIdDefault =
+      '1084684812274-fnakhpnhh92o9qr75eqelauqa2s26o4u.apps.googleusercontent.com';
 
   static String get googleServerClientId =>
       _googleServerClientIdOverride.isNotEmpty

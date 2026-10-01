@@ -2,5 +2,5 @@
   "API_BASE_URL": "https://tapeletter.lab241.com/api",
   "PUBLIC_HOST": "tapeletter.lab241.com",
   "KAKAO_NATIVE_APP_KEY": "b53a18d3cc2caf80784d6ffd8bddb7c4",
-  "GOOGLE_SERVER_CLIENT_ID": ""
+  "GOOGLE_SERVER_CLIENT_ID": "1084684812274-fnakhpnhh92o9qr75eqelauqa2s26o4u.apps.googleusercontent.com"
 }
