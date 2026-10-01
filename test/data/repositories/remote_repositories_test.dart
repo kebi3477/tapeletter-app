@@ -46,7 +46,7 @@ void main() {
     expect(me.name, '민경');
     expect(me.credits, 120);
     expect(me.owned, {TapeType.m1: 2, TapeType.m3: 0});
-    expect(me.drawer.stored, 10);
+    expect(me.drawer.stored, 8, reason: '뜯은 테이프만 센다');
     expect(me.drawer.cap, 12);
     expect(me.drawer.unopenedCount, 2);
     expect(me.sentCount, 4);

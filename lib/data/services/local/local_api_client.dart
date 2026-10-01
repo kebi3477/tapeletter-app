@@ -312,11 +312,20 @@ class LocalApiClient implements ApiClient {
     extra: extra,
   );
 
+  /// 보관량 = 뜯은 테이프 수 (안 뜯은 소포는 세지 않는다)
+  int _stored() =>
+      _s.unsorted.where((x) => x.opened).length +
+      _s.groups.fold<int>(0, (a, g) => a + g.items.length);
+
+  /// 칸 하나의 한도
+  static const groupCap = 10;
+
   // ── users ─────────────────────────────────────────
   MeDto _me() {
-    final stored =
+    final total =
         _s.unsorted.length +
         _s.groups.fold<int>(0, (a, g) => a + g.items.length);
+    final stored = _stored();
     return MeDto(
       id: LocalStore.meId,
       name: _s.name,
@@ -333,7 +342,7 @@ class LocalApiClient implements ApiClient {
         TapeStockDto(tapeType: 180, qty: _s.owned[180]),
       ],
       stats: StatsDto(
-        receivedCount: stored,
+        receivedCount: total,
         sentCount: _s.sent.length,
         friendCount: _s.friends.length,
       ),
@@ -782,6 +791,9 @@ class LocalApiClient implements ApiClient {
     await _wait();
     final item = _find(id).item;
     if (item.opened) return item;
+    if (_stored() >= _s.cap) {
+      _fail(409, ApiErrorCode.drawerFull, '서랍이 꽉 찼어요');
+    }
     final next = item.copyWith(opened: true, openedAt: _s.now());
     _replace(id, next);
     return next;
@@ -820,6 +832,7 @@ class LocalApiClient implements ApiClient {
           ShelfGroupDto(
             id: g.id,
             name: g.name,
+            cap: groupCap,
             items: [for (final x in g.items) _nick(x)],
           ),
       ],
@@ -843,14 +856,24 @@ class LocalApiClient implements ApiClient {
     await _wait();
     final g = LocalGroup(_s.nextId('g'), _groupName(name), []);
     _s.groups = [..._s.groups, g];
-    return ShelfGroupDto(id: g.id, name: g.name, items: const []);
+    return ShelfGroupDto(
+      id: g.id,
+      name: g.name,
+      cap: groupCap,
+      items: const [],
+    );
   }
 
   @override
   Future<ShelfGroupDto> renameGroup(String id, String name) async {
     await _wait();
     final g = _group(id)..name = _groupName(name);
-    return ShelfGroupDto(id: g.id, name: g.name, items: List.of(g.items));
+    return ShelfGroupDto(
+      id: g.id,
+      name: g.name,
+      cap: groupCap,
+      items: List.of(g.items),
+    );
   }
 
   /// 칸을 지우면 안의 테이프는 분류 안 함(맨 뒤)으로 가고 뜯은 상태가 된다.
@@ -877,6 +900,12 @@ class LocalApiClient implements ApiClient {
       _fail(409, ApiErrorCode.tapeNotOpened, '소포를 먼저 뜯어 주세요');
     }
     final target = body.groupId == null ? null : _group(body.groupId!);
+    // 칸 하나에 10개까지. 같은 칸 안에서 순서 바꾸기는 된다.
+    if (target != null &&
+        from.group?.id != target.id &&
+        target.items.length >= groupCap) {
+      _fail(409, ApiErrorCode.groupFull, '한 칸에는 10개까지 넣을 수 있어요');
+    }
     // 빼기
     if (from.group == null) {
       _s.unsorted = [..._s.unsorted]..removeAt(from.index);

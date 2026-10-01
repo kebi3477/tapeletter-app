@@ -32,6 +32,8 @@ import '../ui/my/widgets/credit_history_screen.dart';
 import '../ui/my/widgets/my_page_screen.dart';
 import '../ui/my/widgets/my_screen.dart';
 import '../ui/player/view_model/player_view_model.dart';
+import '../ui/core/ui/app_sheet.dart';
+import '../ui/player/widgets/full_open_sheet.dart';
 import '../ui/player/widgets/player_screen.dart';
 import '../ui/record/view_model/record_view_model.dart';
 import '../ui/record/widgets/record_screen.dart';
@@ -315,7 +317,40 @@ class _PlayerRouteState extends State<PlayerRoute> {
   void initState() {
     super.initState();
     _vm.addListener(_onLinkError);
+    _vm.addListener(_onFullOpen);
     _vm.open(widget.source, widget.itemId, linkChip: widget.linkChip);
+  }
+
+  bool _fullSheet = false;
+
+  /// 서랍이 꽉 차 소포를 못 뜯는다 → 서랍 꽉 참 시트 (`fullOpen`)
+  void _onFullOpen() {
+    final drawer = _vm.drawer;
+    if (!_vm.fullOpen || _fullSheet || drawer == null || !mounted) return;
+    _fullSheet = true;
+    final shop = context.read<ShopViewModel>();
+    final p = shop.drawerProduct;
+    showAppSheet<void>(
+      context,
+      builder: (sheet) => FullOpenSheet(
+        drawer: drawer,
+        buyLabel: '${p?.slots ?? 10}개 더 · ${p?.price ?? 100} 크레딧',
+        // 구매 확인 시트로 바꾼다. 사고 나면 재생 화면에서 다시 뜯을 수 있다.
+        onBuy: () {
+          Navigator.of(sheet).pop();
+          shop.buyDrawer();
+        },
+        // 재생을 닫고 서랍 탭으로 (`foTidy`)
+        onTidy: () async {
+          Navigator.of(sheet).pop();
+          await _vm.close();
+          if (mounted) context.go(Routes.shelf);
+        },
+      ),
+    ).whenComplete(() {
+      _fullSheet = false;
+      _vm.closeFullOpen();
+    });
   }
 
   /// 링크 테이프를 받지 못했다 → 소포 화면을 링크 오류 화면으로 바꾼다.
@@ -330,6 +365,7 @@ class _PlayerRouteState extends State<PlayerRoute> {
   @override
   void dispose() {
     _vm.removeListener(_onLinkError);
+    _vm.removeListener(_onFullOpen);
     _vm.dispose();
     super.dispose();
   }

@@ -13,9 +13,11 @@ void main() {
   Future<RecordHarness> pumpShop(
     WidgetTester tester, {
     String loc = '/shop',
+    int? cap,
   }) async {
     useDesignScreen(tester);
     final h = RecordHarness();
+    if (cap != null) h.store.cap = cap;
     await tester.pumpWidget(testApp(h, initialLocation: loc));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 700));
@@ -36,15 +38,15 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('서랍 넓히기가 맨 위, 거의 차면(10/12) 레드 틴트', (tester) async {
-    final h = await pumpShop(tester);
+  testWidgets('서랍 넓히기가 맨 위, 거의 차면(8/10) 레드 틴트', (tester) async {
+    final h = await pumpShop(tester, cap: 10);
     final card = find.text('서랍 넓히기');
     expect(
       tester.getTopLeft(card).dy,
       lessThan(tester.getTopLeft(find.text('1분 테이프')).dy),
     );
     expect(find.text('서랍이 거의 찼어요 · 10개 더 보관'), findsOneWidget);
-    expect(find.text('10/12'), findsOneWidget);
+    expect(find.text('8/10'), findsOneWidget);
     final tinted = find.ancestor(
       of: card,
       matching: find.byWidgetPredicate(

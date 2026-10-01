@@ -423,9 +423,13 @@ Future<void> showMoveSheet(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
+          Text('어느 칸으로 옮길까요?', style: AppText.sheetTitle),
           Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Text('어느 칸으로 옮길까요?', style: AppText.sheetTitle),
+            padding: const EdgeInsets.only(top: 4, bottom: 12),
+            child: Text(
+              '한 칸에 테이프를 10개까지 넣을 수 있어요',
+              style: AppText.suit(500, 13.5, color: AppColors.textSub),
+            ),
           ),
           Flexible(
             child: SingleChildScrollView(
@@ -435,13 +439,26 @@ Future<void> showMoveSheet(
                   SheetRow(
                     label: ShelfViewModel.unsortedName,
                     trailing: '${s.unsorted.length}개',
+                    trailingStyle: _moveCount(AppColors.textCount),
                     onTap: () => go(null),
                   ),
+                  // 꽉 찬 칸: 이름 `#B5B5B2`, 개수 레드 "꽉 참 10/10".
+                  // 누르면 안내 토스트만 (그 칸에 이미 있으면 맨 뒤로 옮긴다)
                   for (final g in s.groups)
                     SheetRow(
                       label: g.name,
-                      trailing: '${g.items.length}개',
-                      onTap: () => go(g.id),
+                      labelColor: viewModel.groupFull(g)
+                          ? AppColors.textFaint
+                          : null,
+                      trailing: viewModel.moveCountText(g),
+                      trailingStyle: _moveCount(
+                        viewModel.groupFull(g)
+                            ? AppColors.red
+                            : AppColors.textCount,
+                      ),
+                      onTap: () => viewModel.hasRoom(item, g.id)
+                          ? go(g.id)
+                          : viewModel.toast(ShelfViewModel.groupFullMessage),
                     ),
                 ],
               ),
@@ -452,6 +469,10 @@ Future<void> showMoveSheet(
     },
   );
 }
+
+/// 옮기기 시트 개수 `700 13px` tabular
+TextStyle _moveCount(Color color) =>
+    AppText.suit(700, 13, tabularNums: true, color: color);
 
 /// 칸 추가·수정 (`shGroup`). [group]이 있으면 이름 바꾸기 + 칸 삭제.
 Future<void> showGroupSheet(
@@ -547,8 +568,9 @@ class _GroupFormState extends State<_GroupForm> {
           ),
           const SizedBox(height: 6),
           Text(
-            '사람, 순간, 주제별로 모아 두면 오래 간직할 수 있어요',
-            style: AppText.suit(500, 14, color: AppColors.textSub),
+            '사람, 순간, 주제별로 모아 두면 오래 간직할 수 있어요\n'
+            '한 칸에 테이프를 10개까지 넣을 수 있어요',
+            style: AppText.suit(500, 14, height: 1.5, color: AppColors.textSub),
           ),
           const SizedBox(height: 18),
           Wrap(

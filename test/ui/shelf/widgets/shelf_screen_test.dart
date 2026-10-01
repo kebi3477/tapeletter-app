@@ -36,9 +36,9 @@ void main() {
       vmOf(tester).shelf.itemsOf(groupId).map((x) => x.from).toList();
 
   testWidgets('목록 보기: 헤더, 분류 안 함, 칸, 거의 참, 탭바 레드 점', (tester) async {
-    await pumpShelf(tester);
+    await pumpShelf(tester, (h) => h.store.cap = 10);
     expect(find.text('서랍'), findsWidgets);
-    expect(find.text('10/12'), findsOneWidget);
+    expect(find.text('8/10'), findsOneWidget);
     expect(find.text('분류 안 함'), findsOneWidget);
     expect(find.text('새 테이프 2'), findsOneWidget);
     expect(find.text('${at(9, 24)} · 1분 · 소포 도착'), findsOneWidget);
@@ -93,9 +93,9 @@ void main() {
   });
 
   testWidgets('꽉 찬 서랍 배너', (tester) async {
-    await pumpShelf(tester, (h) => h.store.cap = 10);
+    await pumpShelf(tester, (h) => h.store.cap = 8);
     expect(find.text('서랍이 꽉 찼어요'), findsOneWidget);
-    expect(find.text('지우거나 넓혀야 새 테이프를 받을 수 있어요'), findsOneWidget);
+    expect(find.text('지우거나 넓혀야 새 소포를 뜯을 수 있어요'), findsOneWidget);
     await tester.tap(find.text('넓히기 ›'));
     await tester.pump();
     await tester.pump();

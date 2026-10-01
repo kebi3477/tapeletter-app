@@ -91,6 +91,8 @@ class PlayerViewModel extends ChangeNotifier {
        _share = shareRepository {
     _subs.add(_player.position.listen(_onPosition));
     _subs.add(_player.completed.listen((_) => _onEnd()));
+    // 서랍을 넓히거나 정리하면 꽉 참 여부를 다시 본다
+    _shelf.addListener(_onShelfChanged);
   }
 
   /// 테이프를 열 때 불러오기 표시 `loadTrack(700)`
@@ -132,9 +134,36 @@ class PlayerViewModel extends ChangeNotifier {
   Timer? _tearTimer;
   bool _closed = false;
   bool _claiming = false;
+
+  /// 소포 화면에서 본 서랍 — 꽉 찼으면(`stored >= cap`) 뜯기 연출을 시작하지 않는다.
+  Shelf? _drawer;
+  bool _fullOpen = false;
   (LinkErrorKind, String?)? _linkError;
 
   QueueSource? get source => _source;
+
+  /// 서랍이 꽉 차 소포를 못 뜯는다 → 서랍 꽉 참 시트 (`sheet.kind === 'fullOpen'`)
+  bool get fullOpen => _fullOpen;
+
+  /// 꽉 참 시트의 칸별 보관 카드에 쓸 서랍
+  Shelf? get drawer => _drawer;
+
+  /// 시트를 닫았다
+  void closeFullOpen() {
+    if (!_fullOpen) return;
+    _fullOpen = false;
+    notifyListeners();
+  }
+
+  Future<void> _checkDrawer() async {
+    final s = await _shelf.getShelf();
+    if (s is Ok<Shelf>) _drawer = s.value;
+  }
+
+  void _onShelfChanged() {
+    if (_closed || _phase != ViewerPhase.parcel) return;
+    unawaited(_checkDrawer());
+  }
 
   /// 링크 테이프를 받지 못했다 (이미 받음·만료) → 링크 오류 화면으로
   (LinkErrorKind, String?)? get linkError => _linkError;
@@ -231,6 +260,9 @@ class PlayerViewModel extends ChangeNotifier {
       return;
     }
     if (!item.opened) {
+      // 서랍이 꽉 찼는지 미리 본다 (뜯은 테이프 수 >= 한도). 못 불러오면 서버가 정한다.
+      await _checkDrawer();
+      if (_closed) return;
       _phase = ViewerPhase.parcel;
       notifyListeners();
       return;
@@ -288,6 +320,12 @@ class PlayerViewModel extends ChangeNotifier {
       item = await _claim(token);
       if (item == null || _phase != ViewerPhase.parcel) return;
     }
+    // 꽉 찬 서랍: 소포는 그대로 두고 꽉 참 시트 (효과음·연출 없음).
+    if (_drawer?.full ?? false) {
+      _fullOpen = true;
+      notifyListeners();
+      return;
+    }
     _phase = ViewerPhase.tearing;
     unawaited(_sound.play(UiSound.open));
     _queue = [
@@ -307,9 +345,16 @@ class PlayerViewModel extends ChangeNotifier {
       _queue = [
         for (final x in _queue) x.id == item.id ? x.copyWith(opened: false) : x,
       ];
-      _toast.show(
-        error is ApiException ? error.message : '잠시 문제가 생겼어요. 다시 시도해 주세요',
-      );
+      if (error is ApiException && error.code == ApiErrorCode.drawerFull) {
+        // 앱이 본 서랍이 늦었다 — 다시 받아 꽉 참 시트로
+        await _checkDrawer();
+        if (_closed) return;
+        _fullOpen = true;
+      } else {
+        _toast.show(
+          error is ApiException ? error.message : '잠시 문제가 생겼어요. 다시 시도해 주세요',
+        );
+      }
       notifyListeners();
     }
   }
@@ -463,6 +508,7 @@ class PlayerViewModel extends ChangeNotifier {
   @override
   void dispose() {
     _closed = true;
+    _shelf.removeListener(_onShelfChanged);
     _tearTimer?.cancel();
     for (final s in _subs) {
       s.cancel();

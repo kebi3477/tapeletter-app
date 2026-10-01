@@ -250,6 +250,20 @@ class ShopViewModel extends ChangeNotifier {
     if (item != null) buy(item);
   }
 
+  /// 서랍 넓히기 상품 (`etc[0]`). 상품 목록을 아직 못 받았으면 null.
+  DrawerProduct? get drawerProduct => _catalog.drawer.firstOrNull;
+
+  /// 재생 화면의 서랍 꽉 참 시트에서 "서랍 넓히기" (`foBuy` → `buy(etc[0])`) — 구매 확인 시트.
+  Future<void> buyDrawer() async {
+    var item = drawerProduct;
+    if (item == null) {
+      final c = await _shop.getCatalog();
+      if (c is Ok<ShopCatalog>) _catalog = c.value;
+      item = drawerProduct;
+    }
+    if (item != null) buy(item);
+  }
+
   // ── 시트 ──────────────────────────────────────────
   void _show(ShopSheet? s) {
     _sheet = s;

@@ -10,6 +10,7 @@ import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../../testing/dates.dart';
+import '../../../../testing/shelf_fill.dart';
 
 void main() {
   late LocalStore store;
@@ -39,11 +40,16 @@ void main() {
   String idOf(String groupId, String from) =>
       vm.shelf.itemsOf(groupId).firstWhere((x) => x.from == from).id;
 
-  test('불러오기: 보관량 10/12, 거의 참, 칸 3개', () {
+  test('불러오기: 보관량(뜯은 테이프만) 8/12, 칸 3개, 2개 남으면 거의 참', () {
     fakeAsync((async) {
       vm = make(async);
-      expect(vm.capText, '10/12');
+      expect(vm.capText, '8/12');
       expect(vm.capFull, isFalse);
+      expect(vm.capNear, isFalse);
+      store.cap = 10;
+      vm.load();
+      async.flushMicrotasks();
+      expect(vm.capText, '8/10');
       expect(vm.capNear, isTrue);
       expect(vm.fullOn, isFalse);
       expect(vm.emptyOn, isFalse);
@@ -59,7 +65,7 @@ void main() {
   test('꽉 참 배너와 빈 서랍', () {
     fakeAsync((async) {
       vm = make(async);
-      store.cap = 10;
+      store.cap = 8;
       vm.load();
       async.flushMicrotasks();
       expect(vm.fullOn, isTrue);
@@ -72,6 +78,98 @@ void main() {
       async.flushMicrotasks();
       expect(vm.emptyOn, isTrue);
       expect(vm.fullOn, isFalse);
+    });
+  });
+
+  group('칸당 10개 (gFull)', () {
+    /// '승진 축하'(g-2)를 [n]개로 채우고 다시 불러온다.
+    void fill(FakeAsync async, int n) {
+      fillGroup(store, 1, n);
+      vm.load();
+      async.flushMicrotasks();
+    }
+
+    test('칸 개수 n/10, 10개면 "10/10 · 꽉 참", 옮기기 시트는 "꽉 참 10/10"', () {
+      fakeAsync((async) {
+        vm = make(async);
+        final g1 = vm.shelf.groups[0];
+        expect(vm.groupCountText(g1), '4/10');
+        expect(vm.moveCountText(g1), '4/10');
+        expect(vm.groupFull(g1), isFalse);
+        fill(async, 9);
+        expect(vm.groupCountText(vm.shelf.groups[1]), '9/10');
+        expect(vm.groupFull(vm.shelf.groups[1]), isFalse);
+        fill(async, 10);
+        final g2 = vm.shelf.groups[1];
+        expect(vm.groupCountText(g2), '10/10 · 꽉 참');
+        expect(vm.moveCountText(g2), '꽉 참 10/10');
+        expect(vm.groupFull(g2), isTrue);
+      });
+    });
+
+    test('옮기기 시트: 9개 칸에는 들어가고(10/10), 꽉 찬 칸은 토스트만', () {
+      fakeAsync((async) {
+        vm = make(async);
+        fill(async, 9);
+        vm.moveTo(idOf('g-1', '엄마'), 'g-2');
+        async.flushMicrotasks();
+        expect(store.groups[1].items.length, 10);
+        expect(toast.message, '‘승진 축하’ 칸으로 옮겼어요');
+
+        final id = idOf('g-1', '민수');
+        expect(vm.hasRoom(vm.shelf.find(id)!, 'g-2'), isFalse);
+        vm.moveTo(id, 'g-2');
+        async.flushMicrotasks();
+        expect(toast.message, '한 칸에는 테이프를 10개까지 넣을 수 있어요');
+        expect(names('g-1'), contains('민수'));
+        expect(store.groups[1].items.length, 10);
+        // 분류 안 함은 제한 없다
+        vm.moveTo(id, null);
+        async.flushMicrotasks();
+        expect(names(null), contains('민수'));
+      });
+    });
+
+    test('꽉 찬 칸 안에서 순서 바꾸기·같은 칸으로 옮기기는 된다', () {
+      fakeAsync((async) {
+        vm = make(async);
+        fill(async, 10);
+        final first = vm.shelf.groups[1].items.first;
+        expect(vm.hasRoom(first, 'g-2'), isTrue);
+        vm.startDrag(first.id);
+        vm.dragOver(const DropTarget('g-2', 3));
+        vm.endDrag();
+        async.flushMicrotasks();
+        expect(vm.shelf.groups[1].items[2].id, first.id);
+        expect(store.groups[1].items[2].id, first.id);
+      });
+    });
+
+    test('드래그: 꽉 찬 칸에 놓으면 되돌리고 "‘칸’ 칸이 꽉 찼어요 · 한 칸에 10개까지"', () {
+      fakeAsync((async) {
+        vm = make(async);
+        fill(async, 10);
+        vm.startDrag(idOf('g-1', '엄마'));
+        vm.dragOver(const DropTarget('g-2', 0));
+        vm.endDrag();
+        async.flushMicrotasks();
+        expect(toast.message, '‘승진 축하’ 칸이 꽉 찼어요 · 한 칸에 10개까지');
+        expect(names('g-1'), ['엄마', '민수', '수아', '할머니']);
+        expect(store.groups[1].items.length, 10);
+        expect(vm.dragging, isFalse);
+      });
+    });
+
+    test('서버 409 GROUP_FULL(앱 상태가 늦음): 되돌리고 같은 토스트', () {
+      fakeAsync((async) {
+        vm = make(async);
+        fillGroup(store, 1, 10); // 앱은 아직 2개로 안다
+        vm.moveTo(idOf('g-1', '엄마'), 'g-2');
+        async.flushMicrotasks();
+        expect(toast.message, '‘승진 축하’ 칸이 꽉 찼어요 · 한 칸에 10개까지');
+        expect(names('g-1'), contains('엄마'));
+        expect(store.groups[0].items.length, 4);
+      });
     });
   });
 
@@ -210,7 +308,7 @@ void main() {
       expect(names(null), ['지현', '하늘', '박과장님', '은비']);
       expect(vm.shelf.unsorted.last.opened, isTrue);
       expect(toast.message, '칸을 지웠어요 · 테이프는 분류 안 함으로');
-      expect(vm.capText, '10/12');
+      expect(vm.capText, '8/12');
     });
   });
 
@@ -220,7 +318,7 @@ void main() {
       vm.deleteItem(idOf('g-2', '은비'));
       async.flushMicrotasks();
       expect(names('g-2'), ['박과장님']);
-      expect(vm.capText, '9/12');
+      expect(vm.capText, '7/12');
       expect(toast.message, '테이프를 지웠어요');
     });
   });

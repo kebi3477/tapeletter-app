@@ -3,6 +3,7 @@ import 'package:tapeletter_app/data/repositories/shelf_repository_remote.dart';
 import 'package:tapeletter_app/data/services/local/local_api_client.dart';
 import 'package:tapeletter_app/data/services/local/local_behavior.dart';
 import 'package:tapeletter_app/data/services/local/local_store.dart';
+import 'package:tapeletter_app/data/services/sound_service.dart';
 import 'package:tapeletter_app/domain/models/tape_repeat.dart';
 import 'package:tapeletter_app/ui/core/ui/toast.dart';
 import 'package:tapeletter_app/ui/player/view_model/player_view_model.dart';
@@ -10,23 +11,29 @@ import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../../testing/fakes/services/fake_audio_player_service.dart';
+import '../../../../testing/fakes/services/fake_sound_service.dart';
 
 void main() {
   late LocalStore store;
   late FakeAudioPlayerService player;
   late ToastController toast;
   late PlayerViewModel vm;
+  late FakeSoundService sound;
+  late ShelfRepositoryRemote shelf;
 
   PlayerViewModel make({LocalBehavior behavior = LocalBehavior.instant}) {
     store = LocalStore(clock: () => DateTime.utc(2026, 9, 25, 3));
     player = FakeAudioPlayerService(duration: null);
     toast = ToastController();
+    sound = FakeSoundService();
     final api = LocalApiClient(store, behavior);
+    shelf = ShelfRepositoryRemote(api);
     return PlayerViewModel(
-      shelfRepository: ShelfRepositoryRemote(api),
+      shelfRepository: shelf,
       friendRepository: FriendRepositoryRemote(api),
       player: player,
       toast: toast,
+      sound: sound,
     );
   }
 
@@ -77,6 +84,102 @@ void main() {
       expect(vm.load, TrackLoad.loading);
       async.elapse(PlayerViewModel.openLoad);
       expect(vm.playing, isTrue);
+    });
+  });
+
+  group('서랍이 꽉 찼을 때 소포 뜯기 (fullOpen)', () {
+    // 처음 서랍: 뜯은 테이프 8개(칸 4+2+2) + 안 뜯은 소포 2개(세지 않음)
+    void openParcel(FakeAsync async, int i) {
+      vm.open(const UnsortedSource(), store.unsorted[i].id);
+      async.flushMicrotasks();
+      expect(vm.phase, ViewerPhase.parcel);
+    }
+
+    test('stored >= cap: 연출·효과음 없이 꽉 참 시트, 소포는 그대로', () {
+      fakeAsync((async) {
+        vm = make();
+        store.cap = 8;
+        openParcel(async, 0);
+        vm.unwrap();
+        async.flushMicrotasks();
+        expect(vm.phase, ViewerPhase.parcel);
+        expect(vm.fullOpen, isTrue);
+        expect(vm.drawer!.stored, 8);
+        expect(sound.played, isEmpty);
+        expect(store.unsorted.first.opened, isFalse);
+        expect(toast.message, isNull);
+        vm.closeFullOpen();
+        expect(vm.fullOpen, isFalse);
+      });
+    });
+
+    test('경계: 한 자리 남으면 뜯고, 그다음 소포는 꽉 참', () {
+      fakeAsync((async) {
+        vm = make();
+        store.cap = 9;
+        openParcel(async, 0);
+        vm.unwrap();
+        expect(vm.phase, ViewerPhase.tearing);
+        expect(sound.played, [UiSound.open]);
+        async.flushMicrotasks();
+        expect(store.unsorted.first.opened, isTrue);
+        async.elapse(const Duration(seconds: 2));
+        vm.dispose();
+
+        vm = PlayerViewModel(
+          shelfRepository: shelf,
+          friendRepository: FriendRepositoryRemote(
+            LocalApiClient(store, LocalBehavior.instant),
+          ),
+          player: player,
+          toast: toast,
+          sound: sound,
+        );
+        openParcel(async, 1);
+        vm.unwrap();
+        async.flushMicrotasks();
+        expect(vm.fullOpen, isTrue);
+        expect(vm.drawer!.stored, 9);
+        expect(store.unsorted[1].opened, isFalse);
+      });
+    });
+
+    test('서버 409 DRAWER_FULL(앱 상태가 늦음): 소포로 되돌리고 꽉 참 시트', () {
+      fakeAsync((async) {
+        vm = make();
+        openParcel(async, 0);
+        store.cap = 8; // 앱이 본 뒤에 꽉 찼다
+        vm.unwrap();
+        expect(vm.phase, ViewerPhase.tearing);
+        async.flushMicrotasks();
+        expect(vm.phase, ViewerPhase.parcel);
+        expect(vm.queue.first.opened, isFalse);
+        expect(vm.fullOpen, isTrue);
+        expect(vm.drawer!.full, isTrue);
+        expect(store.unsorted.first.opened, isFalse);
+        async.elapse(const Duration(seconds: 2));
+        expect(vm.phase, ViewerPhase.parcel, reason: '찢기 타이머가 취소됐다');
+      });
+    });
+
+    test('서랍을 넓히면 다시 뜯을 수 있다', () {
+      fakeAsync((async) {
+        vm = make();
+        store.cap = 8;
+        openParcel(async, 0);
+        vm.unwrap();
+        async.flushMicrotasks();
+        expect(vm.fullOpen, isTrue);
+        vm.closeFullOpen();
+        store.cap = 18;
+        shelf.invalidate(); // 상점에서 서랍 넓히기
+        async.flushMicrotasks();
+        vm.unwrap();
+        expect(vm.phase, ViewerPhase.tearing);
+        async.flushMicrotasks();
+        expect(store.unsorted.first.opened, isTrue);
+        async.elapse(const Duration(seconds: 2));
+      });
     });
   });
 

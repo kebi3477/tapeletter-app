@@ -14,6 +14,7 @@ class AppButton extends StatelessWidget {
     this.background = AppColors.ink,
     this.foreground = AppColors.paper,
     this.leading,
+    this.trailing,
     this.gap = 8,
     this.height = AppSizes.primaryButton,
     this.radius = AppRadius.button,
@@ -33,6 +34,7 @@ class AppButton extends StatelessWidget {
     this.textStyle,
   }) : background = AppColors.surface,
        foreground = AppColors.ink,
+       trailing = null,
        borderColor = null;
 
   final String label;
@@ -40,6 +42,9 @@ class AppButton extends StatelessWidget {
   final Color background;
   final Color foreground;
   final Widget? leading;
+
+  /// 라벨 뒤 보조 글자 (서랍 꽉 참 시트 "10개 더 · 100 크레딧")
+  final Widget? trailing;
   final double gap;
   final double height;
   final double radius;
@@ -82,6 +87,7 @@ class AppButton extends StatelessWidget {
                   color: foreground,
                 ),
               ),
+              if (trailing != null) ...[SizedBox(width: gap), trailing!],
             ],
           ),
         ),

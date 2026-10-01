@@ -40,7 +40,8 @@ void main() {
       expect(vm.credits, 120);
       expect(vm.ownedOf(TapeType.m1), 2);
       expect(vm.adsLeft, 3);
-      expect('${vm.stored}/${vm.cap}', '10/12');
+      // 보관량은 뜯은 테이프만 센다 (안 뜯은 소포 2개 제외)
+      expect('${vm.stored}/${vm.cap}', '8/12');
     });
   });
 

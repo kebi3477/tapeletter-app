@@ -61,6 +61,12 @@ abstract final class ApiErrorCode {
   static const recordingTooLarge = 'RECORDING_TOO_LARGE';
   static const audioNotReady = 'AUDIO_NOT_READY';
   static const groupNotFound = 'GROUP_NOT_FOUND';
+
+  /// 서랍이 꽉 차서 소포를 뜯을 수 없다 (`POST /deliveries/{id}/open` 409)
+  static const drawerFull = 'DRAWER_FULL';
+
+  /// 그 칸에 10개가 차 있다 (`PATCH /shelf/items/{id}` 409)
+  static const groupFull = 'GROUP_FULL';
   static const invalidGroupName = 'INVALID_GROUP_NAME';
   static const internalError = 'INTERNAL_ERROR';
   static const networkError = 'NETWORK_ERROR';

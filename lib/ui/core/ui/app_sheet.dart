@@ -79,6 +79,7 @@ class SheetRow extends StatelessWidget {
     this.trailingStyle,
     this.danger = false,
     this.divider = true,
+    this.labelColor,
   });
 
   final String label;
@@ -87,6 +88,9 @@ class SheetRow extends StatelessWidget {
   final TextStyle? trailingStyle;
   final bool danger;
   final bool divider;
+
+  /// 글자색 (없으면 검정, [danger]면 레드)
+  final Color? labelColor;
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +114,8 @@ class SheetRow extends StatelessWidget {
                   style: AppText.suit(
                     700,
                     16,
-                    color: danger ? AppColors.red : AppColors.ink,
+                    color:
+                        labelColor ?? (danger ? AppColors.red : AppColors.ink),
                   ),
                 ),
               ),

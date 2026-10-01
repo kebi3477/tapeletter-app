@@ -92,6 +92,7 @@ extension ShelfGroupDtoMapper on ShelfGroupDto {
   ShelfGroup toDomain() => ShelfGroup(
     id: id,
     name: name,
+    cap: cap,
     items: items.map((x) => x.toDomain()).toList(),
   );
 }

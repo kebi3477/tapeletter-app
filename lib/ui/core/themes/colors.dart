@@ -77,6 +77,30 @@ abstract final class AppColors {
   static const shelfPlank = Color(0xFFDDD3C2);
   static const shelfDash = Color(0xFFCFC6B5);
 
+  // 서랍 꽉 참 시트 (shFullOpen)
+  /// 꽉 찬 선반 일러스트의 등 10개 (`foSpines`)
+  static const fullSpines = [
+    Color(0xFF1E1E1E),
+    Color(0xFFC9A06A),
+    Color(0xFFE5402B),
+    Color(0xFF2B4A6F),
+    Color(0xFF1E1E1E),
+    Color(0xFFE8E2D6),
+    Color(0xFFE5402B),
+    Color(0xFFC9A06A),
+    Color(0xFF2B4A6F),
+    Color(0xFF1E1E1E),
+  ];
+
+  /// 등 오른쪽 그림자 (`inset -2px 0 0 rgba(0,0,0,.14)`)
+  static const spineShade = Color(0x24000000);
+
+  /// 칸별 보관 카드 구분선 (`#E8E8E5`)
+  static const cardDivider = Color(0xFFE8E8E5);
+
+  /// 검정 버튼 안 보조 글자 (`rgba(255,255,255,.7)`)
+  static const paperMuted = Color(0xB3FFFFFF);
+
   // 테이프 메모 (shMemo, ⋯ 메뉴 메모 카드)
   /// 메모 입력칸·카드 바탕 (`#FBF9F5`)
   static const memoPaper = Color(0xFFFBF9F5);

@@ -76,7 +76,9 @@ class ShelfListSections extends StatelessWidget {
                     onTap: () => onEditGroup(g),
                     child: SectionHeader(
                       name: g.name,
-                      count: '${g.items.length}개',
+                      count: vm.groupCountText(g),
+                      groupCount: true,
+                      countFull: vm.groupFull(g),
                       padding: const EdgeInsets.fromLTRB(12, 0, 12, 6),
                     ),
                   ),
@@ -122,7 +124,8 @@ class ShelfListSections extends StatelessWidget {
   }
 }
 
-/// 칸 제목 `800 17px` + 오른쪽 개수 `600 13px #A5A5A2`.
+/// 칸 제목 `800 17px` + 오른쪽 개수. 분류 안 함은 `600 13px #A5A5A2` "n개",
+/// 칸은 `700 13px` tabular `n/10`, 꽉 차면 레드 `10/10 · 꽉 참` (`groupList.count`).
 /// 분류 안 함에는 "새 테이프 N" 알약.
 class SectionHeader extends StatelessWidget {
   const SectionHeader({
@@ -130,11 +133,17 @@ class SectionHeader extends StatelessWidget {
     required this.name,
     required this.count,
     this.newCount = 0,
+    this.groupCount = false,
+    this.countFull = false,
     required this.padding,
   });
 
   final String name;
   final String count;
+
+  /// 사용자 칸의 `n/10` (700). 분류 안 함은 false.
+  final bool groupCount;
+  final bool countFull;
   final int newCount;
   final EdgeInsets padding;
 
@@ -175,7 +184,15 @@ class SectionHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          Text(count, style: AppText.suit(600, 13, color: AppColors.textCount)),
+          Text(
+            count,
+            style: AppText.suit(
+              groupCount ? 700 : 600,
+              13,
+              tabularNums: groupCount,
+              color: countFull ? AppColors.red : AppColors.textCount,
+            ),
+          ),
         ],
       ),
     );

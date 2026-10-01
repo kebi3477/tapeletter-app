@@ -137,7 +137,8 @@ void main() {
     expect(shelf.unsorted.where((x) => !x.opened), hasLength(2));
     expect(shelf.unsorted.where((x) => x.viaLink), hasLength(1));
     expect(shelf.groups.map((g) => g.name), ['2026 생일', '승진 축하', '엄마 목소리']);
-    expect(shelf.stored, 10);
+    expect(shelf.stored, 8, reason: '뜯은 테이프만 센다');
+    expect(shelf.groups.map((g) => g.cap), [10, 10, 10]);
 
     final wallet = await a.api.getWallet();
     expect(wallet.credits, 120);

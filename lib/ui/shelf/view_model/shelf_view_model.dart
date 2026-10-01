@@ -129,6 +129,37 @@ class ShelfViewModel extends ChangeNotifier {
   /// 안 뜯은 소포를 칸에 놓았을 때 (계약서 `TAPE_NOT_OPENED` 문구)
   static const notOpenedMessage = '소포를 먼저 뜯어 주세요';
 
+  /// 옮기기 시트에서 꽉 찬 칸을 눌렀을 때 (`moveTo` → `gFull`)
+  static const groupFullMessage = '한 칸에는 테이프를 10개까지 넣을 수 있어요';
+
+  /// 끌어다 놓은 칸이 꽉 찼을 때 (`dragEnd` → `gFull`), 서버 `GROUP_FULL`
+  static String groupFullDropMessage(String name) =>
+      '‘$name’ 칸이 꽉 찼어요 · 한 칸에 10개까지';
+
+  /// 칸 헤더 개수 (`groupList.count`): `4/10`, 꽉 차면 `10/10 · 꽉 참`
+  String groupCountText(ShelfGroup g) => groupFull(g)
+      ? '${g.items.length}/${g.cap} · 꽉 참'
+      : '${g.items.length}/${g.cap}';
+
+  /// 옮기기 시트 개수 (`moveTargets.count`): `4/10`, 꽉 차면 `꽉 참 10/10`
+  String moveCountText(ShelfGroup g) => groupFull(g)
+      ? '꽉 참 ${g.items.length}/${g.cap}'
+      : '${g.items.length}/${g.cap}';
+
+  /// 칸이 꽉 찼다 (`items.length >= 10`) — 개수 레드, 옮기기 시트에서 흐린 이름
+  bool groupFull(ShelfGroup g) => g.full;
+
+  /// [item]을 [groupId]로 옮길 수 있는지 (`!gFull`)
+  bool hasRoom(TapeItem item, String? groupId) => !_noRoom(item, groupId);
+
+  /// [item]을 다른 칸 [groupId]로 넣을 자리가 없는지. 같은 칸 안의 순서 바꾸기와
+  /// 분류 안 함은 제한이 없다.
+  bool _noRoom(TapeItem item, String? groupId) {
+    if (groupId == null || item.groupId == groupId) return false;
+    final g = _shelf.group(groupId);
+    return g != null && g.full;
+  }
+
   // ── 불러오기 ─────────────────────────────────────
   Future<void> load() async {
     final r = await _repo.getShelf();
@@ -247,6 +278,12 @@ class ShelfViewModel extends ChangeNotifier {
       notifyListeners();
       return;
     }
+    if (_noRoom(from, t.groupId)) {
+      // 꽉 찬 칸에 놓으면 제자리로 되돌린다
+      _toast.show(groupFullDropMessage(_shelf.group(t.groupId!)!.name));
+      notifyListeners();
+      return;
+    }
     var idx = t.index;
     if (from.groupId == t.groupId) {
       final oi = _shelf.itemsOf(t.groupId).indexWhere((x) => x.id == itemId);
@@ -259,6 +296,10 @@ class ShelfViewModel extends ChangeNotifier {
   Future<void> moveTo(String itemId, String? groupId) async {
     final from = _shelf.find(itemId);
     if (from == null) return;
+    if (_noRoom(from, groupId)) {
+      _toast.show(groupFullMessage);
+      return;
+    }
     await _move(from, groupId, null, toastAlways: true);
   }
 
@@ -292,7 +333,13 @@ class ShelfViewModel extends ChangeNotifier {
     _pending--;
     if (r case Error(:final error)) {
       _shelf = prev;
-      _toast.show(_message(error));
+      final full =
+          error is ApiException && error.code == ApiErrorCode.groupFull;
+      _toast.show(
+        full && groupId != null
+            ? groupFullDropMessage(prev.group(groupId)?.name ?? '')
+            : _message(error),
+      );
       notifyListeners();
     }
   }

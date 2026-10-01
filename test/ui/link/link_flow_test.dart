@@ -59,6 +59,58 @@ void main() {
     await tester.pump(const Duration(seconds: 3));
   });
 
+  testWidgets('서랍이 꽉 찼으면: 받기는 되고, 뜯기 대신 꽉 참 시트 → 넓히면 다시 뜯는다', (tester) async {
+    final h = await pump(tester);
+    h.store.cap = 8; // 뜯은 테이프 8개 (안 뜯은 소포는 세지 않는다)
+    await open(tester, h, 'tapeletter://t/abc');
+    await tester.tap(find.text('탭해서 뜯기'));
+    await settle(tester);
+    // 받기는 됐다 — 소포는 분류 안 함에 안 뜯은 채로
+    final id = h.store.claimedLinks['abc']!;
+    expect(h.store.unsorted.first.id, id);
+    expect(h.store.unsorted.first.opened, isFalse);
+    expect(h.sound.played, isEmpty, reason: '뜯기 효과음 없음');
+    expect(find.text('탭해서 뜯기'), findsOneWidget, reason: '소포 그대로');
+    // 꽉 참 시트
+    expect(find.text('칸별 보관'), findsOneWidget);
+    expect(find.text('한 칸에 최대 10개'), findsOneWidget);
+    expect(
+      find.text('소포를 뜯으려면 서랍에 자리가 필요해요.\n테이프를 지우거나 서랍을 넓혀 주세요.'),
+      findsOneWidget,
+    );
+    expect(find.text('0개'), findsOneWidget, reason: '분류 안 함은 뜯은 테이프만');
+    expect(find.text('4/10'), findsOneWidget);
+    expect(find.text('8/8'), findsOneWidget, reason: '서랍 전체');
+    expect(find.text('10개 더 · 100 크레딧'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    // 서랍 넓히기 → 구매 확인 → 사고 나면 재생 화면에서 다시 뜯는다
+    await tester.tap(find.text('서랍 넓히기'));
+    await settle(tester);
+    expect(find.text('칸별 보관'), findsNothing);
+    await tester.tap(find.text('구매'));
+    await settle(tester);
+    expect(h.store.cap, 18);
+    await tester.tap(find.text('탭해서 뜯기'));
+    await settle(tester);
+    expect(h.store.unsorted.first.opened, isTrue);
+    expect(find.text('탭해서 뜯기'), findsNothing, reason: '재생 화면');
+    await tester.pump(const Duration(seconds: 3));
+  });
+
+  testWidgets('꽉 참 시트 → 서랍 정리하기: 재생을 닫고 서랍 탭', (tester) async {
+    final h = await pump(tester);
+    h.store.cap = 8;
+    await open(tester, h, 'tapeletter://t/abc');
+    await tester.tap(find.text('탭해서 뜯기'));
+    await settle(tester);
+    await tester.tap(find.text('서랍 정리하기'));
+    await settle(tester);
+    expect(find.byType(PlayerScreen), findsNothing);
+    expect(find.text('지우거나 넓혀야 새 소포를 뜯을 수 있어요'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 3));
+  });
+
   testWidgets('뜯지 않고 닫으면 링크는 그대로 받을 수 있다', (tester) async {
     final h = await pump(tester);
     await open(tester, h, 'tapeletter://t/abc');

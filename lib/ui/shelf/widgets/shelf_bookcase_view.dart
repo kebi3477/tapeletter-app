@@ -144,7 +144,9 @@ class ShelfBookcase extends StatelessWidget {
                     onTap: () => onEditGroup(g),
                     child: SectionHeader(
                       name: g.name,
-                      count: '${g.items.length}개',
+                      count: vm.groupCountText(g),
+                      groupCount: true,
+                      countFull: vm.groupFull(g),
                       padding: const EdgeInsets.only(bottom: 10),
                     ),
                   ),

@@ -36,6 +36,23 @@ void main() {
     expect(me.drawer.unopenedCount, 0);
   });
 
+  test('GET /shelf (§11) — stored는 뜯은 수, groups[].cap(없으면 10)', () {
+    final d = ShelfDto.fromJson({
+      'stored': 12,
+      'cap': 12,
+      'full': true,
+      'unopenedCount': 1,
+      'unsorted': [],
+      'groups': [
+        {'id': 'g1', 'name': '생일', 'cap': 10, 'items': []},
+        {'id': 'g2', 'name': '여행', 'items': []},
+      ],
+    });
+    expect(d.groups.map((g) => g.cap), [10, 10]);
+    expect(d.toDomain().groups.first.cap, 10);
+    expect(d.toDomain().groups.first.full, isFalse);
+  });
+
   test('ShelfItem (§2)', () {
     final x = ShelfItemDto.fromJson({
       'id': 'd1',

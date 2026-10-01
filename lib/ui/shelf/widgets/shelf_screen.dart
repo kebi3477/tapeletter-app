@@ -328,7 +328,7 @@ class _FullBanner extends StatelessWidget {
                   Text('서랍이 꽉 찼어요', style: AppText.suit(800, 14.5)),
                   const SizedBox(height: 2),
                   Text(
-                    '지우거나 넓혀야 새 테이프를 받을 수 있어요',
+                    '지우거나 넓혀야 새 소포를 뜯을 수 있어요',
                     style: AppText.suit(
                       500,
                       12.5,

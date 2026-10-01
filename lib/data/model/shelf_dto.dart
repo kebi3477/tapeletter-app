@@ -116,22 +116,29 @@ class ShelfGroupDto {
   const ShelfGroupDto({
     required this.id,
     required this.name,
+    this.cap = 10,
     required this.items,
   });
 
   final String id;
   final String name;
+
+  /// 한 칸에 넣을 수 있는 테이프 수 (서버 `GROUP_CAPACITY`, 지금 10). 없으면 10.
+  /// 예전에 넘겨 넣은 칸은 `items.length > cap`일 수 있다.
+  final int cap;
   final List<ShelfItemDto> items;
 
   factory ShelfGroupDto.fromJson(Json j) => ShelfGroupDto(
     id: j['id'] as String,
     name: j['name'] as String,
+    cap: (j['cap'] as int?) ?? 10,
     items: parseList(j['items'], ShelfItemDto.fromJson),
   );
 
   Json toJson() => {
     'id': id,
     'name': name,
+    'cap': cap,
     'items': items.map((e) => e.toJson()).toList(),
   };
 }
@@ -147,6 +154,7 @@ class ShelfDto {
     required this.groups,
   });
 
+  /// 뜯은 테이프 수 (안 뜯은 소포는 세지 않는다)
   final int stored;
   final int cap;
   final bool full;
