@@ -29,7 +29,7 @@ class AppChoiceChip extends StatelessWidget {
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
-          height: AppSizes.chip,
+          constraints: const BoxConstraints(minHeight: AppSizes.chip),
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: selected ? AppColors.ink : AppColors.surface,

@@ -4,6 +4,7 @@ import '../themes/colors.dart';
 import '../themes/dimens.dart';
 import '../themes/text_styles.dart';
 import 'tappable.dart';
+import 'keep_all.dart';
 
 /// 하단 56 버튼 (radius 16, `700 16px`). 검정·회색·카카오 변형은 색만 바꾼다.
 class AppButton extends StatelessWidget {
@@ -68,7 +69,9 @@ class AppButton extends StatelessWidget {
             : Haptic.selection,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
-          height: height,
+          // 큰 글씨(v10.4): 고정 높이 대신 최소 높이
+          constraints: BoxConstraints(minHeight: height),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           decoration: BoxDecoration(
             color: background,
             borderRadius: BorderRadius.circular(radius),
@@ -81,10 +84,13 @@ class AppButton extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (leading != null) ...[leading!, SizedBox(width: gap)],
-              Text(
-                label,
-                style: (textStyle ?? AppText.button).copyWith(
-                  color: foreground,
+              Flexible(
+                child: Text(
+                  keepAll(label),
+                  textAlign: TextAlign.center,
+                  style: (textStyle ?? AppText.button).copyWith(
+                    color: foreground,
+                  ),
                 ),
               ),
               if (trailing != null) ...[SizedBox(width: gap), trailing!],
@@ -120,7 +126,11 @@ class BackBar extends StatelessWidget {
                 width: AppSizes.minTap,
                 height: AppSizes.minTap,
                 child: Center(
-                  child: Text('‹', style: AppText.suit(300, 32, height: 1)),
+                  child: Text(
+                    '‹',
+                    textScaler: TextScaler.noScaling,
+                    style: AppText.suit(300, 32, height: 1),
+                  ),
                 ),
               ),
             ),

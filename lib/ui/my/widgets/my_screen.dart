@@ -14,6 +14,7 @@ import '../view_model/my_view_model.dart';
 import 'my_page_screen.dart';
 import 'my_sheets.dart';
 import '../../core/ui/tappable.dart';
+import '../../core/ui/keep_all.dart';
 
 /// 마이 탭 홈 — 템플릿 `vMy` 블록. 이름, 크레딧, 아이콘 4개(`myMenu`), 보유 테이프.
 /// 받은·보낸 테이프, 친구, 설정은 하위 화면([MyPageScreen])으로 간다.
@@ -167,8 +168,8 @@ class _MyScreenState extends State<MyScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            height: 40,
+          ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 40),
             child: vm.editingName
                 ? Row(
                     children: [
@@ -251,7 +252,7 @@ class _Pill extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Container(
-        height: 40,
+        constraints: const BoxConstraints(minHeight: 40),
         padding: const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(
           color: dark ? AppColors.ink : AppColors.surface,
@@ -354,10 +355,16 @@ class _MenuTile extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text(page.title, style: AppText.suit(700, 13)),
+            // 2줄까지 ("받은 / 테이프")
+            Text(
+              keepAll(page.title),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              style: AppText.suit(700, 13),
+            ),
             const SizedBox(height: 2),
-            SizedBox(
-              height: 18,
+            ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 18),
               child: Text(
                 count,
                 style: AppText.suit(
@@ -586,7 +593,7 @@ class _CreditRow extends StatelessWidget {
   Widget build(BuildContext context) => Tappable(
     onTap: onTap,
     child: Container(
-      height: 56,
+      constraints: const BoxConstraints(minHeight: 56),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: AppColors.surfaceSoft,

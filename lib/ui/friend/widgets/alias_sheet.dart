@@ -6,6 +6,7 @@ import '../../core/themes/colors.dart';
 import '../../core/themes/text_styles.dart';
 import '../../core/ui/app_sheet.dart';
 import '../../core/ui/buttons.dart';
+import '../../core/ui/keep_all.dart';
 
 /// 별명 최대 글자 수 (계약서: 최대 10자)
 const aliasMax = 10;
@@ -60,15 +61,18 @@ class _AliasFormState extends State<_AliasForm> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('$name님의 별명', style: AppText.suit(800, 20, letterSpacingEm: -.01)),
+        Text(
+          keepAll('$name님의 별명'),
+          style: AppText.suit(800, 20, letterSpacingEm: -.01),
+        ),
         const SizedBox(height: 6),
         Text(
-          '나에게만 보여요. $name님에게는 보이지 않아요',
+          keepAll('나에게만 보여요. $name님에게는 보이지 않아요'),
           style: AppText.suit(500, 14, height: 1.55, color: AppColors.textSub),
         ),
         const SizedBox(height: 20),
-        SizedBox(
-          height: 52,
+        ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 52),
           child: TextField(
             controller: _draft,
             autofocus: true,
@@ -92,7 +96,7 @@ class _AliasFormState extends State<_AliasForm> {
           children: [
             Expanded(
               child: Text(
-                '비우면 원래 이름으로 보여요',
+                keepAll('비우면 원래 이름으로 보여요'),
                 style: AppText.suit(
                   500,
                   12.5,

@@ -9,6 +9,7 @@ import '../../core/ui/animations.dart';
 import '../../core/ui/buttons.dart';
 import '../../core/ui/tape_widget.dart';
 import '../view_model/record_view_model.dart';
+import '../../core/ui/keep_all.dart';
 
 /// 녹음 · 라벨 — 템플릿 `vLabel` 블록.
 ///
@@ -100,12 +101,12 @@ class _NewNameField extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            '받는 사람 이름 (선택)',
+            keepAll('받는 사람 이름 (선택)'),
             style: AppText.suit(600, 13, color: AppColors.textMuted),
           ),
           const SizedBox(height: 8),
-          SizedBox(
-            height: 52,
+          ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 52),
             child: TextField(
               controller: controller,
               onChanged: vm.setNewName,
@@ -115,7 +116,7 @@ class _NewNameField extends StatelessWidget {
               inputFormatters: [maxCharacters(User.maxNameLength)],
               textInputAction: TextInputAction.done,
               decoration: InputDecoration(
-                hintText: '예) 지현, 동생',
+                hintText: keepAll('예) 지현, 동생'),
                 hintStyle: AppText.suit(700, 20, color: AppColors.textFaint),
                 isCollapsed: true,
                 contentPadding: const EdgeInsets.symmetric(vertical: 13),
@@ -130,7 +131,7 @@ class _NewNameField extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  '누구에게 보냈는지 알아보는 이름이에요. 비우면 ‘새 친구’로 적혀요',
+                  keepAll('누구에게 보냈는지 알아보는 이름이에요. 비우면 ‘새 친구’로 적혀요'),
                   style: AppText.suit(
                     500,
                     12.5,

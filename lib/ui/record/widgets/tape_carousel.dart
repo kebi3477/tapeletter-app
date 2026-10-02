@@ -259,8 +259,8 @@ class _CountPill extends StatelessWidget {
     final zero = !type.isUnlimited && count <= 0;
     final ink = zero ? AppColors.red : AppColors.paper;
     final pill = Container(
-      height: AppSizes.pill,
-      constraints: const BoxConstraints(minWidth: 44),
+      // 큰 글씨(v10.4): 최소 높이 28 (커지면 아래로 2px 남짓 늘어난다)
+      constraints: const BoxConstraints(minHeight: AppSizes.pill, minWidth: 44),
       // + 원은 margin-right:-8px로 오른쪽 패딩을 파고든다.
       padding: EdgeInsets.only(left: 14, right: zero ? 6 : 14),
       decoration: BoxDecoration(
@@ -290,6 +290,8 @@ class _CountPill extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 '+',
+                // 글자 모양 아이콘 — 큰 글씨에도 크기 고정 (v10.4)
+                textScaler: TextScaler.noScaling,
                 style: AppText.suit(700, 14, height: 1, color: AppColors.paper),
               ),
             ),

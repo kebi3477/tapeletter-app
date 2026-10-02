@@ -9,6 +9,7 @@ import '../../core/ui/animations.dart';
 import '../../core/ui/buttons.dart';
 import '../../core/ui/css_paint.dart';
 import '../../core/ui/tappable.dart';
+import '../../core/ui/keep_all.dart';
 
 /// 링크 오류 (`leOn`) — 이미 받은 링크 / 만료된 링크 / 내가 보낸 링크.
 class LinkErrorScreen extends StatelessWidget {
@@ -82,6 +83,8 @@ class LinkErrorScreen extends StatelessWidget {
                           child: Center(
                             child: Text(
                               '✕',
+                              // 글자 모양 아이콘 — 큰 글씨에도 크기 고정 (v10.4)
+                              textScaler: TextScaler.noScaling,
                               style: AppText.suit(400, 22, height: 1),
                             ),
                           ),
@@ -112,7 +115,7 @@ class LinkErrorScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 30),
                       Text(
-                        title,
+                        keepAll(title),
                         textAlign: TextAlign.center,
                         style: AppText.suit(
                           800,
@@ -123,7 +126,7 @@ class LinkErrorScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        sub,
+                        keepAll(sub),
                         textAlign: TextAlign.center,
                         style: AppText.suit(
                           500,
@@ -146,8 +149,8 @@ class LinkErrorScreen extends StatelessWidget {
                       Tappable(
                         behavior: HitTestBehavior.opaque,
                         onTap: onClose,
-                        child: SizedBox(
-                          height: 48,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(minHeight: 48),
                           child: Center(
                             child: Text('닫기', style: AppText.suit(600, 14)),
                           ),

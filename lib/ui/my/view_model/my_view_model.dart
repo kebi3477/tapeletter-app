@@ -27,6 +27,7 @@ import '../../../utils/format.dart';
 import '../../../utils/result.dart';
 import '../../core/themes/tape_palette.dart';
 import '../../core/ui/toast.dart';
+import '../../core/ui/keep_all.dart';
 
 /// 설정 > 정보의 문서
 enum AppDoc { terms, privacy, contact }
@@ -157,7 +158,8 @@ class MyViewModel extends ChangeNotifier {
   };
 
   /// 받은 테이프 행 부제 (`x.sub`) — `칸 · 15초(· 소포 도착)`
-  static String receivedSub(ReceivedTape x) =>
+  static String receivedSub(ReceivedTape x, {bool withDate = false}) =>
+      '${withDate ? '${formatMonthDayTime(x.item.date)} · ' : ''}'
       '${x.where} · ${x.item.type.label}${x.boxed ? ' · 소포 도착' : ''}';
 
   /// 이름 도움말 (`nameHelp`) — 고치는 중이면 글자 수
@@ -460,7 +462,7 @@ class MyViewModel extends ChangeNotifier {
     final r = await _deliveries.reshare(s.id);
     switch (r) {
       case Ok<Uri>(:final value):
-        await _share.shareText('$name님이 목소리 테이프를 보냈어요 $value');
+        await _share.shareText(keepAll('$name님이 목소리 테이프를 보냈어요 $value'));
         await _loadSent();
       case Error<Uri>(:final error):
         _toast.show(_message(error));

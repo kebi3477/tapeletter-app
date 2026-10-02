@@ -7,6 +7,7 @@ import '../../core/ui/app_icons.dart';
 import '../../core/ui/buttons.dart';
 import '../../launch/widgets/update_screen.dart' show FullScreenMessage;
 import '../view_model/status_view_model.dart';
+import '../../core/ui/keep_all.dart';
 
 /// 오프라인 배너 (`offlineOn`) — 상태바 바로 아래 30, `#111`
 class OfflineBanner extends StatelessWidget {
@@ -43,7 +44,7 @@ class OfflineBanner extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      '인터넷에 연결되어 있지 않아요',
+                      keepAll('인터넷에 연결되어 있지 않아요'),
                       style: AppText.suit(600, 12.5, color: AppColors.paper),
                     ),
                   ],

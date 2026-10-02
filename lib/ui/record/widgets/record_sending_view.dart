@@ -11,6 +11,7 @@ import '../../core/ui/buttons.dart';
 import '../../core/ui/parcel_box.dart';
 import '../../core/ui/tape_widget.dart';
 import '../view_model/record_view_model.dart';
+import '../../core/ui/keep_all.dart';
 
 /// 녹음 · 포장/발송 — 템플릿 `vSending` 블록.
 ///
@@ -59,12 +60,12 @@ class RecordSendingView extends StatelessWidget {
                     child: Column(
                       children: [
                         Text(
-                          '보내지 못했어요',
+                          keepAll('보내지 못했어요'),
                           style: AppText.suit(800, 22, letterSpacingEm: -.02),
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          '인터넷 연결을 확인하고 다시 보내 주세요\n테이프는 그대로 있어요',
+                          keepAll('인터넷 연결을 확인하고 다시 보내 주세요\n테이프는 그대로 있어요'),
                           textAlign: TextAlign.center,
                           style: AppText.suit(
                             500,

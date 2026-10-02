@@ -12,6 +12,7 @@ import '../../core/ui/animations.dart';
 import 'shelf_drag.dart';
 import 'shelf_list_view.dart';
 import '../../core/ui/tappable.dart';
+import '../../core/ui/keep_all.dart';
 
 /// 책꽂이 보기 — 템플릿 `isShelf` 블록. 선반마다 등 30×108 카세트를 3px 간격으로.
 ///
@@ -104,12 +105,12 @@ class ShelfBookcase extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: vm.openedUnsorted.isEmpty
-                        ? SizedBox(
-                            height: 44,
+                        ? ConstrainedBox(
+                            constraints: const BoxConstraints(minHeight: 44),
                             child: Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                '뜯은 테이프 중 칸에 넣지 않은 테이프가 여기 모여요',
+                                keepAll('뜯은 테이프 중 칸에 넣지 않은 테이프가 여기 모여요'),
                                 style: AppText.suit(
                                   500,
                                   13.5,
@@ -231,12 +232,12 @@ class _CoachMark extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '테이프를 원하는 칸으로 끌어 보세요',
+                    keepAll('테이프를 원하는 칸으로 끌어 보세요'),
                     style: AppText.suit(700, 14.5, color: AppColors.paper),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '길게 누르면 집을 수 있어요',
+                    keepAll('길게 누르면 집을 수 있어요'),
                     style: AppText.suit(
                       500,
                       12.5,
@@ -252,8 +253,8 @@ class _CoachMark extends StatelessWidget {
               child: Tappable(
                 behavior: HitTestBehavior.opaque,
                 onTap: onOk,
-                child: SizedBox(
-                  height: 44,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 44),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Center(
@@ -590,7 +591,7 @@ class _Board extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      '아직 비어 있어요',
+                      keepAll('아직 비어 있어요'),
                       style: AppText.suit(
                         500,
                         13.5,
@@ -719,7 +720,11 @@ class TapeSpine extends StatelessWidget {
   final TapeItem item;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      // 테이프 등 그림은 시스템 글자 크기와 상관없이 고정 (v10.4)
+      MediaQuery.withNoTextScaling(child: _spine());
+
+  Widget _spine() {
     final p = TapePalette.of(item.type);
     return CustomPaint(
       foregroundPainter: _SpineShade(),

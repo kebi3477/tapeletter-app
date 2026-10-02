@@ -15,6 +15,7 @@ import 'sent_status.dart';
 import '../view_model/my_view_model.dart';
 import 'my_sheets.dart';
 import '../../core/ui/tappable.dart';
+import '../../core/ui/keep_all.dart';
 
 /// 마이 하위 화면 (`mpOn`) — 받은 테이프 · 보낸 테이프 · 친구 · 설정.
 /// 탭바 위를 덮는 오버레이다 (`slideUp .3s`).
@@ -131,7 +132,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
       Padding(
         padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 12),
         child: Text(
-          '아직 받은 테이프가 없어요',
+          keepAll('아직 받은 테이프가 없어요'),
           textAlign: TextAlign.center,
           style: AppText.suit(500, 14, height: 1.5, color: AppColors.textFaint),
         ),
@@ -244,13 +245,16 @@ class ReceivedRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final x = tape.item;
+    // 큰 글씨(1.3배 이상): 오른쪽 날짜를 부제 앞으로 옮겨 본문 폭을 확보한다 (v10.4)
+    final big =
+        MediaQuery.textScalerOf(context).scale(1) >= AppTextScale.compact;
     return Semantics(
       button: true,
       child: Tappable(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        child: SizedBox(
-          height: 60,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 60),
           child: Row(
             children: [
               SizedBox(
@@ -274,9 +278,7 @@ class ReceivedRow extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      MyViewModel.receivedSub(tape),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      keepAll(MyViewModel.receivedSub(tape, withDate: big)),
                       style: AppText.suit(
                         500,
                         12.5,
@@ -297,16 +299,18 @@ class ReceivedRow extends StatelessWidget {
                   ),
                 ),
               ],
-              const SizedBox(width: 14),
-              Text(
-                formatMonthDayTime(x.date),
-                style: AppText.suit(
-                  600,
-                  12.5,
-                  color: AppColors.textFaint,
-                  tabularNums: true,
+              if (!big) ...[
+                const SizedBox(width: 14),
+                Text(
+                  formatMonthDayTime(x.date),
+                  style: AppText.suit(
+                    600,
+                    12.5,
+                    color: AppColors.textFaint,
+                    tabularNums: true,
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),
@@ -335,8 +339,8 @@ class MyFriendRow extends StatelessWidget {
     return Tappable(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
-      child: SizedBox(
-        height: 58,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 58),
         child: Row(
           children: [
             Expanded(
@@ -357,6 +361,8 @@ class MyFriendRow extends StatelessWidget {
                   child: Center(
                     child: Text(
                       friend.starred ? '★' : '☆',
+                      // 글자 모양 아이콘 — 큰 글씨에도 크기 고정 (v10.4)
+                      textScaler: TextScaler.noScaling,
                       style: AppText.suit(
                         400,
                         19,
@@ -421,7 +427,7 @@ class SentCard extends StatelessWidget {
       Padding(
         padding: const EdgeInsets.symmetric(vertical: 10),
         child: Text(
-          '보낸 테이프는 받은 사람만 들을 수 있어요',
+          keepAll('보낸 테이프는 받은 사람만 들을 수 있어요'),
           style: AppText.suit(500, 12, height: 1.4, color: AppColors.textFaint),
         ),
       ),
@@ -454,7 +460,7 @@ class SentRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${sent.to}에게 보냄',
+                  keepAll('${sent.to}에게 보냄'),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppText.suit(700, 15.5, height: 1.3),
@@ -487,6 +493,8 @@ class SentRow extends StatelessWidget {
           const SizedBox(width: 14),
           Text(
             '›',
+            // 글자 모양 아이콘 — 큰 글씨에도 크기 고정 (v10.4)
+            textScaler: TextScaler.noScaling,
             style: AppText.suit(400, 20, height: 1, color: AppColors.disabled),
           ),
         ],
@@ -516,13 +524,14 @@ class SettingRow extends StatelessWidget {
     child: Tappable(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
-      child: SizedBox(
-        height: 52,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 52),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: AppText.suit(600, 15, color: color)),
-            ?trailing,
+            Expanded(
+              child: Text(label, style: AppText.suit(600, 15, color: color)),
+            ),
+            if (trailing != null) ...[const SizedBox(width: 12), trailing!],
           ],
         ),
       ),
@@ -554,6 +563,8 @@ class Chevron extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     '›',
+    // 글자 모양 아이콘 — 큰 글씨에도 크기 고정 (v10.4)
+    textScaler: TextScaler.noScaling,
     style: AppText.suit(400, 20, height: 1, color: AppColors.disabled),
   );
 }

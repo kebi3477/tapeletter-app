@@ -131,7 +131,6 @@ abstract final class AppColors {
   /// 서랍 넓히기 견본 (`#F0ECE4`)
   static const drawerSwatch = Color(0xFFF0ECE4);
 
-
   /// 탈퇴 시트 요약 구분선 (`#EDEDEA`)
   static const withdrawLine = Color(0xFFEDEDEA);
 

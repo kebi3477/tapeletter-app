@@ -96,7 +96,11 @@ class _RecordDeckState extends State<RecordDeck> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      // 카세트 데크는 시스템 글자 크기와 상관없이 고정 (v10.4)
+      MediaQuery.withNoTextScaling(child: Builder(builder: _build));
+
+  Widget _build(BuildContext context) {
     return SizedBox(
       height: RecordDeck.height,
       width: double.infinity,

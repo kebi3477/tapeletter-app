@@ -82,7 +82,7 @@ class _CreditHistoryScreenState extends State<CreditHistoryScreen> {
                     Tappable(
                       onTap: widget.onCharge,
                       child: Container(
-                        height: 40,
+                        constraints: const BoxConstraints(minHeight: 40),
                         padding: const EdgeInsets.symmetric(horizontal: 18),
                         decoration: BoxDecoration(
                           color: AppColors.surface,
@@ -114,7 +114,7 @@ class _CreditHistoryScreenState extends State<CreditHistoryScreen> {
                     itemBuilder: (context, i) {
                       final e = vm.entries[i];
                       return Container(
-                        height: 64,
+                        constraints: const BoxConstraints(minHeight: 64),
                         decoration: const BoxDecoration(
                           border: Border(
                             bottom: BorderSide(color: AppColors.line),

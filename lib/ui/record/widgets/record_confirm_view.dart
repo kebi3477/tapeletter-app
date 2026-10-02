@@ -13,6 +13,7 @@ import '../../core/ui/app_sheet.dart';
 import '../view_model/record_view_model.dart';
 import 'record_deck.dart';
 import '../../core/ui/tappable.dart';
+import '../../core/ui/keep_all.dart';
 
 /// 녹음 · 확인 — 템플릿 `vConfirm` 블록.
 ///
@@ -158,10 +159,13 @@ Future<void> showRedoSheet(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('다시 녹음할까요?', style: AppText.suit(800, 20, letterSpacingEm: -.01)),
+        Text(
+          keepAll('다시 녹음할까요?'),
+          style: AppText.suit(800, 20, letterSpacingEm: -.01),
+        ),
         const SizedBox(height: 6),
         Text(
-          '지금 녹음한 목소리는 지워져요. REC를 눌러 처음부터 다시 녹음할 수 있어요',
+          keepAll('지금 녹음한 목소리는 지워져요. REC를 눌러 처음부터 다시 녹음할 수 있어요'),
           style: AppText.suit(500, 14, height: 1.55, color: AppColors.textSub),
         ),
         const SizedBox(height: 22),
@@ -176,8 +180,8 @@ Future<void> showRedoSheet(
         Tappable(
           behavior: HitTestBehavior.opaque,
           onTap: () => Navigator.of(sheet).pop(),
-          child: SizedBox(
-            height: 48,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
             child: Center(child: Text('취소', style: AppText.suit(600, 14))),
           ),
         ),
@@ -254,10 +258,10 @@ class _ConvertSlow extends StatelessWidget {
           children: [
             const LoadingDots(),
             const SizedBox(height: 12),
-            Text('테이프 소리로 바꾸는 중이에요', style: AppText.suit(700, 15)),
+            Text(keepAll('테이프 소리로 바꾸는 중이에요'), style: AppText.suit(700, 15)),
             const SizedBox(height: 3),
             Text(
-              '조금 오래 걸리고 있어요. 잠시만요',
+              keepAll('조금 오래 걸리고 있어요. 잠시만요'),
               style: AppText.suit(500, 13, color: AppColors.textMuted),
             ),
           ],
@@ -280,10 +284,10 @@ class _ConvertFail extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('테이프로 바꾸지 못했어요', style: AppText.suit(800, 18)),
+            Text(keepAll('테이프로 바꾸지 못했어요'), style: AppText.suit(800, 18)),
             const SizedBox(height: 6),
             Text(
-              '녹음은 그대로 있어요. 다시 시도해 볼까요?',
+              keepAll('녹음은 그대로 있어요. 다시 시도해 볼까요?'),
               textAlign: TextAlign.center,
               style: AppText.suit(
                 500,

@@ -11,6 +11,7 @@ import '../../core/ui/buttons.dart';
 import '../../core/ui/parcel_box.dart';
 import '../../core/ui/tape_widget.dart';
 import '../../core/ui/tappable.dart';
+import '../../core/ui/keep_all.dart';
 
 /// 온보딩 (`auOnb`) — 3장, 다음 / 건너뛰기.
 class OnboardingScreen extends StatefulWidget {
@@ -93,7 +94,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     child: Column(
                       children: [
                         Text(
-                          title,
+                          keepAll(title),
                           textAlign: TextAlign.center,
                           style: AppText.suit(
                             800,
@@ -104,7 +105,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          sub,
+                          keepAll(sub),
                           textAlign: TextAlign.center,
                           style: AppText.suit(
                             500,

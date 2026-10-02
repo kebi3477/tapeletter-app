@@ -12,6 +12,7 @@ import '../view_model/record_view_model.dart';
 import 'record_deck.dart';
 import 'tape_carousel.dart';
 import '../../core/ui/tappable.dart';
+import '../../core/ui/keep_all.dart';
 
 /// 녹음 · 대기/녹음 중/멈춤 — 템플릿 `vIdle` 블록.
 class RecordIdleView extends StatelessWidget {
@@ -219,7 +220,7 @@ class _ToChip extends StatelessWidget {
     return Tappable(
       onTap: onClear,
       child: Container(
-        height: 34,
+        constraints: const BoxConstraints(minHeight: 34),
         padding: const EdgeInsets.only(left: 14, right: 8),
         decoration: BoxDecoration(
           color: AppColors.surface,
@@ -240,6 +241,8 @@ class _ToChip extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 '✕',
+                // 글자 모양 아이콘 — 큰 글씨에도 크기 고정 (v10.4)
+                textScaler: TextScaler.noScaling,
                 style: AppText.suit(600, 11, height: 1, color: AppColors.paper),
               ),
             ),
@@ -412,7 +415,7 @@ class _PausedPanel extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              '${vm.pauseWhy}\n${formatClock(vm.sec)}까지 담겼어요',
+              keepAll('${vm.pauseWhy}\n${formatClock(vm.sec)}까지 담겼어요'),
               textAlign: TextAlign.center,
               style: AppText.suit(
                 600,
@@ -488,10 +491,13 @@ class MicDeniedCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('마이크가 꺼져 있어요', style: AppText.suit(800, 16)),
+                      Text(
+                        keepAll('마이크가 꺼져 있어요'),
+                        style: AppText.suit(800, 16),
+                      ),
                       const SizedBox(height: 3),
                       Text(
-                        '설정에서 마이크를 켜야 녹음할 수 있어요',
+                        keepAll('설정에서 마이크를 켜야 녹음할 수 있어요'),
                         style: AppText.suit(
                           500,
                           13,

@@ -73,3 +73,12 @@ abstract final class AppText {
   /// 700 11px SUIT
   static final tab = suit(700, 11);
 }
+
+/// 큰 글씨 (v10.4) — 디자인 확인 배율 1.0 · 1.3 · 1.6
+abstract final class AppTextScale {
+  /// 이보다 크면 1.6배로 묶는다
+  static const double max = 1.6;
+
+  /// 이 배율부터 받은 테이프 목록 오른쪽 날짜를 부제 앞으로 옮긴다
+  static const double compact = 1.3;
+}

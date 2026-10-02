@@ -11,6 +11,7 @@ import '../../core/ui/parcel_box.dart';
 import '../view_model/shelf_view_model.dart';
 import 'shelf_drag.dart';
 import '../../core/ui/tappable.dart';
+import '../../core/ui/keep_all.dart';
 
 /// 목록 보기 — 템플릿 `isList` 블록. "분류 안 함" + 사용자 칸, 드래그 정렬.
 class ShelfListSections extends StatelessWidget {
@@ -221,7 +222,7 @@ class SectionHeader extends StatelessWidget {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      '새 테이프 $newCount',
+                      keepAll('새 테이프 $newCount'),
                       style: AppText.suit(700, 12, color: AppColors.red),
                     ),
                   ),
@@ -265,7 +266,7 @@ class _EmptyZone extends StatelessWidget {
       target: DropTarget(groupId, 0),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        height: 52,
+        constraints: const BoxConstraints(minHeight: 52),
         padding: const EdgeInsets.symmetric(horizontal: 12),
         alignment: Alignment.centerLeft,
         decoration: BoxDecoration(
@@ -275,7 +276,7 @@ class _EmptyZone extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppRadius.row),
         ),
         child: Text(
-          text,
+          keepAll(text),
           style: AppText.suit(500, 13.5, color: AppColors.textFaint),
         ),
       ),
@@ -368,7 +369,8 @@ class _ShelfRowState extends State<ShelfRow>
     final row = AnimatedBuilder(
       animation: _flash,
       builder: (context, child) => Container(
-        height: AppSizes.row,
+        // 큰 글씨(v10.4): 최소 높이 60
+        constraints: const BoxConstraints(minHeight: AppSizes.row),
         padding: const EdgeInsets.only(left: 12, right: 4),
         decoration: BoxDecoration(
           color: _bg(),
@@ -394,7 +396,7 @@ class _ShelfRowState extends State<ShelfRow>
                   style: AppText.rowTitle,
                 ),
                 const SizedBox(height: 2),
-                // 메모(최대 40자)가 붙으면 길어진다 — 행 높이가 정해져 있어 한 줄로 줄인다
+                // 메모(최대 40자)가 붙으면 길어진다 — 한 줄로 줄인다
                 Text(
                   widget.sub,
                   maxLines: 1,
@@ -622,7 +624,7 @@ class ParcelSection extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    '도착한 소포',
+                    keepAll('도착한 소포'),
                     style: AppText.section,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -646,7 +648,7 @@ class ParcelSection extends StatelessWidget {
               const EdgeInsets.only(bottom: 6),
             ) as EdgeInsets,
             child: Text(
-              '눌러서 뜯어 주세요',
+              keepAll('눌러서 뜯어 주세요'),
               style: AppText.suit(
                 500,
                 12.5,

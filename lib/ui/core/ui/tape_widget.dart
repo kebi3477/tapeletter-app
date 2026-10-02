@@ -7,6 +7,7 @@ import '../themes/dimens.dart';
 import '../themes/tape_palette.dart';
 import '../themes/text_styles.dart';
 import 'css_paint.dart';
+import 'keep_all.dart';
 
 /// 카세트테이프 — source/Tape.template.html + Tape.logic.js (320×204 고정).
 ///
@@ -84,6 +85,11 @@ class _TapeWidgetState extends State<TapeWidget>
   @override
   Widget build(BuildContext context) {
     final p = widget.palette;
+    // 테이프 그림은 시스템 글자 크기와 상관없이 고정 (v10.4)
+    return MediaQuery.withNoTextScaling(child: _tape(p));
+  }
+
+  Widget _tape(TapePalette p) {
     return SizedBox.fromSize(
       size: TapeWidget.size,
       child: Stack(
@@ -203,7 +209,7 @@ class TapeNote extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (hasTo) ...[
-            Text('받는 사람', style: caption),
+            Text(keepAll('받는 사람'), style: caption),
             const SizedBox(height: 4),
             ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 20),
@@ -219,7 +225,7 @@ class TapeNote extends StatelessWidget {
             ),
             const SizedBox(height: 8),
           ],
-          Text('보낸 사람', style: caption),
+          Text(keepAll('보낸 사람'), style: caption),
           const SizedBox(height: 4),
           Text(
             from,

@@ -14,6 +14,7 @@ import '../../../utils/format.dart';
 import '../../report/widgets/report_sheet.dart';
 import '../view_model/shelf_view_model.dart';
 import '../../core/ui/tappable.dart';
+import '../../core/ui/keep_all.dart';
 
 /// 받은 테이프 신고 — 보낸 사람을 차단 대상으로 (`report({target: 'tape'})`)
 TapeReport tapeReportOf(TapeItem item) => TapeReport(
@@ -230,10 +231,15 @@ class _ItemMenuState extends State<_ItemMenu> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('테이프를 지울까요?', style: AppText.suit(800, 20, letterSpacingEm: -.02)),
+        Text(
+          keepAll('테이프를 지울까요?'),
+          style: AppText.suit(800, 20, letterSpacingEm: -.02),
+        ),
         const SizedBox(height: 6),
         Text(
-          '${widget.item.from}님이 보낸 테이프가 서랍에서 사라져요. 지운 테이프는 되돌릴 수 없어요.',
+          keepAll(
+            '${widget.item.from}님이 보낸 테이프가 서랍에서 사라져요. 지운 테이프는 되돌릴 수 없어요.',
+          ),
           style: AppText.suit(
             500,
             14,
@@ -303,10 +309,13 @@ class _MemoFormState extends State<_MemoForm> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('테이프 메모', style: AppText.suit(800, 20, letterSpacingEm: -.01)),
+        Text(
+          keepAll('테이프 메모'),
+          style: AppText.suit(800, 20, letterSpacingEm: -.01),
+        ),
         const SizedBox(height: 6),
         Text(
-          '${widget.from}님의 테이프 · 나에게만 보여요',
+          keepAll('${widget.from}님의 테이프 · 나에게만 보여요'),
           style: AppText.suit(500, 14, height: 1.55, color: AppColors.textSub),
         ),
         const SizedBox(height: 18),
@@ -325,7 +334,7 @@ class _MemoFormState extends State<_MemoForm> {
             maxCharacters(max),
           ],
           decoration: InputDecoration(
-            hintText: '이 테이프를 받은 날, 기억하고 싶은 것',
+            hintText: keepAll('이 테이프를 받은 날, 기억하고 싶은 것'),
             hintStyle: AppText.suit(
               600,
               16,
@@ -349,7 +358,7 @@ class _MemoFormState extends State<_MemoForm> {
           children: [
             Expanded(
               child: Text(
-                '테이프 라벨에도 적혀요',
+                keepAll('테이프 라벨에도 적혀요'),
                 style: AppText.suit(
                   500,
                   12.5,
@@ -420,11 +429,11 @@ Future<void> showMoveSheet(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('어느 칸으로 옮길까요?', style: AppText.sheetTitle),
+          Text(keepAll('어느 칸으로 옮길까요?'), style: AppText.sheetTitle),
           Padding(
             padding: const EdgeInsets.only(top: 4, bottom: 12),
             child: Text(
-              '한 칸에 테이프를 10개까지 넣을 수 있어요',
+              keepAll('한 칸에 테이프를 10개까지 넣을 수 있어요'),
               style: AppText.suit(500, 13.5, color: AppColors.textSub),
             ),
           ),
@@ -560,13 +569,15 @@ class _GroupFormState extends State<_GroupForm> {
         // 칸 만들기 (`groupNew`): 카테고리 칩
         if (g == null) ...[
           Text(
-            '이 칸에 어떤 목소리를 모을까요?',
+            keepAll('이 칸에 어떤 목소리를 모을까요?'),
             style: AppText.suit(800, 20, letterSpacingEm: -.01),
           ),
           const SizedBox(height: 6),
           Text(
-            '사람, 순간, 주제별로 모아 두면 오래 간직할 수 있어요\n'
-            '한 칸에 테이프를 10개까지 넣을 수 있어요',
+            keepAll(
+              '사람, 순간, 주제별로 모아 두면 오래 간직할 수 있어요\n'
+              '한 칸에 테이프를 10개까지 넣을 수 있어요',
+            ),
             style: AppText.suit(500, 14, height: 1.5, color: AppColors.textSub),
           ),
           const SizedBox(height: 18),
@@ -584,9 +595,12 @@ class _GroupFormState extends State<_GroupForm> {
           ),
           const SizedBox(height: 22),
         ],
-        Text('칸 이름', style: AppText.suit(600, 13, color: AppColors.textMuted)),
-        SizedBox(
-          height: 52,
+        Text(
+          keepAll('칸 이름'),
+          style: AppText.suit(600, 13, color: AppColors.textMuted),
+        ),
+        ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 52),
           child: TextField(
             controller: _draft,
             focusNode: _focus,
@@ -596,7 +610,7 @@ class _GroupFormState extends State<_GroupForm> {
             onSubmitted: (_) => _save(),
             inputFormatters: [maxCharacters(max)],
             decoration: InputDecoration(
-              hintText: '칸 이름을 적어 주세요',
+              hintText: keepAll('칸 이름을 적어 주세요'),
               hintStyle: AppText.suit(800, 22, color: AppColors.textFaint),
               isCollapsed: true,
               contentPadding: const EdgeInsets.symmetric(vertical: 12),
@@ -611,7 +625,7 @@ class _GroupFormState extends State<_GroupForm> {
           children: [
             Expanded(
               child: Text(
-                '예) 2026 생일, 제주 여행, 엄마 목소리, 힘들 때 듣기',
+                keepAll('예) 2026 생일, 제주 여행, 엄마 목소리, 힘들 때 듣기'),
                 style: AppText.suit(
                   500,
                   12.5,
@@ -651,11 +665,11 @@ class _GroupFormState extends State<_GroupForm> {
                 Navigator.of(context).pop();
                 widget.viewModel.deleteGroup(g.id);
               },
-              child: SizedBox(
-                height: 48,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 48),
                 child: Center(
                   child: Text(
-                    '칸 삭제',
+                    keepAll('칸 삭제'),
                     style: AppText.suit(600, 14, color: AppColors.red),
                   ),
                 ),

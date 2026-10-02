@@ -11,6 +11,7 @@ import '../../core/ui/buttons.dart';
 import '../../core/ui/mini_tape.dart';
 import '../view_model/friend_view_model.dart';
 import '../../core/ui/tappable.dart';
+import '../../core/ui/keep_all.dart';
 
 /// 친구 화면 — 템플릿 `fvOn` 블록. 그 친구가 보낸 테이프만 모아 본다.
 class FriendScreen extends StatelessWidget {
@@ -81,7 +82,7 @@ class FriendScreen extends StatelessWidget {
                             behavior: HitTestBehavior.opaque,
                             onTap: () => onAlias(f),
                             child: Container(
-                              height: 40,
+                              constraints: const BoxConstraints(minHeight: 40),
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 14,
                               ),
@@ -92,7 +93,7 @@ class FriendScreen extends StatelessWidget {
                               child: Center(
                                 widthFactor: 1,
                                 child: Text(
-                                  '별명 설정',
+                                  keepAll('별명 설정'),
                                   style: AppText.suit(700, 13.5),
                                 ),
                               ),
@@ -157,7 +158,7 @@ class FriendScreen extends StatelessWidget {
                               horizontal: 24,
                             ),
                             child: Text(
-                              '아직 받은 테이프가 없어요',
+                              keepAll('아직 받은 테이프가 없어요'),
                               textAlign: TextAlign.center,
                               style: AppText.suit(
                                 500,
@@ -205,8 +206,8 @@ class _TapeRow extends StatelessWidget {
     return Tappable(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
-      child: SizedBox(
-        height: AppSizes.row,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: AppSizes.row),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Row(

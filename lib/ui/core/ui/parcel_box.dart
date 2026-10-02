@@ -4,6 +4,7 @@ import '../themes/colors.dart';
 import '../themes/dimens.dart';
 import '../themes/text_styles.dart';
 import 'css_paint.dart';
+import 'keep_all.dart';
 
 /// 크라프트 소포 박스 260×190 — 템플릿 `vSending` 블록.
 abstract final class ParcelBox {
@@ -66,7 +67,7 @@ class ParcelBoxFront extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          '받는 사람',
+                          keepAll('받는 사람'),
                           style: AppText.suit(
                             600,
                             10,

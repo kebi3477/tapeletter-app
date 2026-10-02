@@ -8,6 +8,7 @@ import '../../core/ui/animations.dart';
 import '../../core/ui/buttons.dart';
 import '../../core/ui/tape_widget.dart';
 import '../view_model/name_view_model.dart';
+import '../../core/ui/keep_all.dart';
 
 /// 이름 정하기 (`auName`)
 class NameScreen extends StatefulWidget {
@@ -49,12 +50,15 @@ class _NameScreenState extends State<NameScreen> {
                 BackBar(onBack: vm.back),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 4, 24, 0),
-                  child: Text('테이프에 적힐\n이름을 알려주세요', style: AppText.bigTitle),
+                  child: Text(
+                    keepAll('테이프에 적힐\n이름을 알려주세요'),
+                    style: AppText.bigTitle,
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
                   child: Text(
-                    '친구에게 보이는 이름이에요 · 최대 8자',
+                    keepAll('친구에게 보이는 이름이에요 · 최대 8자'),
                     style: AppText.suit(
                       500,
                       14,
@@ -72,9 +76,12 @@ class _NameScreenState extends State<NameScreen> {
                         children: [
                           TapeWidget(from: vm.preview),
                           const SizedBox(height: 28),
-                          SizedBox(
-                            width: 280,
-                            height: 52,
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(
+                              minWidth: 280,
+                              maxWidth: 280,
+                              minHeight: 52,
+                            ),
                             child: TextField(
                               controller: _c,
                               onChanged: vm.setName,
@@ -87,7 +94,7 @@ class _NameScreenState extends State<NameScreen> {
                                 maxCharacters(User.maxNameLength),
                               ],
                               decoration: InputDecoration(
-                                hintText: '이름',
+                                hintText: keepAll('이름'),
                                 hintStyle: AppText.suit(
                                   700,
                                   20,

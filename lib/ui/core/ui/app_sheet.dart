@@ -4,6 +4,7 @@ import '../themes/colors.dart';
 import '../themes/dimens.dart';
 import '../themes/text_styles.dart';
 import 'tappable.dart';
+import 'keep_all.dart';
 
 /// 바텀시트 — 템플릿 `sheetOn` 블록.
 ///
@@ -100,7 +101,8 @@ class SheetRow extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
         child: Container(
-          height: 56,
+          constraints: const BoxConstraints(minHeight: 56),
+          padding: const EdgeInsets.symmetric(vertical: 6),
           decoration: BoxDecoration(
             border: divider
                 ? const Border(bottom: BorderSide(color: AppColors.line))
@@ -110,7 +112,7 @@ class SheetRow extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  label,
+                  keepAll(label),
                   style: AppText.suit(
                     700,
                     16,

@@ -6,6 +6,7 @@ import '../themes/colors.dart';
 import '../themes/dimens.dart';
 import '../themes/text_styles.dart';
 import 'animations.dart';
+import 'keep_all.dart';
 
 /// 토스트 — logic.js `say(msg)`: 1.8초 동안 띄운다.
 class ToastController extends ChangeNotifier {
@@ -62,7 +63,7 @@ class ToastHost extends StatelessWidget {
                 key: ValueKey(controller.serial),
                 duration: AppMotion.fadeUp,
                 child: Container(
-                  height: 44,
+                  constraints: const BoxConstraints(minHeight: 44),
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   decoration: BoxDecoration(
                     color: AppColors.ink,
@@ -71,7 +72,7 @@ class ToastHost extends StatelessWidget {
                   child: Center(
                     widthFactor: 1,
                     child: Text(
-                      msg,
+                      keepAll(msg),
                       style: AppText.suit(700, 14, color: AppColors.paper),
                     ),
                   ),

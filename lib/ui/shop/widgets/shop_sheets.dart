@@ -11,6 +11,7 @@ import '../../core/ui/buttons.dart';
 import '../../core/ui/credit_icon.dart';
 import '../view_model/shop_view_model.dart';
 import '../../core/ui/tappable.dart';
+import '../../core/ui/keep_all.dart';
 
 /// [ShopViewModel.sheet]이 생기면 바텀시트를 열고, 없어지면 닫는다.
 ///
@@ -120,8 +121,8 @@ class _TextButton extends StatelessWidget {
     child: Tappable(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
-      child: SizedBox(
-        height: 48,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 48),
         child: Center(
           child: Text(label, style: AppText.suit(600, 14, color: color)),
         ),
@@ -145,14 +146,14 @@ class _Buy extends StatelessWidget {
       Text(item.name, style: _title),
       const SizedBox(height: 6),
       Text(
-        '${item.price} 크레딧 · 남는 크레딧 ${vm.credits - item.price}',
+        keepAll('${item.price} 크레딧 · 남는 크레딧 ${vm.credits - item.price}'),
         style: _sub,
       ),
       const SizedBox(height: 24),
       AppButton(label: '구매', onTap: vm.confirmBuy),
       const SizedBox(height: 12),
       Text(
-        NoticeCopy.noRefundPurchase,
+        keepAll(NoticeCopy.noRefundPurchase),
         textAlign: TextAlign.center,
         style: AppText.notice,
       ),
@@ -176,7 +177,7 @@ class _Charge extends StatelessWidget {
             behavior: HitTestBehavior.opaque,
             onTap: onTap,
             child: Container(
-              height: 56,
+              constraints: const BoxConstraints(minHeight: 56),
               padding: const EdgeInsets.symmetric(horizontal: 18),
               decoration: BoxDecoration(
                 color: AppColors.surface,
@@ -196,9 +197,9 @@ class _Charge extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('크레딧이 $need 부족해요', style: AppText.suit(800, 20)),
+        Text(keepAll('크레딧이 $need 부족해요'), style: AppText.suit(800, 20)),
         const SizedBox(height: 6),
-        Text('충전하면 바로 이어서 살 수 있어요', style: _sub),
+        Text(keepAll('충전하면 바로 이어서 살 수 있어요'), style: _sub),
         const SizedBox(height: 12),
         row(
           '광고 보고 받기',
@@ -214,7 +215,7 @@ class _Charge extends StatelessWidget {
             AppColors.textSecondary,
           ),
         const SizedBox(height: 12),
-        Text(NoticeCopy.refundWithin7Days, style: AppText.notice),
+        Text(keepAll(NoticeCopy.refundWithin7Days), style: AppText.notice),
       ],
     );
   }
@@ -248,13 +249,13 @@ class _Pay extends StatelessWidget {
       ),
       const SizedBox(height: 20),
       Text(
-        '${pack.priceLabel} 결제 중이에요',
+        keepAll('${pack.priceLabel} 결제 중이에요'),
         textAlign: TextAlign.center,
         style: AppText.suit(800, 20),
       ),
       const SizedBox(height: 6),
       Text(
-        '${_comma(pack.credits)} 크레딧 · 잠시만 기다려 주세요',
+        keepAll('${_comma(pack.credits)} 크레딧 · 잠시만 기다려 주세요'),
         textAlign: TextAlign.center,
         style: _sub,
       ),
@@ -279,10 +280,10 @@ class _PayFail extends StatelessWidget {
     crossAxisAlignment: CrossAxisAlignment.stretch,
     mainAxisSize: MainAxisSize.min,
     children: [
-      Text('결제하지 못했어요', style: _title),
+      Text(keepAll('결제하지 못했어요'), style: _title),
       const SizedBox(height: 6),
       Text(
-        '카드 정보를 확인하거나 다른 결제 수단으로\n다시 시도해 주세요. 돈은 빠져나가지 않았어요.',
+        keepAll('카드 정보를 확인하거나 다른 결제 수단으로\n다시 시도해 주세요. 돈은 빠져나가지 않았어요.'),
         style: _subMulti,
       ),
       const SizedBox(height: 22),
@@ -357,6 +358,8 @@ class _Ad extends StatelessWidget {
                     alignment: Alignment.center,
                     child: Text(
                       '✕',
+                      // 글자 모양 아이콘 — 큰 글씨에도 크기 고정 (v10.4)
+                      textScaler: TextScaler.noScaling,
                       style: AppText.suit(
                         600,
                         13,
@@ -373,7 +376,7 @@ class _Ad extends StatelessWidget {
       ),
       const SizedBox(height: 12),
       Text(
-        '끝까지 보면 10 크레딧을 받아요',
+        keepAll('끝까지 보면 10 크레딧을 받아요'),
         textAlign: TextAlign.center,
         style: AppText.suit(500, 13, color: AppColors.textMuted),
       ),
@@ -392,9 +395,9 @@ class _AdFail extends StatelessWidget {
     crossAxisAlignment: CrossAxisAlignment.stretch,
     mainAxisSize: MainAxisSize.min,
     children: [
-      Text('광고를 불러오지 못했어요', style: _title),
+      Text(keepAll('광고를 불러오지 못했어요'), style: _title),
       const SizedBox(height: 6),
-      Text('잠시 후 다시 시도해 주세요.\n충전으로도 크레딧을 받을 수 있어요.', style: _subMulti),
+      Text(keepAll('잠시 후 다시 시도해 주세요.\n충전으로도 크레딧을 받을 수 있어요.'), style: _subMulti),
       const SizedBox(height: 22),
       AppButton(label: '확인', onTap: vm.adFailOk),
     ],
@@ -421,9 +424,9 @@ class _Gift extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.baseline,
           textBaseline: TextBaseline.alphabetic,
           children: [
-            Text('크레딧 선물하기', style: AppText.suit(800, 20)),
+            Text(keepAll('크레딧 선물하기'), style: AppText.suit(800, 20)),
             Text(
-              '보유 ${vm.credits}',
+              keepAll('보유 ${vm.credits}'),
               style: AppText.suit(
                 600,
                 13,
@@ -434,7 +437,7 @@ class _Gift extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 18),
-        Text('받는 사람', style: label),
+        Text(keepAll('받는 사람'), style: label),
         const SizedBox(height: 10),
         SizedBox(
           height: 40,
@@ -499,7 +502,7 @@ class _Chip extends StatelessWidget {
     onTap: onTap,
     child: AnimatedContainer(
       duration: const Duration(milliseconds: 150),
-      height: 40,
+      constraints: const BoxConstraints(minHeight: 40),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: on ? AppColors.ink : AppColors.surface,
@@ -541,7 +544,7 @@ class _AmountPill extends StatelessWidget {
     child: Tappable(
       onTap: onTap,
       child: Container(
-        height: 44,
+        constraints: const BoxConstraints(minHeight: 44),
         decoration: BoxDecoration(
           color: on ? AppColors.ink : AppColors.surface,
           borderRadius: BorderRadius.circular(22),

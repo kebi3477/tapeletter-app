@@ -17,6 +17,7 @@ import '../../report/widgets/report_sheet.dart';
 import 'sent_status.dart';
 import '../view_model/my_view_model.dart';
 import '../../core/ui/tappable.dart';
+import '../../core/ui/keep_all.dart';
 
 TextStyle get _title => AppText.suit(800, 20, letterSpacingEm: -.01);
 TextStyle get _subMulti =>
@@ -26,8 +27,8 @@ TextStyle get _subMulti =>
 Widget _textButton(String label, VoidCallback onTap) => Tappable(
   behavior: HitTestBehavior.opaque,
   onTap: onTap,
-  child: SizedBox(
-    height: 48,
+  child: ConstrainedBox(
+    constraints: const BoxConstraints(minHeight: 48),
     child: Center(child: Text(label, style: AppText.suit(600, 14))),
   ),
 );
@@ -37,7 +38,7 @@ Widget _pillButton(String label, VoidCallback onTap) => Tappable(
   behavior: HitTestBehavior.opaque,
   onTap: onTap,
   child: Container(
-    height: 34,
+    constraints: const BoxConstraints(minHeight: 34),
     padding: const EdgeInsets.symmetric(horizontal: 14),
     decoration: BoxDecoration(
       color: AppColors.surface,
@@ -122,10 +123,10 @@ Future<void> showBlockSheet(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('$name님을 차단할까요?', style: _title),
+        Text(keepAll('$name님을 차단할까요?'), style: _title),
         const SizedBox(height: 6),
         Text(
-          '차단하면 $name님이 보낸 테이프를 받지 않아요.\n이미 받은 테이프는 서랍에 남아요.',
+          keepAll('차단하면 $name님이 보낸 테이프를 받지 않아요.\n이미 받은 테이프는 서랍에 남아요.'),
           style: _subMulti,
         ),
         const SizedBox(height: 22),
@@ -160,11 +161,11 @@ Future<void> showBlockedSheet(
           children: [
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
-              child: Text('차단한 친구', style: _title),
+              child: Text(keepAll('차단한 친구'), style: _title),
             ),
             for (final b in list)
               Container(
-                height: 56,
+                constraints: const BoxConstraints(minHeight: 56),
                 decoration: const BoxDecoration(
                   border: Border(bottom: BorderSide(color: AppColors.line)),
                 ),
@@ -198,7 +199,7 @@ Future<void> showBlockedSheet(
                 height: 80,
                 child: Center(
                   child: Text(
-                    '차단한 친구가 없어요',
+                    keepAll('차단한 친구가 없어요'),
                     style: AppText.suit(500, 14, color: AppColors.textFaint),
                   ),
                 ),
@@ -248,7 +249,7 @@ Future<void> showSentDetailSheet(
                   children: [
                     // 긴 이름은 줄바꿈 (`overflow-wrap:anywhere`)
                     Text(
-                      '${sent.to}에게 보낸 테이프',
+                      keepAll('${sent.to}에게 보낸 테이프'),
                       style: AppText.suit(800, 20, height: 1.3),
                     ),
                     const SizedBox(height: 3),
@@ -279,7 +280,7 @@ Future<void> showSentDetailSheet(
             borderRadius: BorderRadius.circular(AppRadius.row),
           ),
           child: Text(
-            '테이프는 이제 받는 사람만 들을 수 있어요',
+            keepAll('테이프는 이제 받는 사람만 들을 수 있어요'),
             style: AppText.suit(
               500,
               13.5,
@@ -348,7 +349,7 @@ class _WithdrawFormState extends State<_WithdrawForm> {
   Widget build(BuildContext context) {
     final vm = widget.viewModel;
     Widget line(String k, String v, {bool top = false}) => Container(
-      height: 44,
+      constraints: const BoxConstraints(minHeight: 44),
       decoration: BoxDecoration(
         border: top
             ? const Border(top: BorderSide(color: AppColors.withdrawLine))
@@ -366,9 +367,9 @@ class _WithdrawFormState extends State<_WithdrawForm> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('정말 탈퇴할까요?', style: _title),
+        Text(keepAll('정말 탈퇴할까요?'), style: _title),
         const SizedBox(height: 6),
-        Text('탈퇴하면 아래 내용이 모두 사라지고 되돌릴 수 없어요', style: _subMulti),
+        Text(keepAll('탈퇴하면 아래 내용이 모두 사라지고 되돌릴 수 없어요'), style: _subMulti),
         Container(
           margin: const EdgeInsets.only(top: 16),
           padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
@@ -385,15 +386,15 @@ class _WithdrawFormState extends State<_WithdrawForm> {
           ),
         ),
         const SizedBox(height: 10),
-        Text(NoticeCopy.refundBeforeWithdraw, style: AppText.notice),
+        Text(keepAll(NoticeCopy.refundBeforeWithdraw), style: AppText.notice),
         const SizedBox(height: 6),
         Semantics(
           checked: _ok,
           child: Tappable(
             behavior: HitTestBehavior.opaque,
             onTap: () => setState(() => _ok = !_ok),
-            child: SizedBox(
-              height: 56,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 56),
               child: Row(
                 children: [
                   AnimatedContainer(
@@ -434,7 +435,10 @@ class _WithdrawFormState extends State<_WithdrawForm> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Text('모두 사라진다는 걸 확인했어요', style: AppText.suit(600, 14.5)),
+                  Text(
+                    keepAll('모두 사라진다는 걸 확인했어요'),
+                    style: AppText.suit(600, 14.5),
+                  ),
                 ],
               ),
             ),

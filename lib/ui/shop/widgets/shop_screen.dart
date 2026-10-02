@@ -16,6 +16,7 @@ import '../../core/ui/mini_tape.dart';
 import '../../core/ui/skeleton.dart';
 import '../view_model/shop_view_model.dart';
 import '../../core/ui/tappable.dart';
+import '../../core/ui/keep_all.dart';
 
 /// 상점 탭 — 템플릿 `vShop` 블록. 테이프 → 크레딧 받기 → 서랍.
 class ShopScreen extends StatefulWidget {
@@ -133,7 +134,7 @@ class _Header extends StatelessWidget {
           children: [
             Text('상점', style: AppText.screenTitle),
             Container(
-              height: 36,
+              constraints: const BoxConstraints(minHeight: 36),
               padding: const EdgeInsets.only(left: 8, right: 14),
               decoration: BoxDecoration(
                 color: AppColors.surface,
@@ -286,6 +287,8 @@ class _Body extends StatelessWidget {
             sub: '친구에게 크레딧을 보내요',
             trailing: Text(
               '›',
+              // 글자 모양 아이콘 — 큰 글씨에도 크기 고정 (v10.4)
+              textScaler: TextScaler.noScaling,
               style: AppText.suit(
                 400,
                 20,
@@ -310,7 +313,10 @@ class _Body extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-            child: Text(NoticeCopy.refundWithin7Days, style: AppText.notice),
+            child: Text(
+              keepAll(NoticeCopy.refundWithin7Days),
+              style: AppText.notice,
+            ),
           ),
         ],
       ),
@@ -620,7 +626,7 @@ class _ShopRowState extends State<_ShopRow>
       child: AnimatedBuilder(
         animation: _flash,
         builder: (context, child) => Container(
-          height: 64,
+          constraints: const BoxConstraints(minHeight: 64),
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             color: _bg(),
@@ -711,7 +717,7 @@ class PricePill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: AppSizes.pricePill,
+      constraints: const BoxConstraints(minHeight: AppSizes.pricePill),
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         color: background,

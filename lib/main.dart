@@ -15,6 +15,7 @@ import 'data/services/sound_service.dart';
 import 'routing/app_flow.dart';
 import 'routing/router.dart';
 import 'routing/routes.dart';
+import 'ui/core/themes/text_styles.dart';
 import 'ui/core/themes/theme.dart';
 import 'ui/core/ui/toast.dart';
 import 'ui/link/view_model/link_view_model.dart';
@@ -143,16 +144,20 @@ class _TapeletterAppState extends State<TapeletterApp> {
       theme: AppTheme.light,
       routerConfig: _router,
       // 화면 위에 겹치는 배너·오류 화면·토스트. 내비게이터 밖이라 글자 기본 모양을 여기서 준다.
-      builder: (context, child) => Material(
-        type: MaterialType.transparency,
-        child: Stack(
-          children: [
-            ?child,
-            OfflineBanner(viewModel: context.read<StatusViewModel>()),
-            PushBannerHost(viewModel: context.read<PushViewModel>()),
-            ServerErrorOverlay(viewModel: context.read<StatusViewModel>()),
-            ToastHost(controller: context.read<ToastController>()),
-          ],
+      // 큰 글씨(v10.4): 시스템 글자 크기를 따르되 디자인 확인 범위(1.6배)를 넘으면 1.6배로
+      builder: (context, child) => MediaQuery.withClampedTextScaling(
+        maxScaleFactor: AppTextScale.max,
+        child: Material(
+          type: MaterialType.transparency,
+          child: Stack(
+            children: [
+              ?child,
+              OfflineBanner(viewModel: context.read<StatusViewModel>()),
+              PushBannerHost(viewModel: context.read<PushViewModel>()),
+              ServerErrorOverlay(viewModel: context.read<StatusViewModel>()),
+              ToastHost(controller: context.read<ToastController>()),
+            ],
+          ),
         ),
       ),
     );

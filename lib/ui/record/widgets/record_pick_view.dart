@@ -55,7 +55,11 @@ class RecordPickView extends StatelessWidget {
                   border: Border.all(color: AppColors.ink, width: 1.8),
                 ),
                 alignment: Alignment.center,
-                child: Text('+', style: AppText.suit(700, 13, height: 1)),
+                child: Text(
+                  '+',
+                  textScaler: TextScaler.noScaling,
+                  style: AppText.suit(700, 13, height: 1),
+                ),
               ),
             ),
           ),
@@ -95,7 +99,7 @@ class _FriendRowState extends State<_FriendRow> {
       onTapUp: (_) => setState(() => _pressed = false),
       onTapCancel: () => setState(() => _pressed = false),
       child: Container(
-        height: 64,
+        constraints: const BoxConstraints(minHeight: 64),
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
           // style-hover="background:#F6F6F4" — 터치에서는 누르는 동안
@@ -131,6 +135,8 @@ class _FriendRowState extends State<_FriendRow> {
                   child: Center(
                     child: Text(
                       f.starred ? '★' : '☆',
+                      // 글자 모양 아이콘 — 큰 글씨에도 크기 고정 (v10.4)
+                      textScaler: TextScaler.noScaling,
                       style: AppText.suit(
                         400,
                         20,

@@ -9,6 +9,7 @@ import '../../core/ui/app_icons.dart';
 import '../../core/ui/brand.dart';
 import '../../core/ui/buttons.dart';
 import '../view_model/login_view_model.dart';
+import '../../core/ui/keep_all.dart';
 
 /// 로그인 (`auLogin`) — 카카오 / Apple, 약관 안내.
 /// Android는 Apple 대신 Google 버튼을 같은 자리·같은 크기로 둔다.
@@ -64,7 +65,7 @@ class LoginScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 18),
                           Text(
-                            '목소리를 테이프에 담아 보내요',
+                            keepAll('목소리를 테이프에 담아 보내요'),
                             textAlign: TextAlign.center,
                             style: AppText.suit(
                               600,
@@ -204,11 +205,11 @@ class _TermsState extends State<_Terms> {
       TextSpan(
         style: base,
         children: [
-          const TextSpan(text: '계속하면 '),
+          TextSpan(text: keepAll('계속하면 ')),
           TextSpan(text: '이용약관', style: link, recognizer: _t),
-          const TextSpan(text: '과 '),
-          TextSpan(text: '개인정보 처리방침', style: link, recognizer: _p),
-          const TextSpan(text: '에 동의하게 돼요.\n만 14세 이상만 이용할 수 있어요'),
+          TextSpan(text: keepAll('과 ')),
+          TextSpan(text: keepAll('개인정보 처리방침'), style: link, recognizer: _p),
+          TextSpan(text: keepAll('에 동의하게 돼요.\n만 14세 이상만 이용할 수 있어요')),
         ],
       ),
       textAlign: TextAlign.center,

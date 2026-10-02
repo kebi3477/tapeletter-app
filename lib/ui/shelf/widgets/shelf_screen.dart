@@ -12,6 +12,7 @@ import 'shelf_drag.dart';
 import 'shelf_list_view.dart';
 import 'shelf_sheets.dart';
 import '../../core/ui/tappable.dart';
+import '../../core/ui/keep_all.dart';
 
 /// 서랍 탭 — 템플릿 `vShelf` 블록.
 class ShelfScreen extends StatefulWidget {
@@ -205,7 +206,11 @@ class _Header extends StatelessWidget {
                 child: SizedBox.square(
                   dimension: 40,
                   child: Center(
-                    child: Text('+', style: AppText.suit(300, 30, height: 1)),
+                    child: Text(
+                      '+',
+                      textScaler: TextScaler.noScaling,
+                      style: AppText.suit(300, 30, height: 1),
+                    ),
                   ),
                 ),
               ),
@@ -334,10 +339,10 @@ class _FullBanner extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('서랍이 꽉 찼어요', style: AppText.suit(800, 14.5)),
+                  Text(keepAll('서랍이 꽉 찼어요'), style: AppText.suit(800, 14.5)),
                   const SizedBox(height: 2),
                   Text(
-                    '지우거나 넓혀야 새 소포를 뜯을 수 있어요',
+                    keepAll('지우거나 넓혀야 새 소포를 뜯을 수 있어요'),
                     style: AppText.suit(
                       500,
                       12.5,
@@ -349,7 +354,10 @@ class _FullBanner extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            Text('넓히기 ›', style: AppText.suit(700, 13, color: AppColors.red)),
+            Text(
+              keepAll('넓히기 ›'),
+              style: AppText.suit(700, 13, color: AppColors.red),
+            ),
           ],
         ),
       ),
@@ -408,12 +416,12 @@ class _EmptyShelf extends StatelessWidget {
           ),
           const SizedBox(height: 30),
           Text(
-            '아직 받은 테이프가 없어요',
+            keepAll('아직 받은 테이프가 없어요'),
             style: AppText.suit(800, 20, letterSpacingEm: -.02),
           ),
           const SizedBox(height: 8),
           Text(
-            '친구에게 먼저 보내면 답장이 여기로 와요',
+            keepAll('친구에게 먼저 보내면 답장이 여기로 와요'),
             textAlign: TextAlign.center,
             style: AppText.suit(500, 14, height: 1.5, color: AppColors.textSub),
           ),
@@ -421,7 +429,7 @@ class _EmptyShelf extends StatelessWidget {
           Tappable(
             onTap: onGoRecord,
             child: Container(
-              height: 48,
+              constraints: const BoxConstraints(minHeight: 48),
               padding: const EdgeInsets.symmetric(horizontal: 22),
               decoration: BoxDecoration(
                 color: AppColors.ink,
@@ -440,7 +448,7 @@ class _EmptyShelf extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    '녹음하러 가기',
+                    keepAll('녹음하러 가기'),
                     style: AppText.suit(700, 15, color: AppColors.paper),
                   ),
                 ],
@@ -494,13 +502,13 @@ class _AddGroupButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.fromLTRB(12, 18, 12, 0),
-        height: 52,
+        constraints: const BoxConstraints(minHeight: 52),
         decoration: BoxDecoration(
           color: AppColors.surfaceSoft,
           borderRadius: BorderRadius.circular(AppRadius.row),
         ),
         alignment: Alignment.center,
-        child: Text('+ 칸 추가', style: AppText.suit(700, 14)),
+        child: Text(keepAll('+ 칸 추가'), style: AppText.suit(700, 14)),
       ),
     );
   }
@@ -518,7 +526,7 @@ class _NearFull extends StatelessWidget {
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-        height: 52,
+        constraints: const BoxConstraints(minHeight: 52),
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppRadius.row),
@@ -527,8 +535,11 @@ class _NearFull extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('서랍이 거의 찼어요', style: AppText.suit(700, 14)),
-            Text('넓히기 ›', style: AppText.suit(700, 13, color: AppColors.red)),
+            Text(keepAll('서랍이 거의 찼어요'), style: AppText.suit(700, 14)),
+            Text(
+              keepAll('넓히기 ›'),
+              style: AppText.suit(700, 13, color: AppColors.red),
+            ),
           ],
         ),
       ),

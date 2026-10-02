@@ -13,6 +13,7 @@ import '../../core/ui/buttons.dart';
 import '../../core/ui/choice_chip.dart';
 import '../view_model/report_view_model.dart';
 import '../../core/ui/tappable.dart';
+import '../../core/ui/keep_all.dart';
 
 /// 신고 (`shReport`) — 테이프 ⋯, 친구 ⋯, 차단한 친구 "신고", 재생 화면 ⋯에서 연다.
 /// 네트워크가 끊기면 같은 시트에서 `shReportFail`로 바뀌고, 적은 내용은 남는다.
@@ -95,7 +96,10 @@ class _Form extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('무엇이 문제인가요?', style: AppText.suit(800, 20, letterSpacingEm: -.01)),
+        Text(
+          keepAll('무엇이 문제인가요?'),
+          style: AppText.suit(800, 20, letterSpacingEm: -.01),
+        ),
         const SizedBox(height: 6),
         Text(
           vm.subtitle,
@@ -116,7 +120,7 @@ class _Form extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         Text(
-          '자세히 적기 (선택)',
+          keepAll('자세히 적기 (선택)'),
           style: AppText.suit(600, 13, color: AppColors.textMuted),
         ),
         const SizedBox(height: 10),
@@ -134,7 +138,7 @@ class _Form extends StatelessWidget {
             style: AppText.suit(500, 15, height: 1.5),
             cursorColor: AppColors.ink,
             decoration: InputDecoration(
-              hintText: '어떤 일이 있었는지 알려 주세요',
+              hintText: keepAll('어떤 일이 있었는지 알려 주세요'),
               hintStyle: AppText.suit(
                 500,
                 15,
@@ -196,12 +200,12 @@ class _FailView extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          '신고를 보내지 못했어요',
+          keepAll('신고를 보내지 못했어요'),
           style: AppText.suit(800, 20, letterSpacingEm: -.01),
         ),
         const SizedBox(height: 6),
         Text(
-          '인터넷 연결을 확인하고 다시 시도해 주세요.\n적은 내용은 그대로 남아 있어요.',
+          keepAll('인터넷 연결을 확인하고 다시 시도해 주세요.\n적은 내용은 그대로 남아 있어요.'),
           style: AppText.suit(500, 14, height: 1.55, color: AppColors.textSub),
         ),
         const SizedBox(height: 22),
@@ -232,8 +236,8 @@ class _BlockToggle extends StatelessWidget {
       child: Tappable(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        child: SizedBox(
-          height: 48,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 48),
           child: Row(
             children: [
               Container(
@@ -299,7 +303,7 @@ class _SubmitButton extends StatelessWidget {
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          height: AppSizes.primaryButton,
+          constraints: const BoxConstraints(minHeight: AppSizes.primaryButton),
           decoration: BoxDecoration(
             color: enabled ? AppColors.ink : AppColors.disabled,
             borderRadius: BorderRadius.circular(AppRadius.button),
@@ -325,8 +329,8 @@ class _TextButton extends StatelessWidget {
   Widget build(BuildContext context) => Tappable(
     behavior: HitTestBehavior.opaque,
     onTap: onTap,
-    child: SizedBox(
-      height: 48,
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 48),
       child: Center(child: Text(label, style: AppText.suit(600, 14))),
     ),
   );

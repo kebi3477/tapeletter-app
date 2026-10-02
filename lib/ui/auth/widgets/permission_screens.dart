@@ -8,6 +8,7 @@ import '../../core/ui/app_icons.dart';
 import '../../core/ui/buttons.dart';
 import '../view_model/permissions_view_model.dart';
 import '../../core/ui/tappable.dart';
+import '../../core/ui/keep_all.dart';
 
 /// 마이크 권한 안내 (`auMic`) — 계속 → OS 권한 창 → 알림 안내
 class MicPromptScreen extends StatelessWidget {
@@ -57,11 +58,11 @@ class NotiPromptScreen extends StatelessWidget {
         Tappable(
           behavior: HitTestBehavior.opaque,
           onTap: viewModel.later,
-          child: SizedBox(
-            height: 48,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
             child: Center(
               child: Text(
-                '나중에 할게요',
+                keepAll('나중에 할게요'),
                 style: AppText.suit(600, 14, color: AppColors.textSub),
               ),
             ),
@@ -105,7 +106,7 @@ class _PromptScaffold extends StatelessWidget {
                       graphic,
                       const SizedBox(height: 34),
                       Text(
-                        title,
+                        keepAll(title),
                         textAlign: TextAlign.center,
                         style: AppText.suit(
                           800,
@@ -116,7 +117,7 @@ class _PromptScaffold extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        body,
+                        keepAll(body),
                         textAlign: TextAlign.center,
                         style: AppText.suit(
                           500,
@@ -313,14 +314,14 @@ class PushCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  title,
+                  keepAll(title),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppText.suit(700, 14),
                 ),
                 const SizedBox(height: 1),
                 Text(
-                  body,
+                  keepAll(body),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: AppText.suit(500, 13, color: AppColors.textSecondary),

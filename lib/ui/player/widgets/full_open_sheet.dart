@@ -6,6 +6,7 @@ import '../../core/themes/colors.dart';
 import '../../core/themes/text_styles.dart';
 import '../../core/ui/buttons.dart';
 import '../../core/ui/tappable.dart';
+import '../../core/ui/keep_all.dart';
 
 /// 서랍 꽉 참 알림 (`shFullOpen`) — 재생 화면에서 소포를 탭했는데 `stored >= cap`일 때.
 /// 꽉 찬 선반 → 문구 → 칸별 보관 카드 → "서랍 넓히기" / "서랍 정리하기".
@@ -39,12 +40,12 @@ class FullOpenSheet extends StatelessWidget {
               const _FullShelf(),
               const SizedBox(height: 18),
               Text(
-                '서랍이 꽉 찼어요',
+                keepAll('서랍이 꽉 찼어요'),
                 style: AppText.suit(800, 20, letterSpacingEm: -.02),
               ),
               const SizedBox(height: 6),
               Text(
-                '소포를 뜯으려면 서랍에 자리가 필요해요.\n테이프를 지우거나 서랍을 넓혀 주세요.',
+                keepAll('소포를 뜯으려면 서랍에 자리가 필요해요.\n테이프를 지우거나 서랍을 넓혀 주세요.'),
                 textAlign: TextAlign.center,
                 style: AppText.suit(
                   500,
@@ -70,9 +71,9 @@ class FullOpenSheet extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('칸별 보관', style: AppText.suit(800, 14)),
+                  Text(keepAll('칸별 보관'), style: AppText.suit(800, 14)),
                   Text(
-                    '한 칸에 최대 $cap개',
+                    keepAll('한 칸에 최대 $cap개'),
                     style: AppText.suit(600, 12.5, color: AppColors.textSub),
                   ),
                 ],
@@ -95,7 +96,7 @@ class FullOpenSheet extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('서랍 전체', style: AppText.suit(700, 13.5)),
+                  Text(keepAll('서랍 전체'), style: AppText.suit(700, 13.5)),
                   Text(
                     formatDrawerCount(drawer.stored, drawer.cap),
                     style: AppText.suit(
@@ -126,11 +127,11 @@ class FullOpenSheet extends StatelessWidget {
           child: Tappable(
             behavior: HitTestBehavior.opaque,
             onTap: onTidy,
-            child: SizedBox(
-              height: 52,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 52),
               child: Center(
                 child: Text(
-                  '서랍 정리하기',
+                  keepAll('서랍 정리하기'),
                   style: AppText.suit(700, 15, color: AppColors.textSecondary),
                 ),
               ),

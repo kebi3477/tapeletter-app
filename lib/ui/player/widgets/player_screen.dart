@@ -19,6 +19,7 @@ import '../../core/ui/tape_motion.dart';
 import '../../core/ui/tape_widget.dart';
 import '../view_model/player_view_model.dart';
 import '../../core/ui/tappable.dart';
+import '../../core/ui/keep_all.dart';
 
 /// 테이프 재생 오버레이 — 템플릿 `viewerOn` 블록 (`vParcel` / `vPlay`).
 class PlayerScreen extends StatelessWidget {
@@ -68,6 +69,8 @@ class PlayerScreen extends StatelessWidget {
                               child: Center(
                                 child: Text(
                                   '✕',
+                                  // 글자 모양 아이콘 — 큰 글씨에도 크기 고정 (v10.4)
+                                  textScaler: TextScaler.noScaling,
                                   style: AppText.suit(400, 22, height: 1),
                                 ),
                               ),
@@ -115,7 +118,7 @@ class _ParcelView extends StatelessWidget {
               FadeUp(
                 duration: const Duration(milliseconds: 400),
                 child: Container(
-                  height: 36,
+                  constraints: const BoxConstraints(minHeight: 36),
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
                     color: AppColors.surface,
@@ -124,7 +127,7 @@ class _ParcelView extends StatelessWidget {
                   child: Center(
                     widthFactor: 1,
                     child: Text(
-                      '${item.from}님과 친구가 되었어요',
+                      keepAll('${item.from}님과 친구가 되었어요'),
                       style: AppText.suit(700, 14),
                     ),
                   ),
@@ -170,7 +173,7 @@ class _ParcelView extends StatelessWidget {
             Opacity(
               opacity: tearing ? 0 : 1,
               child: Text(
-                '탭해서 뜯기',
+                keepAll('탭해서 뜯기'),
                 style: AppText.suit(700, 15, color: AppColors.textMuted),
               ),
             ),
@@ -217,7 +220,7 @@ class _Half extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            '보낸 사람',
+                            keepAll('보낸 사람'),
                             style: AppText.suit(
                               600,
                               10,
@@ -531,7 +534,7 @@ class _Loading extends StatelessWidget {
           const LoadingDots(),
           const SizedBox(height: 14),
           Text(
-            '테이프를 불러오는 중이에요',
+            keepAll('테이프를 불러오는 중이에요'),
             style: AppText.suit(600, 14, color: AppColors.textMuted),
           ),
         ],
@@ -555,12 +558,12 @@ class _LoadError extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('테이프를 불러오지 못했어요', style: AppText.suit(700, 15)),
+            Text(keepAll('테이프를 불러오지 못했어요'), style: AppText.suit(700, 15)),
             const SizedBox(height: 12),
             Tappable(
               onTap: onRetry,
               child: Container(
-                height: 40,
+                constraints: const BoxConstraints(minHeight: 40),
                 padding: const EdgeInsets.symmetric(horizontal: 18),
                 decoration: BoxDecoration(
                   color: AppColors.ink,
@@ -569,7 +572,7 @@ class _LoadError extends StatelessWidget {
                 child: Center(
                   widthFactor: 1,
                   child: Text(
-                    '다시 시도',
+                    keepAll('다시 시도'),
                     style: AppText.suit(700, 14, color: AppColors.paper),
                   ),
                 ),
@@ -867,7 +870,7 @@ class _QueueRow extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Container(
-        height: 54,
+        constraints: const BoxConstraints(minHeight: 54),
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
           color: on ? AppColors.surfaceSoft : null,
@@ -897,7 +900,7 @@ class _QueueRow extends StatelessWidget {
             const SizedBox(width: 12),
             on
                 ? Text(
-                    '재생 중',
+                    keepAll('재생 중'),
                     style: AppText.suit(700, 12, color: AppColors.red),
                   )
                 : Text(
