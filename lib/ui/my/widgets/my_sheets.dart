@@ -14,6 +14,7 @@ import '../../core/ui/app_sheet.dart';
 import '../../core/ui/buttons.dart';
 import '../../core/ui/mini_tape.dart';
 import '../../report/widgets/report_sheet.dart';
+import 'sent_status.dart';
 import '../view_model/my_view_model.dart';
 import '../../core/ui/tappable.dart';
 
@@ -217,7 +218,7 @@ Future<void> showSentDetailSheet(
 }) {
   final p = TapePalette.of(sent.type);
   Widget row(String k, String v, {Color ink = AppColors.ink}) => Container(
-    height: 48,
+    constraints: const BoxConstraints(minHeight: 48),
     decoration: const BoxDecoration(
       border: Border(bottom: BorderSide(color: AppColors.line)),
     ),
@@ -242,9 +243,20 @@ Future<void> showSentDetailSheet(
               MiniTape(palette: p),
               const SizedBox(width: 14),
               Expanded(
-                child: Text(
-                  '${sent.to}에게 보낸 테이프',
-                  style: AppText.suit(800, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 긴 이름은 줄바꿈 (`overflow-wrap:anywhere`)
+                    Text(
+                      '${sent.to}에게 보낸 테이프',
+                      style: AppText.suit(800, 20, height: 1.3),
+                    ),
+                    const SizedBox(height: 3),
+                    SentStatusLabel(
+                      sent: sent,
+                      text: MyViewModel.sentShort(sent),
+                    ),
+                  ],
                 ),
               ),
             ],

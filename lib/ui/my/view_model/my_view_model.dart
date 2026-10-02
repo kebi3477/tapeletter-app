@@ -25,6 +25,7 @@ import '../../../domain/models/user.dart';
 import '../../../domain/models/wallet.dart';
 import '../../../utils/format.dart';
 import '../../../utils/result.dart';
+import '../../core/themes/tape_palette.dart';
 import '../../core/ui/toast.dart';
 
 /// 설정 > 정보의 문서
@@ -58,6 +59,9 @@ class ReceivedTape {
   /// 아직 안 뜯은 소포 (`boxed`, `isNew`) — 분류 안 함에만 있다
   bool get boxed => item.groupId == null && !item.opened;
 }
+
+/// 보낸 테이프 상태 3종 (`sentSt(r)`)
+enum SentKind { link, heard, sealed }
 
 /// 마이 탭 ViewModel — logic.js의 마이·친구 시트·보낸 테이프·설정 부분.
 class MyViewModel extends ChangeNotifier {
@@ -183,22 +187,37 @@ class MyViewModel extends ChangeNotifier {
   String get blockedCountText =>
       _blocked.isEmpty ? '없음' : '${_blocked.length}명';
 
-  /// 보낸 테이프 목록 상태 (`sentList.status`, 계약서 SentTape 표)
+  /// 보낸 테이프 상태 종류 (`sentSt(r).stKind`): 링크 대기 → 열어 봄 → 안 열어 봄.
+  /// 링크 만료(디자인에 없는 서버 상태)는 다시 공유가 필요한 링크라 링크 대기와 같은 강조.
+  static SentKind sentKind(SentTape s) => switch (s.status) {
+    SentStatus.linkPending || SentStatus.linkExpired => SentKind.link,
+    SentStatus.opened => SentKind.heard,
+    SentStatus.unopened => SentKind.sealed,
+  };
+
+  /// 보낸 테이프 목록 상태 (`sentSt(r).status`, v10.1) — 연 날짜는 목록에 넣지 않는다(사생활)
   static String sentStatus(SentTape s) => switch (s.status) {
     SentStatus.linkPending => '링크 대기',
     SentStatus.linkExpired => '링크 만료',
-    SentStatus.unopened => '안 뜯음',
-    SentStatus.opened =>
-      s.openedAt == null ? '들음' : '${formatMonthDay(s.openedAt!)} 들음',
+    SentStatus.unopened => '안 열어 봄',
+    SentStatus.opened => '열어 봄',
   };
 
-  /// 보낸 테이프 상세 상태 (`sdStatus`)
+  /// 목록 2줄 뒷부분 `· 09.22 · 1분`
+  static String sentMeta(SentTape s) =>
+      '· ${formatMonthDay(s.date)} · ${TapePalette.of(s.type).name}';
+
+  /// 상세 시트 제목 아래 (`sdStShort`) `열어 봄 · 1분`
+  static String sentShort(SentTape s) =>
+      '${sentStatus(s)} · ${TapePalette.of(s.type).name}';
+
+  /// 보낸 테이프 상세 상태 (`sdStatus`) — 날짜는 여기에만 "MM.DD에 열어 봤어요"
   static String sentDetailStatus(SentTape s) => switch (s.status) {
     SentStatus.linkPending => '아직 아무도 받지 않았어요',
     SentStatus.linkExpired => '링크가 만료됐어요',
-    SentStatus.unopened => '아직 소포를 안 뜯었어요',
+    SentStatus.unopened => '아직 안 열어 봤어요',
     SentStatus.opened =>
-      s.openedAt == null ? '들었어요' : '${formatMonthDay(s.openedAt!)}에 들었어요',
+      s.openedAt == null ? '열어 봤어요' : '${formatMonthDay(s.openedAt!)}에 열어 봤어요',
   };
 
   /// 링크 다시 공유하기 버튼 (`sdLink`) — 아직 아무도 받지 않은 링크

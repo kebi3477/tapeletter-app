@@ -87,8 +87,13 @@ void main() {
     await pumpMy(tester);
     await openPage(tester, '보낸 테이프');
     expect(find.textContaining('· 받은 사람만 들을 수 있어요'), findsOneWidget);
-    expect(find.text('09.22 · 링크 대기'), findsOneWidget);
-    expect(find.text('09.10 · 09.11 들음'), findsOneWidget);
+    // v10: 2줄 — 이름 / 상태 점·상태 · MM.DD · 길이
+    expect(find.text('유진에게 보냄'), findsOneWidget);
+    expect(find.text('링크 대기'), findsOneWidget);
+    expect(find.text('열어 봄'), findsNWidgets(2));
+    expect(find.text('안 열어 봄'), findsOneWidget);
+    expect(find.text('· 09.22 · 15초'), findsOneWidget);
+    expect(find.textContaining('들음'), findsNothing, reason: '연 날짜는 목록에 없음');
     await tester.tap(find.text('‹'));
     await tester.pumpAndSettle();
 
@@ -237,11 +242,22 @@ void main() {
     await tester.tap(find.text('유진에게 보냄'));
     await tester.pumpAndSettle();
     expect(find.text('유진에게 보낸 테이프'), findsOneWidget);
+    // 제목 아래 상태 줄 (`sdStShort`)
+    expect(find.text('링크 대기 · 15초'), findsOneWidget);
     expect(find.text('아직 아무도 받지 않았어요'), findsOneWidget);
     expect(find.text('테이프는 이제 받는 사람만 들을 수 있어요'), findsOneWidget);
     await tester.tap(find.text('링크 다시 공유하기'));
     await tester.pumpAndSettle();
     expect(h.deliveries.reshares, 1);
+  });
+
+  testWidgets('보낸 테이프 상세: 열어 본 날짜는 상세에만', (tester) async {
+    await pumpMy(tester);
+    await openPage(tester, '보낸 테이프');
+    await tester.tap(find.text('엄마에게 보냄').first);
+    await tester.pumpAndSettle();
+    expect(find.text('열어 봄 · 1분'), findsOneWidget);
+    expect(find.text('09.11에 열어 봤어요'), findsOneWidget);
   });
 
   testWidgets('회원 탈퇴: 체크해야 탈퇴, 끝나면 첫 화면', (tester) async {

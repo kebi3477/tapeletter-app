@@ -47,13 +47,25 @@ void main() {
     );
     expect(MyViewModel.sentStatus(s(SentStatus.linkPending)), '링크 대기');
     expect(MyViewModel.sentStatus(s(SentStatus.linkExpired)), '링크 만료');
-    expect(MyViewModel.sentStatus(s(SentStatus.unopened)), '안 뜯음');
+    // v10.1: 목록에는 연 날짜를 넣지 않는다
+    expect(MyViewModel.sentStatus(s(SentStatus.unopened)), '안 열어 봄');
     expect(
       MyViewModel.sentStatus(
         s(SentStatus.opened, opened: DateTime(2026, 9, 11)),
       ),
-      '09.11 들음',
+      '열어 봄',
     );
+    expect(
+      MyViewModel.sentShort(
+        s(SentStatus.opened, opened: DateTime(2026, 9, 11)),
+      ),
+      '열어 봄 · 1분',
+    );
+    expect(MyViewModel.sentMeta(s(SentStatus.unopened)), '· 09.10 · 1분');
+    expect(MyViewModel.sentKind(s(SentStatus.linkPending)), SentKind.link);
+    expect(MyViewModel.sentKind(s(SentStatus.linkExpired)), SentKind.link);
+    expect(MyViewModel.sentKind(s(SentStatus.opened)), SentKind.heard);
+    expect(MyViewModel.sentKind(s(SentStatus.unopened)), SentKind.sealed);
     expect(
       MyViewModel.sentDetailStatus(s(SentStatus.linkPending)),
       '아직 아무도 받지 않았어요',
@@ -62,15 +74,12 @@ void main() {
       MyViewModel.sentDetailStatus(s(SentStatus.linkExpired)),
       '링크가 만료됐어요',
     );
-    expect(
-      MyViewModel.sentDetailStatus(s(SentStatus.unopened)),
-      '아직 소포를 안 뜯었어요',
-    );
+    expect(MyViewModel.sentDetailStatus(s(SentStatus.unopened)), '아직 안 열어 봤어요');
     expect(
       MyViewModel.sentDetailStatus(
         s(SentStatus.opened, opened: DateTime(2026, 9, 11)),
       ),
-      '09.11에 들었어요',
+      '09.11에 열어 봤어요',
     );
     expect(MyViewModel.canReshare(s(SentStatus.linkPending)), isTrue);
     expect(MyViewModel.canReshare(s(SentStatus.linkExpired)), isTrue);
@@ -87,9 +96,9 @@ void main() {
       async.flushMicrotasks();
       expect(list.map(MyViewModel.sentStatus), [
         '링크 대기',
-        '09.11 들음',
-        '안 뜯음',
-        '06.02 들음',
+        '열어 봄',
+        '안 열어 봄',
+        '열어 봄',
       ]);
     });
   });

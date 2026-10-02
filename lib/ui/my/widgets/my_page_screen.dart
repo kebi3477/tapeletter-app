@@ -11,6 +11,7 @@ import '../../core/ui/buttons.dart';
 import '../../core/ui/mini_tape.dart';
 import '../../core/ui/parcel_box.dart';
 import '../../friend/widgets/alias_sheet.dart';
+import 'sent_status.dart';
 import '../view_model/my_view_model.dart';
 import 'my_sheets.dart';
 import '../../core/ui/tappable.dart';
@@ -405,7 +406,7 @@ class MyFriendRow extends StatelessWidget {
   }
 }
 
-/// 보낸 테이프 카드 (`#FAFAF8` + `inset 0 0 0 1px #EFEFEC`)
+/// 보낸 테이프 목록 (`mpSent`, v10) — 카드 배경 없이 받은 테이프 목록과 같은 형식.
 class SentCard extends StatelessWidget {
   const SentCard({super.key, required this.vm, required this.onTap});
 
@@ -413,82 +414,83 @@ class SentCard extends StatelessWidget {
   final ValueChanged<SentTape> onTap;
 
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-    decoration: BoxDecoration(
-      color: AppColors.sentCard,
-      borderRadius: BorderRadius.circular(AppRadius.button),
-      border: Border.all(color: AppColors.cardStroke),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (final s in vm.sent)
-          Tappable(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => onTap(s),
-            child: Container(
-              height: 48,
-              decoration: const BoxDecoration(
-                border: Border(bottom: BorderSide(color: AppColors.line)),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 8,
-                    height: 14,
-                    decoration: BoxDecoration(
-                      color: TapePalette.of(s.type).shell,
-                      borderRadius: BorderRadius.circular(2),
-                      border: Border.all(
-                        color: AppColors.black.withValues(alpha: .1),
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      for (final s in vm.sent) SentRow(sent: s, onTap: () => onTap(s)),
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Text(
+          '보낸 테이프는 받은 사람만 들을 수 있어요',
+          style: AppText.suit(500, 12, height: 1.4, color: AppColors.textFaint),
+        ),
+      ),
+    ],
+  );
+}
+
+/// 보낸 테이프 행: 최소 60, 패딩 8 12(좌우 −12로 넓힘), radius 14, 간격 14.
+/// 미니 테이프 48×32 · "{이름}에게 보냄" `700 15.5/1.3` 한 줄 말줄임 ·
+/// [상태 점·상태] · MM.DD · 길이 (`500 12.5` `#9A9A97`, 좁으면 다음 줄) · ›
+class SentRow extends StatelessWidget {
+  const SentRow({super.key, required this.sent, required this.onTap});
+
+  final SentTape sent;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Tappable(
+    behavior: HitTestBehavior.opaque,
+    onTap: onTap,
+    child: Container(
+      constraints: const BoxConstraints(minHeight: 60),
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          MiniTape(palette: TapePalette.of(sent.type)),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${sent.to}에게 보냄',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppText.suit(700, 15.5, height: 1.3),
+                ),
+                const SizedBox(height: 3),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 2,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    SentStatusLabel(
+                      sent: sent,
+                      text: MyViewModel.sentStatus(sent),
+                    ),
+                    Text(
+                      MyViewModel.sentMeta(sent),
+                      style: AppText.suit(
+                        500,
+                        12.5,
+                        height: 1.35,
+                        tabularNums: true,
+                        color: AppColors.textMuted,
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      '${s.to}에게 보냄',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppText.body,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    '${formatMonthDay(s.date)} · ${MyViewModel.sentStatus(s)}',
-                    style: AppText.suit(
-                      500,
-                      12.5,
-                      color: AppColors.textMuted,
-                      tabularNums: true,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    '›',
-                    style: AppText.suit(
-                      400,
-                      18,
-                      height: 1,
-                      color: AppColors.disabled,
-                    ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
             ),
           ),
-        SizedBox(
-          height: 36,
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              '보낸 테이프는 받은 사람만 들을 수 있어요',
-              style: AppText.suit(500, 12, color: AppColors.textFaint),
-            ),
+          const SizedBox(width: 14),
+          Text(
+            '›',
+            style: AppText.suit(400, 20, height: 1, color: AppColors.disabled),
           ),
-        ),
-      ],
+        ],
+      ),
     ),
   );
 }
