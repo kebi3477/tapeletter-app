@@ -210,6 +210,16 @@ void main() {
       Routes.onboarding,
       harness: RecordHarness(signedIn: false, onboarded: false),
     ),
+    '온보딩 3장 (서랍장)': (t) async {
+      await open(
+        t,
+        Routes.onboarding,
+        harness: RecordHarness(signedIn: false, onboarded: false),
+      );
+      await tapText(t, '다음');
+      await tapText(t, '다음');
+      expect(findPlainText('힘들 때 듣기'), findsOneWidget);
+    },
     '로그인': (t) async =>
         open(t, Routes.login, harness: RecordHarness(signedIn: false)),
     '이름 정하기': (t) async {

@@ -8,6 +8,7 @@ import '../../core/themes/colors.dart';
 import '../../core/themes/dimens.dart';
 import '../../core/themes/tape_palette.dart';
 import '../../core/themes/text_styles.dart';
+import '../../core/ui/app_icons.dart';
 import '../../core/ui/credit_icon.dart';
 import '../../core/ui/skeleton.dart';
 import '../view_model/my_view_model.dart';
@@ -421,42 +422,8 @@ class _MenuIcon extends StatelessWidget {
         ],
       ),
     ),
-    // 24×20 소포: 몸통(top 4), 뚜껑(top 4, 높이 6, radius 3 3 0 0), 가운데 끈
-    MyPage.sent => SizedBox(
-      width: 24,
-      height: 20,
-      child: Stack(
-        children: [
-          Positioned(
-            left: 0,
-            right: 0,
-            top: 4,
-            bottom: 0,
-            child: DecoratedBox(
-              decoration: _stroke(r: BorderRadius.circular(3)),
-            ),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            top: 4,
-            height: 6,
-            child: DecoratedBox(
-              decoration: _stroke(
-                r: const BorderRadius.vertical(top: Radius.circular(3)),
-              ),
-            ),
-          ),
-          const Positioned(
-            left: 11,
-            width: 2,
-            top: 0,
-            height: 10,
-            child: ColoredBox(color: _ink),
-          ),
-        ],
-      ),
-    ),
+    // 보낸 테이프 (v10.5): 종이비행기 외곽선 24×24, stroke 2 `#111`, round join
+    MyPage.sent => const SvgIcon(AppIcons.paperPlane, width: 24, height: 24),
     // 22×22 사람 (탭바 마이 아이콘과 같은 모양)
     MyPage.friends => SizedBox(
       width: 22,

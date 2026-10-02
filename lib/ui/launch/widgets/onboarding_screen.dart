@@ -70,8 +70,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(
-                    height: 230,
+                  // `min-height:230px` — 3장 서랍장 카드(v10.6)는 더 크다
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 230),
                     child: Center(
                       child: FadeUp(
                         key: ValueKey(_i),
@@ -197,117 +198,156 @@ class _ShakingParcelState extends State<_ShakingParcel>
   }
 }
 
-/// 3장 (v3 `onb2`): 칸 이름 4개가 붙은 책장 — 280 너비, 2열 (간격 14 · 10)
+/// 3장 (v10.6 `onb2`): 서랍장 카드 하나(286, 크라프트 그라데이션, radius 18)에 칸 3줄.
+/// 줄마다 왼쪽 칸 이름 + `n/10`, 오른쪽 테이프 등 20px + 선반 받침.
 class _DrawerShelves extends StatelessWidget {
   const _DrawerShelves();
 
-  static const _shelves = [
+  static const _rows = [
     (
       '2026 생일',
+      '5/10',
       [
-        (TapePalette.s15, 54.0),
-        (TapePalette.m1, 58.0),
-        (TapePalette.m3, 50.0),
-        (TapePalette.s15, 56.0),
-      ],
-    ),
-    (
-      '우리의 여행',
-      [(TapePalette.m1, 56.0), (TapePalette.m1, 52.0), (TapePalette.m3, 58.0)],
-    ),
-    (
-      '엄마 목소리',
-      [
-        (TapePalette.m3, 58.0),
+        (TapePalette.s15, 50.0),
+        (TapePalette.m1, 54.0),
+        (TapePalette.m3, 48.0),
         (TapePalette.s15, 52.0),
-        (TapePalette.m3, 55.0),
         (TapePalette.m1, 50.0),
       ],
     ),
-    ('힘들 때 듣기', [(TapePalette.s15, 56.0), (TapePalette.m1, 53.0)]),
+    (
+      '엄마 목소리',
+      '4/10',
+      [
+        (TapePalette.m3, 54.0),
+        (TapePalette.s15, 48.0),
+        (TapePalette.m3, 52.0),
+        (TapePalette.m1, 50.0),
+      ],
+    ),
+    (
+      '힘들 때 듣기',
+      '3/10',
+      [
+        (TapePalette.s15, 52.0),
+        (TapePalette.m1, 48.0),
+        (TapePalette.s15, 50.0),
+      ],
+    ),
   ];
 
   @override
   Widget build(BuildContext context) {
-    Widget row(int a) => Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(child: _Shelf(data: _shelves[a])),
-        const SizedBox(width: 10),
-        Expanded(child: _Shelf(data: _shelves[a + 1])),
-      ],
-    );
-    return SizedBox(
-      width: 280,
+    return Container(
+      width: 286,
+      padding: const EdgeInsets.only(top: 16, bottom: 14),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [AppColors.shelfBoardTop, AppColors.shelfBoardBottom],
+        ),
+        // inset 0 0 0 1px #EFE4CF
+        border: Border.all(color: AppColors.parcelStroke),
+        // 0 12px 28px -14px rgba(0,0,0,.28)
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.black.withValues(alpha: .28),
+            offset: const Offset(0, 12),
+            blurRadius: 28,
+            spreadRadius: -14,
+          ),
+        ],
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: [row(0), const SizedBox(height: 14), row(2)],
+        children: [
+          for (final (i, row) in _rows.indexed) ...[
+            if (i > 0) const SizedBox(height: 12),
+            _Shelf(data: row),
+          ],
+        ],
       ),
     );
   }
 }
 
+/// 서랍장 한 줄 (padding 0 14, 간격 12): 이름(76) + 선반(등 높이 60 + 받침 6)
 class _Shelf extends StatelessWidget {
   const _Shelf({required this.data});
 
-  final (String, List<(TapePalette, double)>) data;
+  final (String, String, List<(TapePalette, double)>) data;
 
   @override
   Widget build(BuildContext context) {
-    final (name, spines) = data;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 2),
-          child: Text(name, style: AppText.suit(700, 12.5)),
-        ),
-        const SizedBox(height: 6),
-        Container(
-          height: 66,
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [AppColors.shelfBoardTop, AppColors.shelfBoardBottom],
-            ),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              for (final (i, (p, h)) in spines.indexed) ...[
-                if (i > 0) const SizedBox(width: 2),
-                _SmallSpine(palette: p, height: h),
-              ],
-            ],
-          ),
-        ),
-        Container(
-          height: 6,
-          decoration: BoxDecoration(
-            color: AppColors.shelfPlank,
-            borderRadius: const BorderRadius.vertical(
-              bottom: Radius.circular(3),
-            ),
-            boxShadow: [
-              // 0 4px 6px -4px rgba(0,0,0,.3)
-              BoxShadow(
-                color: AppColors.black.withValues(alpha: .3),
-                offset: const Offset(0, 4),
-                blurRadius: 6,
-                spreadRadius: -4,
+    final (name, count, spines) = data;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          SizedBox(
+            width: 76,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    keepAll(name),
+                    style: AppText.suit(700, 13, height: 1.3),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    count,
+                    style: AppText.suit(
+                      600,
+                      11.5,
+                      tabularNums: true,
+                      color: AppColors.textCount,
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ],
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(
+                  height: 60,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      for (final (i, (p, h)) in spines.indexed) ...[
+                        if (i > 0) const SizedBox(width: 2),
+                        _SmallSpine(palette: p, height: h),
+                      ],
+                    ],
+                  ),
+                ),
+                Container(
+                  height: 6,
+                  decoration: const BoxDecoration(
+                    color: AppColors.shelfPlank,
+                    borderRadius: BorderRadius.vertical(
+                      bottom: Radius.circular(3),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
-/// 작은 테이프 등 (18 너비, 띠 3px, 라벨 top 11 · bottom 6)
+/// 작은 테이프 등 (20 너비, 띠 3px, 라벨 top 11 · bottom 6, `inset -2px 0 0 rgba(0,0,0,.14)`)
 class _SmallSpine extends StatelessWidget {
   const _SmallSpine({required this.palette, required this.height});
 
@@ -317,7 +357,7 @@ class _SmallSpine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 18,
+      width: 20,
       height: height,
       decoration: BoxDecoration(
         color: palette.shell,
