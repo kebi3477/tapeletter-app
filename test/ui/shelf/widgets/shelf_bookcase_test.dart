@@ -48,6 +48,33 @@ void main() {
     await tester.pump();
   }
 
+  testWidgets('도착한 소포 구역: 안 뜯은 소포만, 분류 안 함은 뜯은 테이프만, 끌 수 없다', (tester) async {
+    final h = await pumpShelf(tester, coachDone: true);
+    expect(find.text('도착한 소포'), findsOneWidget);
+    expect(find.text('2개'), findsOneWidget);
+    expect(find.text('눌러서 뜯어 주세요'), findsOneWidget);
+    expect(find.text('0개'), findsOneWidget, reason: '분류 안 함');
+    expect(find.text('뜯은 테이프 중 칸에 넣지 않은 테이프가 여기 모여요'), findsOneWidget);
+    // 소포를 길게 눌러도 드래그가 시작되지 않는다
+    final g = await tester.startGesture(tester.getCenter(find.text('지현')));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(vmOf(tester).dragging, isFalse);
+    expect(find.byType(SpineGhost), findsNothing);
+    await g.cancel();
+    await tester.pump();
+    // 소포를 뜯으면 구역에서 빠지고 분류 안 함으로
+    await h.shelf.open(h.store.unsorted.first.id);
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('1개'), findsNWidgets(2));
+    await h.shelf.open(h.store.unsorted[1].id);
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('도착한 소포'), findsNothing, reason: '마지막 소포를 뜯으면 구역이 사라진다');
+    expect(find.text('2개'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('코치마크: 처음 한 번, 알겠어요로 닫고 기억한다', (tester) async {
     final h = await pumpShelf(tester);
     expect(find.text('테이프를 원하는 칸으로 끌어 보세요'), findsOneWidget);
@@ -120,10 +147,7 @@ void main() {
     await tester.pump();
     // 손가락 가운데를 따라온다
     final at = spine(tester, '수아') + const Offset(30, 40);
-    expect(
-      (tester.getCenter(ghost) - at).distance,
-      lessThan(4),
-    );
+    expect((tester.getCenter(ghost) - at).distance, lessThan(4));
     expect(tester.takeException(), isNull);
     await g.up();
     await tester.pump(const Duration(seconds: 2));

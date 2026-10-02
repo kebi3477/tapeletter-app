@@ -77,6 +77,12 @@ abstract final class AppColors {
   static const shelfPlank = Color(0xFFDDD3C2);
   static const shelfDash = Color(0xFFCFC6B5);
 
+  // 서랍 · 도착한 소포 구역 (v10.2)
+  /// 카드 바탕 (`#FBF9F5`) · 테두리 (`inset 0 0 0 1px #EFE4CF`) · 누른 행 (`#F5EEE2`)
+  static const parcelCard = Color(0xFFFBF9F5);
+  static const parcelStroke = Color(0xFFEFE4CF);
+  static const parcelPressed = Color(0xFFF5EEE2);
+
   // 서랍 꽉 참 시트 (shFullOpen)
   /// 꽉 찬 선반 일러스트의 등 10개 (`foSpines`)
   static const fullSpines = [

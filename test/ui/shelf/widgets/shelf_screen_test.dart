@@ -40,8 +40,13 @@ void main() {
     expect(find.text('서랍'), findsWidgets);
     expect(find.text('테이프 8/10'), findsOneWidget);
     expect(find.text('분류 안 함'), findsOneWidget);
-    expect(find.text('새 테이프 2'), findsOneWidget);
-    expect(find.text('${at(9, 24)} · 1분 · 소포 도착'), findsOneWidget);
+    // 도착한 소포 구역 (v10.2): 안 뜯은 소포 2개, 부제에 "소포 도착" 없음
+    expect(find.text('도착한 소포'), findsOneWidget);
+    expect(find.text('2개'), findsOneWidget);
+    expect(find.text('눌러서 뜯어 주세요'), findsOneWidget);
+    expect(find.text('${at(9, 24)} · 1분'), findsOneWidget);
+    expect(find.text('0개'), findsOneWidget, reason: '분류 안 함은 뜯은 테이프만');
+    expect(find.text('뜯은 테이프 중 칸에 넣지 않은 테이프가 여기 모여요'), findsOneWidget);
     expect(find.text('2026 생일'), findsOneWidget);
     expect(find.text('승진 축하'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('서랍이 거의 찼어요'), 200);
@@ -149,6 +154,8 @@ void main() {
       of: find.text('${at(3, 14)} · 3분'),
       matching: find.byType(ShelfRow),
     );
+    await tester.ensureVisible(row);
+    await tester.pump();
     final g = await tester.startGesture(tester.getCenter(row));
     await g.moveBy(const Offset(0, -40));
     await tester.pump(const Duration(milliseconds: 400));
@@ -163,6 +170,8 @@ void main() {
       of: find.text('은비'),
       matching: find.byType(ShelfRow),
     );
+    await tester.ensureVisible(row);
+    await tester.pump();
     await tester.tap(
       find.descendant(of: row, matching: find.byType(MoreButton)),
     );
@@ -187,6 +196,8 @@ void main() {
         of: find.text('은비'),
         matching: find.byType(ShelfRow),
       );
+      await tester.ensureVisible(row);
+      await tester.pump();
       await tester.tap(
         find.descendant(of: row, matching: find.byType(MoreButton)),
       );
@@ -243,6 +254,8 @@ void main() {
       of: find.text('은비'),
       matching: find.byType(ShelfRow),
     );
+    await tester.ensureVisible(row);
+    await tester.pump();
     await tester.tap(
       find.descendant(of: row, matching: find.byType(MoreButton)),
     );
@@ -258,9 +271,11 @@ void main() {
   testWidgets('안 뜯은 소포 ⋯에는 옮기기가 없다', (tester) async {
     await pumpShelf(tester);
     final row = find.ancestor(
-      of: find.text('${at(9, 24)} · 1분 · 소포 도착'),
+      of: find.text('${at(9, 24)} · 1분'),
       matching: find.byType(ShelfRow),
     );
+    await tester.ensureVisible(row);
+    await tester.pump();
     await tester.tap(
       find.descendant(of: row, matching: find.byType(MoreButton)),
     );
@@ -328,6 +343,8 @@ void main() {
       of: find.text('은비'),
       matching: find.byType(ShelfRow),
     );
+    await tester.ensureVisible(row);
+    await tester.pump();
     await tester.tap(
       find.descendant(of: row, matching: find.byType(MoreButton)),
     );

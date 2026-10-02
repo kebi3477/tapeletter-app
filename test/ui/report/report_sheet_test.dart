@@ -40,6 +40,8 @@ void main() {
 
   testWidgets('서랍 테이프 ⋯ → 신고하기 → 사유·내용 → 신고하고 차단', (tester) async {
     final h = await pumpAt(tester, '/shelf');
+    await tester.ensureVisible(moreOf('은비'));
+    await tester.pump();
     await tester.tap(moreOf('은비'));
     await settle(tester);
     // 답장 / 옮기기 / 신고하기 / 지우기
@@ -124,9 +126,13 @@ void main() {
 
   testWidgets('재생 화면 ⋯ → 답장·신고만 → 신고', (tester) async {
     final h = await pumpAt(tester, '/shelf');
-    await tester.tap(
-      find.ancestor(of: find.text('수아'), matching: find.byType(ShelfRow)),
+    final sua = find.ancestor(
+      of: find.text('수아'),
+      matching: find.byType(ShelfRow),
     );
+    await tester.ensureVisible(sua);
+    await tester.pump();
+    await tester.tap(sua);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 1000));
     final more = find.descendant(
@@ -156,6 +162,8 @@ void main() {
 
   testWidgets('네트워크 실패 → 신고를 보내지 못했어요 → 돌아가기(내용 유지)', (tester) async {
     await pumpAt(tester, '/shelf', mode: FailMode.offline);
+    await tester.ensureVisible(moreOf('은비'));
+    await tester.pump();
     await tester.tap(moreOf('은비'));
     await settle(tester);
     await tester.tap(find.text('신고하기'));

@@ -81,6 +81,26 @@ void main() {
     });
   });
 
+  test('도착한 소포와 분류 안 함 나누기 (v10.2), 소포는 끌 수 없다', () {
+    fakeAsync((async) {
+      vm = make(async);
+      expect(vm.parcels.map((x) => x.from), ['지현', '하늘']);
+      expect(vm.openedUnsorted, isEmpty);
+      expect(vm.unsortedCountText, '0개');
+      expect(vm.parcelSub(vm.parcels.first), '${at(9, 24)} · 1분');
+      vm.startDrag(vm.parcels.first.id);
+      expect(vm.dragging, isFalse);
+      // 칸 테이프를 분류 안 함 맨 앞(소포 앞, 원래 인덱스 0)에 놓는다
+      vm.startDrag(idOf('g-1', '엄마'));
+      vm.dragOver(const DropTarget(null, 0));
+      vm.endDrag();
+      async.flushMicrotasks();
+      expect(vm.openedUnsorted.map((e) => (e.$1, e.$2.from)), [(0, '엄마')]);
+      expect(vm.unsortedCountText, '1개');
+      expect(vm.parcels, hasLength(2));
+    });
+  });
+
   group('칸당 10개 (gFull)', () {
     /// '승진 축하'(g-2)를 [n]개로 채우고 다시 불러온다.
     void fill(FakeAsync async, int n) {

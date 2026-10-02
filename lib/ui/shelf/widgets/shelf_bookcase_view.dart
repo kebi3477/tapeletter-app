@@ -44,10 +44,44 @@ class ShelfBookcase extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // 도착한 소포 (v10.2): 같은 카드 안 가로 스크롤 상자 64×44. 끌 수 없다.
+              if (vm.parcels.isNotEmpty)
+                ParcelSection(
+                  count: vm.parcels.length,
+                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+                  headerPadding: EdgeInsets.zero,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      clipBehavior: Clip.none,
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          for (final (i, x) in vm.parcels.indexed) ...[
+                            if (i > 0) const SizedBox(width: 12),
+                            Tappable(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () => onOpen(x),
+                              child: _InboxItem(
+                                item: x,
+                                dragging: false,
+                                landed: false,
+                                before: false,
+                                after: false,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               SectionHeader(
                 name: ShelfViewModel.unsortedName,
-                count: '${s.unsorted.length}개',
-                newCount: s.unopenedCount,
+                count: vm.unsortedCountText,
                 padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
               ),
               // 분류 안 함 줄 (`inboxEnd`, 놓을 곳이면 `#FDECE9`)
@@ -69,13 +103,13 @@ class ShelfBookcase extends StatelessWidget {
                           : AppColors.redTint.withValues(alpha: 0),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: s.unsorted.isEmpty
+                    child: vm.openedUnsorted.isEmpty
                         ? SizedBox(
                             height: 44,
                             child: Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                '새로 온 테이프가 여기에 들어와요',
+                                '뜯은 테이프 중 칸에 넣지 않은 테이프가 여기 모여요',
                                 style: AppText.suit(
                                   500,
                                   13.5,
@@ -90,21 +124,21 @@ class ShelfBookcase extends StatelessWidget {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                for (var i = 0; i < s.unsorted.length; i++) ...[
-                                  if (i > 0) const SizedBox(width: 12),
+                                for (final (k, (i, x))
+                                    in vm.openedUnsorted.indexed) ...[
+                                  if (k > 0) const SizedBox(width: 12),
                                   DropZone(
                                     controller: drag,
                                     target: DropTarget(null, i),
                                     col: true,
                                     child: DragRowGestures(
                                       controller: drag,
-                                      item: s.unsorted[i],
-                                      onTap: () => onOpen(s.unsorted[i]),
+                                      item: x,
+                                      onTap: () => onOpen(x),
                                       child: _InboxItem(
-                                        item: s.unsorted[i],
-                                        dragging:
-                                            vm.draggingId == s.unsorted[i].id,
-                                        landed: vm.landedId == s.unsorted[i].id,
+                                        item: x,
+                                        dragging: vm.draggingId == x.id,
+                                        landed: vm.landedId == x.id,
                                         before:
                                             dt?.groupId == null &&
                                             dt?.index == i,

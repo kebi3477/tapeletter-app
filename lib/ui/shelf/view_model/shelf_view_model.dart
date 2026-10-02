@@ -106,6 +106,24 @@ class ShelfViewModel extends ChangeNotifier {
   /// 빈 서랍 — 분류 안 함도 칸도 없을 때
   bool get emptyOn => _loaded && _shelf.isEmpty;
 
+  // ── 도착한 소포 / 분류 안 함 (v10.2) ──────────────────
+  /// 도착한 소포 — 분류 안 함의 안 뜯은 소포 (`parcelList`). 데이터는 그대로 `unsorted` 하나.
+  List<TapeItem> get parcels =>
+      _shelf.unsorted.where((x) => !x.opened).toList();
+
+  /// 분류 안 함 구역에 보일 뜯은 테이프와 원래 `unsorted` 인덱스 (`inboxOpenList`, 드롭 위치에 쓴다)
+  List<(int, TapeItem)> get openedUnsorted => [
+    for (final (i, x) in _shelf.unsorted.indexed)
+      if (x.opened) (i, x),
+  ];
+
+  /// 분류 안 함 개수 = 뜯은 미분류 수 (`inboxCount`)
+  String get unsortedCountText => '${openedUnsorted.length}개';
+
+  /// 도착한 소포 행 부제 `09.24 12:20 · 1분` — 구역이 상태를 설명하므로 "소포 도착" 생략
+  String parcelSub(TapeItem x) =>
+      '${formatMonthDayTime(x.date)} · ${TapePalette.of(x.type).name}';
+
   /// 행 부제 `메모 · 09.24 14:23 · 1분 · 소포 도착`.
   /// 메모는 분류 안 함의 안 뜯은 소포에서는 숨긴다 (`x.memo && (!inbox || x.opened)`).
   String itemSub(TapeItem x) {
@@ -251,7 +269,9 @@ class ShelfViewModel extends ChangeNotifier {
 
   // ── 드래그 정렬 (`rowDown` / `dragMove` / `dragEnd`) ──
   void startDrag(String itemId) {
-    if (_shelf.find(itemId) == null) return;
+    final x = _shelf.find(itemId);
+    // 안 뜯은 소포는 끌 수 없다 (`rowDown` sealed, v10.2)
+    if (x == null || (x.groupId == null && !x.opened)) return;
     _dragId = itemId;
     _drop = null;
     notifyListeners();

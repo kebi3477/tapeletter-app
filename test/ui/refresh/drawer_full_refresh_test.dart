@@ -25,7 +25,13 @@ void main() {
   }
 
   Future<void> tapParcel(WidgetTester tester) async {
-    await tester.tap(find.text('지현').first);
+    final parcel = find.ancestor(
+      of: find.text('지현'),
+      matching: find.byType(ShelfRow),
+    );
+    await tester.ensureVisible(parcel.first);
+    await tester.pump();
+    await tester.tap(parcel.first);
     await settle(tester);
     expect(find.byType(PlayerScreen), findsOneWidget);
     await tester.tap(find.text('탭해서 뜯기'));
@@ -37,6 +43,8 @@ void main() {
       of: find.text(from),
       matching: find.byType(ShelfRow),
     );
+    await tester.ensureVisible(row);
+    await tester.pump();
     await tester.tap(
       find.descendant(of: row, matching: find.byType(MoreButton)),
     );
@@ -64,7 +72,9 @@ void main() {
 
   testWidgets('꽉 참 → 재생 화면 ⋯에서 지우기 → 바로 뜯기 성공', (tester) async {
     final h = await pumpFull(tester);
-    await tester.tap(find.text('은비').first);
+    await tester.ensureVisible(find.text('은비'));
+    await tester.pump();
+    await tester.tap(find.text('은비'));
     await settle(tester);
     expect(find.byType(PlayerScreen), findsOneWidget);
     await tester.tap(find.bySemanticsLabel('더 보기'));

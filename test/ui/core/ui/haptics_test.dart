@@ -130,14 +130,21 @@ void main() {
 
   testWidgets('서랍: 길게 눌러 끌기 시작하면 mediumImpact', (tester) async {
     useDesignScreen(tester);
-    final h = RecordHarness();
+    final h = RecordHarness()..prefs.shelfViewValue = 'list';
     await tester.pumpWidget(testApp(h, initialLocation: '/shelf'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 800));
     final haptics = recordHaptics(tester);
-    final g = await tester.startGesture(
-      tester.getCenter(find.text('지현').first),
-    );
+    // 안 뜯은 소포(지현)는 끌 수 없다 (v10.2)
+    var g = await tester.startGesture(tester.getCenter(find.text('지현').first));
+    await tester.pump(const Duration(milliseconds: 700));
+    expect(haptics, isEmpty);
+    await g.cancel();
+    await tester.pump(const Duration(seconds: 2));
+    // 뜯은 테이프(수아)는 길게 누르면 끌기 시작
+    await tester.ensureVisible(find.text('수아'));
+    await tester.pump();
+    g = await tester.startGesture(tester.getCenter(find.text('수아')));
     await tester.pump(const Duration(milliseconds: 700));
     expect(haptics, ['mediumImpact']);
     await g.up();

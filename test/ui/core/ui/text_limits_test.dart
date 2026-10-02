@@ -91,6 +91,8 @@ void main() {
       of: find.text('은비'),
       matching: find.byType(ShelfRow),
     );
+    await tester.ensureVisible(row);
+    await tester.pump();
     await tester.tap(
       find.descendant(of: row, matching: find.byType(MoreButton)),
     );

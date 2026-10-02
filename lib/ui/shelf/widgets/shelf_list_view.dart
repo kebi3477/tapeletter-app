@@ -41,23 +41,44 @@ class ShelfListSections extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // 도착한 소포 (v10.2) — 안 뜯은 소포가 있을 때만
+              if (vm.parcels.isNotEmpty)
+                ParcelSection(
+                  count: vm.parcels.length,
+                  padding: const EdgeInsets.fromLTRB(0, 12, 0, 6),
+                  headerPadding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (final x in vm.parcels)
+                        ShelfRow(
+                          key: ValueKey(x.id),
+                          item: x,
+                          sub: vm.parcelSub(x),
+                          pressedColor: AppColors.parcelPressed,
+                          onTap: () => onOpen(x),
+                          onMore: () => onMore(x),
+                        ),
+                    ],
+                  ),
+                ),
               DropZone(
                 controller: drag,
                 target: const DropTarget(null, 0),
                 child: SectionHeader(
                   name: ShelfViewModel.unsortedName,
-                  count: '${s.unsorted.length}개',
-                  newCount: s.unopenedCount,
+                  count: vm.unsortedCountText,
                   padding: const EdgeInsets.fromLTRB(12, 0, 12, 6),
                 ),
               ),
-              ..._rows(null, s.unsorted),
-              if (s.unsorted.isEmpty)
+              // 분류 안 함: 뜯은 테이프만. 드롭 위치는 원래 `unsorted` 인덱스
+              ..._unsortedRows(),
+              if (vm.openedUnsorted.isEmpty)
                 _EmptyZone(
                   drag: drag,
                   groupId: null,
                   on: vm.dropTarget?.groupId == null && vm.dropTarget != null,
-                  text: '새로 온 테이프가 여기에 들어와요',
+                  text: '뜯은 테이프 중 칸에 넣지 않은 테이프가 여기 모여요',
                 ),
             ],
           ),
@@ -96,6 +117,31 @@ class ShelfListSections extends StatelessWidget {
           ),
       ],
     );
+  }
+
+  List<Widget> _unsortedRows() {
+    final t = viewModel.dropTarget;
+    final n = viewModel.shelf.unsorted.length;
+    return [
+      for (final (i, x) in viewModel.openedUnsorted)
+        DropZone(
+          key: ValueKey(x.id),
+          controller: drag,
+          target: DropTarget(null, i),
+          row: true,
+          child: ShelfRow(
+            item: x,
+            sub: viewModel.itemSub(x),
+            dimmed: viewModel.draggingId == x.id,
+            landed: viewModel.landedId == x.id,
+            lineTop: t == DropTarget(null, i),
+            lineBottom: i == n - 1 && t == DropTarget(null, n),
+            drag: drag,
+            onTap: () => onOpen(x),
+            onMore: () => onMore(x),
+          ),
+        ),
+    ];
   }
 
   List<Widget> _rows(String? groupId, List<TapeItem> items) {
@@ -250,10 +296,14 @@ class ShelfRow extends StatefulWidget {
     this.landed = false,
     this.lineTop = false,
     this.lineBottom = false,
+    this.pressedColor = AppColors.surfaceSoft,
   });
 
   final TapeItem item;
   final String sub;
+
+  /// 누른 행 바탕 (`hover`) — 도착한 소포 구역은 `#F5EEE2`
+  final Color pressedColor;
   final VoidCallback onTap;
   final VoidCallback onMore;
 
@@ -307,8 +357,8 @@ class _ShelfRowState extends State<ShelfRow>
       return AppColors.redTint.withValues(alpha: 1 - k);
     }
     return _pressed
-        ? AppColors.surfaceSoft
-        : AppColors.surfaceSoft.withValues(alpha: 0);
+        ? widget.pressedColor
+        : widget.pressedColor.withValues(alpha: 0);
   }
 
   @override
@@ -515,6 +565,98 @@ class DragGhost extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// 도착한 소포 구역 카드 (v10.2): `#FBF9F5` + `inset 0 0 0 1px #EFE4CF`, radius 18, 아래 여백 14.
+/// 머리: 레드 점 8 + "도착한 소포" `800 17` / 오른쪽 "N개" `700 13` 레드, 안내 "눌러서 뜯어 주세요".
+class ParcelSection extends StatelessWidget {
+  const ParcelSection({
+    super.key,
+    required this.count,
+    required this.padding,
+    required this.headerPadding,
+    required this.child,
+    this.margin = const EdgeInsets.only(bottom: 14),
+  });
+
+  final int count;
+
+  /// 카드 안 여백 (목록 12 0 6, 선반 12 12 8)
+  final EdgeInsets padding;
+
+  /// 머리·안내 줄 좌우 여백 (목록은 행과 맞춰 12)
+  final EdgeInsets headerPadding;
+  final EdgeInsets margin;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: margin,
+      padding: padding,
+      decoration: BoxDecoration(
+        color: AppColors.parcelCard,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.parcelStroke),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: headerPadding.add(
+              const EdgeInsets.only(bottom: 2),
+            ) as EdgeInsets,
+            child: Row(
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: AppColors.red,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '도착한 소포',
+                    style: AppText.section,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '$count개',
+                  style: AppText.suit(
+                    700,
+                    13,
+                    tabularNums: true,
+                    color: AppColors.red,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: headerPadding.add(
+              const EdgeInsets.only(bottom: 6),
+            ) as EdgeInsets,
+            child: Text(
+              '눌러서 뜯어 주세요',
+              style: AppText.suit(
+                500,
+                12.5,
+                height: 1.4,
+                color: AppColors.textMuted,
+              ),
+            ),
+          ),
+          child,
+        ],
       ),
     );
   }
