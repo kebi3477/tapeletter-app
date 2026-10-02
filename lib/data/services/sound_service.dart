@@ -25,7 +25,8 @@ enum UiSound {
   final Duration duration;
 }
 
-/// 짧은 효과음. 녹음·재생 소리를 끊거나 줄이지 않고 섞이며, iOS 무음 모드면 울리지 않는다.
+/// 짧은 효과음. 녹음·재생 소리를 끊거나 줄이지 않고 섞이며, 무음 모드면 울리지 않는다
+/// (이어폰이 연결돼 있으면 무음 모드여도 이어폰으로 울린다).
 abstract class SoundService {
   /// 앱 시작 때 한 번 — 효과음을 미리 읽어 둔다.
   Future<void> preload();
@@ -41,7 +42,9 @@ abstract class SoundService {
 /// 네이티브 효과음 (`tapeletter/ui_sound` 채널).
 /// - iOS: System Sound Services(`AudioServicesPlaySystemSound`) — 무음 스위치를 따르고,
 ///   앱의 AVAudioSession(녹음·재생)을 건드리지 않아 다른 소리를 끊거나 줄이지 않는다.
+///   이어폰(유선·블루투스)으로 나가면 AVAudioPlayer로 울려 무음 모드여도 들린다(AppDelegate.swift).
 /// - Android: `SoundPool` + `USAGE_ASSISTANCE_SONIFICATION` — 오디오 포커스를 요청하지 않는다.
+///   무음·진동 모드에서 이어폰이 연결돼 있으면 `USAGE_MEDIA`로 울린다(MainActivity.kt).
 class PlatformSoundService implements SoundService {
   static const _channel = MethodChannel('tapeletter/ui_sound');
 
