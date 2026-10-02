@@ -262,6 +262,24 @@ class _Body extends StatelessWidget {
               onTap: () => vm.buy(p),
             ),
           const _SectionTitle('크레딧 받기', top: 24),
+          // v10.3: 충전 팩 3칸을 제목 바로 아래, 그 아래 선물하기·광고 보고 받기 (위 여백 10)
+          Row(
+            children: [
+              const SizedBox(width: 12),
+              for (var i = 0; i < c.packs.length; i++) ...[
+                if (i > 0) const SizedBox(width: 8),
+                Expanded(
+                  child: _PackCard(
+                    pack: c.packs[i],
+                    coins: i + 1,
+                    onTap: () => vm.charge(c.packs[i]),
+                  ),
+                ),
+              ],
+              const SizedBox(width: 12),
+            ],
+          ),
+          const SizedBox(height: 10),
           _ShopRow(
             icon: const _GiftIcon(),
             title: '크레딧 선물하기',
@@ -289,23 +307,6 @@ class _Body extends StatelessWidget {
                   : AppColors.textFaint,
             ),
             onTap: vm.openAd,
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              const SizedBox(width: 12),
-              for (var i = 0; i < c.packs.length; i++) ...[
-                if (i > 0) const SizedBox(width: 8),
-                Expanded(
-                  child: _PackCard(
-                    pack: c.packs[i],
-                    coins: i + 1,
-                    onTap: () => vm.charge(c.packs[i]),
-                  ),
-                ),
-              ],
-              const SizedBox(width: 12),
-            ],
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),

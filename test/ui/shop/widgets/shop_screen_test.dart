@@ -117,6 +117,8 @@ void main() {
 
   testWidgets('광고 시트 카운트와 ✕', (tester) async {
     final h = await pumpShop(tester);
+    await tester.ensureVisible(find.text('광고 보고 받기'));
+    await tester.pump();
     await tester.tap(find.text('광고 보고 받기'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
@@ -166,5 +168,20 @@ void main() {
     final h = await pumpShop(tester, loc: '/shop?hl=180');
     expect(h.shopVm.highlight?.code, 180);
     await tester.pump(const Duration(seconds: 2));
+  });
+
+  testWidgets('크레딧 받기(v10.3): 제목 → 충전 팩 3칸 → 선물하기 → 광고 → 환불 안내', (
+    tester,
+  ) async {
+    await pumpShop(tester);
+    await tester.scrollUntilVisible(find.text('광고 보고 받기'), 200);
+    await tester.pump();
+    double y(Finder f) => tester.getTopLeft(f).dy;
+    final title = y(find.text('크레딧 받기'));
+    final pack = y(find.text('₩1,100'));
+    final gift = y(find.text('크레딧 선물하기').first);
+    final ad = y(find.text('광고 보고 받기'));
+    expect(title < pack && pack < gift && gift < ad, isTrue);
+    expect(tester.takeException(), isNull);
   });
 }
